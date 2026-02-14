@@ -1,4 +1,7 @@
 <?php 
+// Start the session to manage user sessions
+session_start();
+
 // variable to hold messages to be displayed to the user
 $message = "";
 
@@ -18,6 +21,16 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } else {
         // if all checks pass, set a success message
         $message = "Login successful! Welcome back, " . htmlspecialchars($username);
+
+        // Assuming  the login is successful
+        // Set session variables to indicate the user is logged in
+        // NOTE: RabbitMQ will confirm if the credentials are correct
+        $_SESSION["loggedIn"] = true;
+        $_SESSION["username"] = $username;
+
+        // Send the user to the home page after successful login
+        header("Location: home.php");
+        exit();
     }
 }
 ?>
