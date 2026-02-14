@@ -3,7 +3,7 @@
 $message = "";
 
 // runs only when the form is submitted
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // get the form data
     $username = trim($_POST["username"] ?? '');
     $password = trim($_POST["password"] ?? '');
@@ -21,6 +21,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     } else {
         // hash the password for security
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+        // if all checks pass, set a success message
         $message = "Registration successful! Your username is: " . htmlspecialchars($username);
     }
 }

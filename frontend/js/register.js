@@ -13,25 +13,25 @@ function validateRegisterForm() {
     // !confirmPassword = confirmPassword is empty
     if (!username || !password || !confirmPassword) {
         alert("Please fill in all fields.");
-        return false;
+        return false; // prevent form submission
     }
 
     // check if the username is between 3 and 20 characters
     if (username.length < 3 || username.length > 20) {
         alert("Username must be between 3 and 20 characters.");
-        return false;
+        return false; // prevent form submission
     }
 
     // check if the password is at least 6 characters long
     if (password.length < 6) {
         alert("Password must be at least 6 characters long.");
-        return false;
+        return false; // prevent form submission
     }
 
     // check if the password and confirm password fields match
     if (password !== confirmPassword) {
         alert("Passwords do not match.");
-        return false;
+        return false; // prevent form submission
     }
 
     // if all checks pass, return true to allow the form to be submitted
