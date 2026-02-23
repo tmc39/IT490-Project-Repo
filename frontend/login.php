@@ -1,4 +1,18 @@
 <?php 
+/*
+---------
+login.php
+---------
+Shows login form.
+
+On submit: validate input and send credentials to backend via RabbitMQ.
+
+If success, then create session, save session key, redirect to home.
+
+If fail, then show error message.
+
+If RabbitMQ/backend down, then show service unavailable message.
+*/
 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -83,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <!-- Link to external JS file -->
-    <script src="js/login.js"></script>
+    <script src="js/login.js" defer></script>
 </head>
 <body>
     <h1>Login</h1>
@@ -96,7 +110,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <!-- Login Form Notes:
         1. I ussually prefer to wrap the label around the input for better accessibility, but you can also use the "for" attribute to link them. 
     -->
-    <form method="POST" action="" id="loginForm" onsubmit="return validateLoginForm()">
+    <form method="POST" action="login.php" id="loginForm" onsubmit="return validateLoginForm()">
         <label for="username">Username:
         <input type="text" id="username" name="username" required></label>
         <br><br>
