@@ -1,8 +1,8 @@
 #!/usr/bin/php
 <?php
-require_once('path.inc');
-require_once('get_host_info.inc');
-require_once('rabbitMQLib.inc');
+require_once(__DIR__ . '/../lib/path.inc');
+require_once(__DIR__ . '/../lib/get_host_info.inc');
+require_once(__DIR__ . '/../lib/rabbitMQLib.inc');
 
 function doLogin($username,$password)
 {
@@ -10,6 +10,20 @@ function doLogin($username,$password)
     // check password
     return true;
     //return false if not valid
+}
+
+function doValidate($sessionId)
+{
+    // Simple placeholder for now
+    // Later, this will query the database and confirm the session key exists.
+
+    if (!isset($sessionId) || trim($sessionId) === '') {
+        return false; // Invalid session ID
+    }
+
+    // For testing only. If a sessionId was provided, we pretend it's valid.
+    // Replace this with a real database check ond the DB listner is wired up.
+    return true;
 }
 
 function requestProcessor($request)
