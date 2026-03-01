@@ -1,6 +1,28 @@
 <?php 
+/*
+---------
+login.php
+---------
+Shows login form.
+
+On submit: validate input and send credentials to backend via RabbitMQ.
+
+If success, then create session, save session key, redirect to home.
+
+If fail, then show error message.
+
+If RabbitMQ/backend down, then show service unavailable message.
+*/
+
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // Start the session to manage user sessions
 session_start();
+
+// Include the rabbitMQ_web_client to handle communication with the backend
+require_once __DIR__ . '/lib/rabbitMQ_web_client.php';
 
 // variable to hold messages to be displayed to the user
 $message = "";
@@ -22,15 +44,48 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         // if all checks pass, set a success message
         $message = "Login successful! Welcome back, " . htmlspecialchars($username);
 
-        // Assuming  the login is successful
+        // Build the request we send through RabbitMQ to the backend to check the credentials
+        $request = array();
+        $request['type'] = 'login';
+        $request['username'] = $username;
+        $request['password'] = $password;
+
+        // Try to contact the login service through RabbitMQ
+        $response = null;
+
+        try {
+            // Send the request to the backend through RabbitMQ and wait for the response
+            $response = sendToRabbitMQ($request);
+        } catch (Exception $e) {
+            // Handle any exceptions that occur during the RabbitMQ communication
+            $message = "Login service not available (RabbitMQ may not be ready).";
+            error_log("RabbitMQ error: " . $e->getMessage());
+        }
+        
+        // If we got a good response, decide what to do based on the response
+        if (is_array($response) && isset($response['status']) && $response['status'] === 'success') {
+
         // Set session variables to indicate the user is logged in
-        // NOTE: RabbitMQ will confirm if the credentials are correct
+        // NOTE: RabbitMQ will send it to the DB to confirm if the credentials are correct
         $_SESSION["loggedIn"] = true;
         $_SESSION["username"] = $username;
+
+        // Save the session key if the backend sends one back
+        $_SESSION["sessionKey"] = $response['sessionKey'] ?? '';
 
         // Send the user to the home page after successful login
         header("Location: home.php");
         exit();
+    }
+
+    // If we got a bad response, display the error message
+    if (is_array($response) && isset($response['status']) && $response['status'] === 'error') {
+        // If the backend sends an error response, display the error message, otherwise show a generic error message
+        $message = $response['message'] ?? 'Login failed. Please try again.';
+    } elseif ($response !== null && !is_array($response)) {
+        // If we got a response but it's not in the expected format, show a generic error message
+        $message = "Unexpected response from server.";
+    }
     }
 }
 ?>
@@ -42,7 +97,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
     <!-- Link to external JS file -->
-    <script src="js/login.js"></script>
+    <script src="js/login.js" defer></script>
 </head>
 <body>
     <h1>Login</h1>
@@ -55,7 +110,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <!-- Login Form Notes:
         1. I ussually prefer to wrap the label around the input for better accessibility, but you can also use the "for" attribute to link them. 
     -->
-    <form method="POST" action="" id="loginForm" onsubmit="return validateLoginForm()">
+    <form method="POST" action="login.php" id="loginForm" onsubmit="return validateLoginForm()">
         <label for="username">Username:
         <input type="text" id="username" name="username" required></label>
         <br><br>

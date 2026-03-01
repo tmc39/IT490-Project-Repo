@@ -3,6 +3,9 @@
 function validateRegisterForm() {
 
     // get the values from the form fields
+    const firstName = document.getElementById("firstname").value.trim();
+    const lastName = document.getElementById("lastname").value.trim();
+    const email = document.getElementById("email").value.trim();
     const username = document.getElementById("username").value.trim();
     const password = document.getElementById("password").value.trim();
     const confirmPassword = document.getElementById("confirmPassword").value.trim();
@@ -10,9 +13,14 @@ function validateRegisterForm() {
     // check if any of the fields are empty
     // !username = username is empty
     // !password = password is empty
-    // !confirmPassword = confirmPassword is empty
-    if (!username || !password || !confirmPassword) {
+    if (!firstName || !lastName || !email || !username || !password || !confirmPassword) {
         alert("Please fill in all fields.");
+        return false; // prevent form submission
+    }
+
+    // check if the email is in a valid format (simple check for "@" and ".")
+    if (!email.includes("@") || !email.includes(".")) {
+        alert("Please enter a valid email address.");
         return false; // prevent form submission
     }
 
