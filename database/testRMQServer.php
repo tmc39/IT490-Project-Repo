@@ -1,6 +1,8 @@
 #!/usr/bin/php
 <?php
 require_once('rabbitMQLib.inc');
+require_once('path.inc');
+require_once('get_host_info.inc');
 
 function doLogin($username,$password)
 {
@@ -28,7 +30,7 @@ function requestProcessor($request)
 	return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
 
-$server = new rabbitMQServer("rabbitMQ.ini","gsServer");
+$server = new rabbitMQServer("testRMQ.ini","testServer");
 
 $server->process_requests('requestProcessor');
 exit();

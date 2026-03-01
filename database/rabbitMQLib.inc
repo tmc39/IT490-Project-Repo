@@ -32,6 +32,10 @@ class rabbitMQServer
 		{
 			$this->auto_delete = $this->machine[$server]["AUTO_DELETE"];
 		}
+		if (isset($this->machine[$server]["ROUTING_KEY"]))
+		{
+			$this->routing_key = $this->machine[$server]["ROUTING_KEY"];
+		}
 		$this->exchange = $this->machine[$server]["EXCHANGE"];
 		$this->queue = $this->machine[$server]["QUEUE"];
 	}
@@ -40,10 +44,10 @@ class rabbitMQServer
 	{
 		// send the ack to clear the item from the queue
 		if ($msg->getRoutingKey() !== "*")
-    {
-      return;
-    }
-    $this->conn_queue->ack($msg->getDeliveryTag());
+        {
+                return;
+        }
+        $this->conn_queue->ack($msg->getDeliveryTag());
 		try
 		{
 			if ($msg->getReplyTo())
@@ -163,6 +167,10 @@ class rabbitMQClient
 		if (isset( $this->machine[$server]["AUTO_DELETE"]))
 		{
 			$this->auto_delete = $this->machine[$server]["AUTO_DELETE"];
+		}
+		if (isset($this->machine[$server]["ROUTING_KEY"]))
+		{
+			$this->routing_key = $this->machine[$server]["ROUTING_KEY"];
 		}
 		$this->exchange = $this->machine[$server]["EXCHANGE"];
 		$this->queue = $this->machine[$server]["QUEUE"];
