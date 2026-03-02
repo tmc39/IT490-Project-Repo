@@ -129,6 +129,7 @@ class rabbitMQServer
 		}
 		catch (Exception $e)
 		{
+			//original is 'trigger_error(...'
 			trigger_error("Failed to start request processor: ".$e,E_USER_ERROR); 
 		}
 	}
@@ -230,7 +231,8 @@ class rabbitMQClient
 		}
 		catch(Exception $e)
 		{
-			throw new Exception("failed to send message to exchange: ". $e->getMessage()."\n");
+			//deleted 'throw new Exception("failed ...' and replaced with 'die("failed..."
+			die("failed to send message to exchange: ". $e->getMessage()."\n");
 		}
 	}
 
