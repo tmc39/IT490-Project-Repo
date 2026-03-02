@@ -27,7 +27,10 @@ function getHostInfo(array $extra = NULL)
     {
         foreach ($extra as $ini)
         {
-            $parsed = parse_ini_file($configPath . $ini,true);
+            // If the value already looks like a path, use it directly; otherwise, assume it's in the config/ directory
+            $iniPath = (strpos($ini, '/') !== false) ? $ini : ($configPath . $ini); 
+
+            $parsed = parse_ini_file($iniPath,true);
             if ($parsed)
             {
                 $machine = array_merge($machine,$parsed);
