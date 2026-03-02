@@ -148,6 +148,10 @@ class rabbitMQClient
 	private $response_queue = array();
 	private $exchange_type = "topic";
 
+	// Added to avoid PHP dyanmic property warnings (deprecated stuff)
+	private $auto_delete = false;
+	private $conn_queue = null;
+
 	function __construct($machine, $server = "rabbitMQ")
 	{
 		$this->machine = getHostInfo(array($machine));

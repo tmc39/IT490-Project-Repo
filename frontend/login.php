@@ -27,6 +27,12 @@ require_once __DIR__ . '/lib/rabbitMQ_web_client.php';
 // variable to hold messages to be displayed to the user
 $message = "";
 
+// If already logged in, redirect to home page
+if (!empty($_SESSION["loggedIn"])) {
+    header("Location: home.php");
+    exit();
+}
+
 // runs only when the form is submitted
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // get the username and password from the form
@@ -41,8 +47,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } elseif (strlen($password) < 6) {
         $message = "Password must be at least 6 characters long.";
     } else {
-        // if all checks pass, set a success message
-        $message = "Login successful! Welcome back, " . htmlspecialchars($username);
 
         // Build the request we send through RabbitMQ to the backend to check the credentials
         $request = array();
@@ -59,7 +63,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } catch (Exception $e) {
             // Handle any exceptions that occur during the RabbitMQ communication
             $message = "Login service not available (RabbitMQ may not be ready).";
-            error_log("RabbitMQ error: " . $e->getMessage());
+            error_log("RabbitMQ error in login.php: " . $e->getMessage());
         }
         
         // If we got a good response, decide what to do based on the response
@@ -71,7 +75,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["username"] = $username;
 
         // Save the session key if the backend sends one back
-        $_SESSION["sessionKey"] = $response['sessionKey'] ?? '';
+        $_SESSION["session_key"] = $response['session_key'] ?? '';
 
         // Send the user to the home page after successful login
         header("Location: home.php");
