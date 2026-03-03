@@ -110,8 +110,8 @@ function doLogin($username, $password)
   $row = $result->fetch_assoc();
   $storedPassword = $row["password"];
 
-  // Plain-text password compare (this will change later)
-  if ($password !== $storedPassword) {
+  // Using password_verify() because DB now stores hashed passwords
+  if (!password_verify($password, $storedPassword)) {
       $stmt->close();
       $db->close();
       return array("status" => "error", "message" => "Wrong password.");
