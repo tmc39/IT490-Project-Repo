@@ -152,10 +152,10 @@ function requestProcessor($request)
 
     case "validate_session":
     // Check if sessionId is provided
-      if (!isset($request["sessionId"])) {
-          return array("status" => "error", "message" => "Session validation request is missing sessionId.");
+      if (!isset($request["sessionId"]) || !isset($request["username"])) {
+          return array("status" => "error", "message" => "Session validation request is missing sessionId or username.");
       }
-      return doValidate($request["sessionId"]);
+      return doValidate($request["sessionId"], $request["username"]);
 
     default:
     // If the request type is not recognized, return an error message
