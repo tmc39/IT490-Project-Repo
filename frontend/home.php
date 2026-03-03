@@ -45,9 +45,7 @@ if (empty($sessionKey)) {
 $request = array();
 $request["type"] = "validate_session";
 $request["sessionId"] = $sessionKey;
-
-// Also send username too (confirm the session belongs to the same user)
-$request["username"] = $username;
+$request["username"] = $username; // Also send username too (confirm the session belongs to the same user)
 
 // Try to contact the validation service through RabbitMQ
 try {

@@ -79,7 +79,7 @@ function doLogin($username, $password)
   return array("status" => "success", "session_key" => $sessionKey);
 }
 
-function doValidate($sessionId)
+function doValidate($sessionId, $username)
 {
   // Connect to the database
   $db = getDbConnection();
@@ -89,14 +89,20 @@ function doValidate($sessionId)
       return array("status" => "error", "message" => "Database is not reachable at the moment.");
   }
 
-  // Validate the session key
+  // Check if sessionId is provided
   if (!isset($sessionId) || trim($sessionId) === "") {
       $db->close();
       return array("status" => "error", "message" => "No session key was provided.");
   }
 
+  // Check if username is provided
+  if (!isset($username) || trim($username) === "") {
+      $db->close();
+      return array("status" => "error", "message" => "No username was provided.");
+  }
+
   // Look up the session key in the database
-  $stmt = $db->prepare("SELECT session_key FROM sessions WHERE session_key = ?");
+  $stmt = $db->prepare("SELECT session_key FROM sessions WHERE session_key = ? AND username = ?");
 
   // If prepare fails, $stmt is false, so we can only close $db
   if ($stmt === false) {
@@ -104,8 +110,8 @@ function doValidate($sessionId)
       return array("status" => "error", "message" => "Could not prepare statement to check session key.");
   }
 
-  // Bind the session key parameter and execute the query
-  $stmt->bind_param("s", $sessionId);
+  // Bind the session key and username parameters and execute the query
+  $stmt->bind_param("ss", $sessionId, $username);
   $stmt->execute();
   $result = $stmt->get_result();
 
