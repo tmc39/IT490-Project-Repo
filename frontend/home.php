@@ -3,13 +3,11 @@
 --------
 home.php
 --------
-This page should only be visible if the user is actually logged in.
+This page should only show if the login session key is still valid.
 
-1) We gab the session_key we stored after login
-2) We ask the backend to confirm it's still valid (validate_session) through RabbitMQ
-3) If it's not valid, we log the user out and send them to login.php
-
-NOTE: If RabbitMQ isn't running yet, we show a message but don't crash the page.
+1) Grab session_key from PHP session
+2) Ask backend to validate it through RabbitMQ
+3) If invalid session (or we can’t check), log out and go back to login
 */
 
 ini_set('display_errors', 1);
@@ -25,36 +23,38 @@ require_once __DIR__ . '/lib/rabbitMQ_web_client.php';
 // variable to hold messages to be displayed to the user
 $message = "";
 
-// If the user is not logged in, send them to the login page
+// If we don’t even have login info, go to login.php
 if (empty($_SESSION["loggedIn"]) || empty($_SESSION["username"])) {
     header("Location: login.php");
     exit();
 }
 
-// Get the username and session key from the session variables
-$username = $_SESSION["username"] ?? '';
-$session_key = $_SESSION["session_key"] ?? '';
+// Grab the username and session key from the session
+$username   = $_SESSION["username"] ?? "";
+$sessionKey = $_SESSION["session_key"] ?? "";
 
-// If we don't have session key, treat. it like "not logged in" and send them to the login page
-if (empty($session_key)) {
+// If session key is missing, treat it like not logged in
+if (empty($sessionKey)) {
     session_unset();
     session_destroy();
     header("Location: login.php");
     exit();
 }
 
-// Ask backend to validate the session key through RabbitMQ
+// Ask backend to validate the session key
 $request = array();
-$request['type'] = 'validate_session';
-$request['sessionId'] = $session_key;
+$request["type"] = "validate_session";
+$request["sessionId"] = $sessionKey;
 
-// Try to contact the session validation service through RabbitMQ and check if the session is valid
+// Also send username too (confirm the session belongs to the same user)
+$request["username"] = $username;
+
+// Try to contact the validation service through RabbitMQ
 try {
-    // Send the request to the backend through RabbitMQ and wait for the response
     $response = sendToRabbitMQ($request);
 
-    // If the session is not valid, log the user out and send them to the login page
-    if (!is_array($response) || (($response['status'] ?? '') !== 'success')) {
+    // If backend didn’t confirm success, log out
+    if (!is_array($response) || ($response["status"] ?? "") !== "success") {
         session_unset();
         session_destroy();
         header("Location: login.php");
@@ -62,12 +62,16 @@ try {
     }
 
 } catch (Exception $e) {
-    // RabbitMQ might be down, so don't crash the page, but show an error message and log the error for debugging
-    $message = "Session check is not available (RabbitMQ may not be ready).";
+    // If we can't validate, destroy the session and go back to login with a message
     error_log("RabbitMQ error in home.php: " . $e->getMessage());
+    session_unset();
+    session_destroy();
+
+    // Add a simple message on the login page (via query string)
+    header("Location: login.php?msg=" . urlencode("Session check is unavailable (RabbitMQ may not be ready)."));
+    exit();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,17 +81,10 @@ try {
 </head>
 <body>
     <h1>Home</h1>
-
+    <!-- Display a welcome message to the user -->
     <p>Welcome, <?php echo htmlspecialchars($username); ?>!</p>
-
-    <!-- Display message if there is one -->
-    <?php if (!empty($message)): ?>
-        <p><?php echo htmlspecialchars($message); ?></p>
-    <?php endif; ?>
-
     <p>This is the home page. You are logged in.</p>
-
-    <!-- Link to logout page -->
+    <!-- Link to logout -->
     <p><a href="logout.php">Logout</a></p>
 </body>
 </html>

@@ -39,7 +39,7 @@ function doLogin($username, $password)
   $row = $result->fetch_assoc();
   $storedPassword = $row["password"];
 
-  // For now: plain-text compare (you already know this will change later)
+  // Plain-text password compare (this will change later)
   if ($password !== $storedPassword) {
       $stmt->close();
       $db->close();

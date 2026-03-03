@@ -27,6 +27,11 @@ require_once __DIR__ . '/lib/rabbitMQ_web_client.php';
 // variable to hold messages to be displayed to the user
 $message = "";
 
+// If we have a message in the query string (like from a redirect), show it
+if (!empty($_GET["msg"])) {
+    $message = $_GET["msg"];
+}
+
 // If already logged in, redirect to home page
 if (!empty($_SESSION["loggedIn"])) {
     header("Location: home.php");
