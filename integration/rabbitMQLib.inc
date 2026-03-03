@@ -17,7 +17,7 @@ class rabbitMQServer
 	private $VHOST;
 	private $exchange;
 	private $queue;
-	private $routing_key = '*';
+	private $routing_key;
 	private $exchange_type = "topic";
 	private $auto_delete = false;
 	
@@ -40,6 +40,7 @@ class rabbitMQServer
 		}
 		$this->exchange = $this->machine[$server]["EXCHANGE"];
 		$this->queue = $this->machine[$server]["QUEUE"];
+		$this->routing_key = $this->machine[$server]["ROUTING_KEY"];
 	}
 	
 	//Defines how to deal with messages

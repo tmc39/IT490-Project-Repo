@@ -43,7 +43,7 @@ function requestProcessor($request)
 }
 
 //instantiates new server object
-$server = new rabbitMQServer("testRabbitMQ.ini","testServer");
+$server = new rabbitMQServer("guiltyRabbitMQ.ini","guiltyDatabase");
 
 echo "testRabbitMQServer BEGIN".PHP_EOL;
 //process_requests starts the server and has it listen for messages
