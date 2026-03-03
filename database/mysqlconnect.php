@@ -17,7 +17,7 @@ Returns:
 function getDbConnection()
 {
 	// Attempt to connect to the database
-	$mydb = new mysqli('127.0.0.1','testUser','12345','testdb');
+	$mydb = new mysqli('127.0.0.1','test','testpassword','guiltysparkdb');
 
 	// Check for connection errors
 	if ($mydb->connect_error) {
