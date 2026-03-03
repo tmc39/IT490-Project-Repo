@@ -256,7 +256,7 @@ function requestProcessor($request)
   }
 }
 
-$server = new rabbitMQServer("testRabbitMQ.ini", "testServer");
+$server = new rabbitMQServer("testRabbitMQ.ini", "guiltyDatabase");
 
 echo "testRabbitMQServer BEGIN" . PHP_EOL;
 $server->process_requests("requestProcessor");

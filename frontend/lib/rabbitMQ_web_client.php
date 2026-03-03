@@ -26,7 +26,7 @@ function sendToRabbitMQ(array $request)
 
     // We are using testServer for development right now
     $iniFile = "testRabbitMQ.ini";
-    $serverSection = "testServer";
+    $serverSection = "guiltyDatabase";
 
     // Create RabbitMQ client and send request
     $client = new rabbitMQClient($iniFile, $serverSection);
