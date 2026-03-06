@@ -4,7 +4,9 @@ require_once(__DIR__ . '/../lib/path.inc');
 require_once(__DIR__ . '/../lib/get_host_info.inc');
 require_once(__DIR__ . '/../lib/rabbitMQLib.inc');
 
-$client = new rabbitMQClient("testRabbitMQ.ini","guiltyDatabase");
+// NOTE: to test locally use "testServer" 
+// NOTE: to test over ZeroTier use "guiltyDatabase"
+$client = new rabbitMQClient("testRabbitMQ.ini","testServer");
 if (isset($argv[1]))
 {
   $msg = $argv[1];

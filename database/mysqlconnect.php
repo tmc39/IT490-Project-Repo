@@ -17,6 +17,8 @@ Returns:
 function getDbConnection()
 {
 	// Attempt to connect to the database
+	// NOTE: to test locally use '127.0.0.1','testUser','12345','testdb' 
+	// NOTE: to test over ZeroTier use '127.0.0.1', 'test', 'testpassword', 'guiltysparkdb'
 	$mydb = new mysqli('127.0.0.1','testUser','12345','testdb');
 
 	// Check for connection errors

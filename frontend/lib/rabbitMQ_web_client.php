@@ -24,9 +24,10 @@ function sendToRabbitMQ(array $request)
     // Load the RabbitMQ library (it will pull in get_host_info.inc internally)
     require_once 'rabbitMQLib.inc';
 
-    // We are using testServer for development right now
+    // NOTE: to test locally use "testServer" 
+    // NOTE: to test over ZeroTier use "guiltyDatabase"
     $iniFile = "testRabbitMQ.ini";
-    $serverSection = "guiltyDatabase";
+    $serverSection = "testServer";
 
     // Create RabbitMQ client and send request
     $client = new rabbitMQClient($iniFile, $serverSection);
