@@ -5,9 +5,10 @@ General page styling
 */
 body {
     margin: 0;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: 'Roboto', Arial, Helvetica, sans-serif;
     background-color: #f4f4f4;
     color: #222;
+    line-height: 1.6;
 }
 
 /* 
