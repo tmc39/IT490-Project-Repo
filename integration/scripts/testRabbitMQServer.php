@@ -103,7 +103,7 @@ function doLogin($username, $password)
   if ($result->num_rows === 0) {
       $stmt->close();
       $db->close();
-      return array("status" => "error", "message" => "User not found.");
+      return array("status" => "error", "message" => "Login failed, username or password incorrect.");
   }
 
   // Fetch the stored password for the user
@@ -114,7 +114,7 @@ function doLogin($username, $password)
   if (!password_verify($password, $storedPassword)) {
       $stmt->close();
       $db->close();
-      return array("status" => "error", "message" => "Wrong password.");
+      return array("status" => "error", "message" => "Login failed, username or password incorrect.");
   }
 
   // Done with the SELECT statement

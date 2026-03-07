@@ -64,6 +64,12 @@ Site title link styling
     opacity: 0.9;
 }
 
+.site-title a:focus {
+    outline: 2px solid #0077cc;
+    outline-offset: 2px;
+    text-decoration: none;
+}
+
 .site-nav {
     display: flex;
     flex-wrap: wrap;
@@ -78,6 +84,11 @@ Site title link styling
 
 .site-nav a:hover {
     text-decoration: underline;
+}
+
+.site-nav a:focus {
+    outline: 2px solid #0077cc;
+    outline-offset: 2px;
 }
 
 /* 
@@ -114,22 +125,33 @@ form {
     margin-top: 20px;
 }
 
+/* Keep labels accessible by wrapping the input */
 label {
     display: block;
     font-weight: bold;
-    margin-bottom: 6px;
+    margin-bottom: 16px;
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"] {
+/* Put wrapped inputs on a new line */
+label input {
+    display: block;
     width: 100%;
     max-width: 400px;
-    padding: 10px;
     margin-top: 6px;
+    padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
     box-sizing: border-box;
+}
+
+/* Keyboard accessibility for form fields */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="submit"]:focus,
+.btn:focus {
+    outline: 2px solid #0077cc;
+    outline-offset: 2px;
 }
 
 /* 
@@ -174,4 +196,24 @@ Utility spacing
 
 p {
     line-height: 1.6;
+}
+
+/* 
+-------------------------
+Responsive tweaks
+------------------------- 
+*/
+@media (max-width: 600px) {
+    .site-header .container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .site-nav {
+        gap: 10px;
+    }
+
+    .card {
+        padding: 20px;
+    }
 }
