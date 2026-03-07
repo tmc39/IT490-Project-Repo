@@ -105,32 +105,65 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <!-- Link to external JS file -->
+
+    <!-- Shared site CSS -->
+    <link rel="stylesheet" href="/public/css/style.css">
+
+    <!-- Login validation script -->
     <script src="js/login.js" defer></script>
 </head>
+
 <body>
-    <h1>Login</h1>
+
+<header class="site-header">
+    <div class="container">
+        <h1 class="site-title"><a href="/index.php">Guilty Spark</a></h1>
+
+        <nav class="site-nav">
+            <a href="/index.php">Home</a>
+
+            <?php if (!empty($_SESSION["loggedIn"])): ?>
+                <a href="/frontend/home.php">Dashboard</a>
+                <a href="/frontend/logout.php">Logout</a>
+            <?php else: ?>
+                <a href="/frontend/login.php">Login</a>
+                <a href="/frontend/register.php">Register</a>
+            <?php endif; ?>
+        </nav>
+    </div>
+</header>
+
+
+<main class="container">
+
+<section class="card">
+
+    <h2>Login</h2>
 
     <!-- Display message if there is one -->
     <?php if (!empty($message)): ?>
         <p><?php echo htmlspecialchars($message); ?></p>
     <?php endif; ?>
 
-    <!-- Login Form Notes:
-        1. I ussually prefer to wrap the label around the input for better accessibility, but you can also use the "for" attribute to link them. 
-    -->
+
+    <!-- Login Form -->
     <form method="POST" action="login.php" id="loginForm" onsubmit="return validateLoginForm()">
-        <label for="username">Username:
-        <input type="text" id="username" name="username" required></label>
+        <label for="username">Username
+            <input type="text" id="username" name="username" required>
+        </label>
         <br><br>
-        <label for="password">Password:
-        <input type="password" id="password" name="password" required></label>
+        <label for="password">Password
+            <input type="password" id="password" name="password" required>
+        </label>
         <br><br>
         <input type="submit" value="Login">
     </form>
 
-    <!-- Link to register page -->
-    <p>Don't have an account? <a href="register.php">Register here</a>.</p>
+    <p>Don't have an account?<a href="register.php">Register here</a>.</p>
+
+</section>
+
+</main>
 
 </body>
 </html>

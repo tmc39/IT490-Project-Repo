@@ -70,19 +70,48 @@ try {
     exit();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Home</title>
+
+    <!-- Shared site CSS -->
+    <link rel="stylesheet" href="/public/css/style.css">
 </head>
+
 <body>
-    <h1>Home</h1>
-    <!-- Display a welcome message to the user -->
-    <p>Welcome, <?php echo htmlspecialchars($username); ?>!</p>
+
+<header class="site-header">
+    <div class="container">
+        <h1 class="site-title"><a href="/index.php">Guilty Spark</a></h1>
+
+        <nav class="site-nav">
+            <a href="/index.php">Home</a>
+            <a href="/frontend/home.php">Dashboard</a>
+            <a href="/frontend/logout.php">Logout</a>
+        </nav>
+    </div>
+</header>
+
+
+<main class="container">
+
+<section class="card">
+
+    <h2>Dashboard</h2>
+
+    <p>Welcome, <strong><?php echo htmlspecialchars($username); ?></strong>!</p>
+
     <p>This is the home page. You are logged in.</p>
-    <!-- Link to logout -->
-    <p><a href="logout.php">Logout</a></p>
+
+    <p><a class="btn" href="/frontend/logout.php">Logout</a></p>
+
+</section>
+
+</main>
+
 </body>
 </html>

@@ -98,55 +98,80 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
+
+    <!-- Shared site CSS -->
+    <link rel="stylesheet" href="/public/css/style.css">
+
+    <!-- Register validation script -->
     <script src="js/register.js" defer></script>
 </head>
 <body>
-    <h1>Register</h1>
-    <!-- Display any messages (errors or success) to the user -->
-    <?php if (!empty($message)): ?>
-        <p><?php echo htmlspecialchars($message); ?></p>
-    <?php endif; ?>
 
-    <!-- Show the registration form only if registration was not successful -->
-    <?php if (!$success): ?>
-        <form method="POST" action="register.php" id="registerForm" onsubmit="return validateRegisterForm()">
-            
-        <!-- For better accessibility, we can wrap inputs in labels -->
-            <label>First Name:
-                <input type="text" id="firstname" name="firstname" required>
-            </label>
-            <br><br>
-            <label>Last Name:
-                <input type="text" id="lastname" name="lastname" required>
-            </label>
-            <br><br>
-            <label>Email:
-                <input type="email" id="email" name="email" required>
-            </label>
-            <br><br>
-            <label>Username:
-                <input type="text" id="username" name="username" required>
-            </label>
-            <br><br>
-            <label>Password:
-                <input type="password" id="password" name="password" required>
-            </label>
-            <br><br>
-            <label>Confirm Password:
-                <input type="password" id="confirmPassword" name="confirmPassword" required>
-            </label>
-            <br><br>
+<header class="site-header">
+    <div class="container">
+        <h1 class="site-title"><a href="/index.php">Guilty Spark</a></h1>
 
-            <input type="submit" value="Register">
-        </form>
+        <nav class="site-nav">
+            <a href="/index.php">Home</a>
 
-        <!-- Link to login page for users who already have an account -->
-        <p>Already have an account? <a href="login.php">Log in here</a>.</p>
+            <?php if (!empty($_SESSION["loggedIn"])): ?>
+                <a href="/frontend/home.php">Dashboard</a>
+                <a href="/frontend/logout.php">Logout</a>
+            <?php else: ?>
+                <a href="/frontend/login.php">Login</a>
+                <a href="/frontend/register.php">Register</a>
+            <?php endif; ?>
+        </nav>
+    </div>
+</header>
 
-    <!-- If registration was successful, we hide the form and show a success message with a link to login -->
-    <?php else: ?>
-        <p>Registration successful! You can now <a href="login.php">log in</a>.</p>
-    <?php endif; ?>
+<main class="container">
+    <section class="card">
+        <h2>Register</h2>
+
+        <!-- Display any messages (errors or success) to the user -->
+        <?php if (!empty($message)): ?>
+            <p><?php echo htmlspecialchars($message); ?></p>
+        <?php endif; ?>
+
+        <!-- Show the registration form only if registration was not successful -->
+        <?php if (!$success): ?>
+            <form method="POST" action="register.php" id="registerForm" onsubmit="return validateRegisterForm()">
+                <label for="firstname">First Name
+                    <input type="text" id="firstname" name="firstname" required>
+                </label>
+                <br><br>
+                <label for="lastname">Last Name
+                    <input type="text" id="lastname" name="lastname" required>
+                </label>
+                <br><br>
+                <label for="email">Email
+                    <input type="email" id="email" name="email" required>
+                </label>
+                <br><br>
+                <label for="username">Username
+                    <input type="text" id="username" name="username" required>
+                </label>
+                <br><br>
+                <label for="password">Password
+                    <input type="password" id="password" name="password" required>
+                </label>
+                <br><br>
+                <label for="confirmPassword">Confirm Password
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                </label>
+                <br><br>
+                <input type="submit" value="Register">
+            </form>
+
+            <p>Already have an account? <a href="login.php">Log in here</a>.</p>
+
+        <?php else: ?>
+            <p>Registration successful! You can now <a href="login.php">log in</a>.</p>
+        <?php endif; ?>
+
+    </section>
+</main>
 
 </body>
 </html>
