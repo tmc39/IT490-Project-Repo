@@ -119,54 +119,36 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
 <body>
 
-<header class="site-header">
-    <div class="container">
-        <h1 class="site-title"><a href="/index.php">Guilty Spark</a></h1>
-
-        <nav class="site-nav">
-            <a href="/index.php">Home</a>
-
-            <?php if (!empty($_SESSION["loggedIn"])): ?>
-                <a href="/frontend/home.php">Dashboard</a>
-                <a href="/frontend/logout.php">Logout</a>
-            <?php else: ?>
-                <a href="/frontend/login.php">Login</a>
-                <a href="/frontend/register.php">Register</a>
-            <?php endif; ?>
-        </nav>
-    </div>
-</header>
-
+<!-- Shared site navigation bar -->
+<?php include __DIR__ . '/includes/navbar.php'; ?>
 
 <main class="container">
+    <section class="card">
 
-<section class="card">
+        <h2>Login</h2>
 
-    <h2>Login</h2>
+        <!-- Display message if there is one -->
+        <?php if (!empty($message)): ?>
+            <p><?php echo htmlspecialchars($message); ?></p>
+        <?php endif; ?>
 
-    <!-- Display message if there is one -->
-    <?php if (!empty($message)): ?>
-        <p><?php echo htmlspecialchars($message); ?></p>
-    <?php endif; ?>
+        <!-- Login Form -->
+        <form method="POST" action="login.php" id="loginForm" onsubmit="return validateLoginForm()">
 
+            <label for="username">Username
+                <input type="text" id="username" name="username" required>
+            </label>
+        
+            <label for="password">Password
+                <input type="password" id="password" name="password" required>
+            </label>
+            
+            <input type="submit" value="Login">
+        </form>
 
-    <!-- Login Form -->
-    <form method="POST" action="login.php" id="loginForm" onsubmit="return validateLoginForm()">
-        <label for="username">Username
-            <input type="text" id="username" name="username" required>
-        </label>
-        <br><br>
-        <label for="password">Password
-            <input type="password" id="password" name="password" required>
-        </label>
-        <br><br>
-        <input type="submit" value="Login">
-    </form>
+        <p>Don't have an account? <a href="register.php">Register here</a>.</p>
 
-    <p>Don't have an account? <a href="register.php">Register here</a>.</p>
-
-</section>
-
+    </section>
 </main>
 
 </body>

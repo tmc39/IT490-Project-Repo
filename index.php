@@ -9,7 +9,12 @@ Simple landing page for project.
 2) http://guiltyspark.com
 
 */
+
+// Start the session to manage user sessions
+session_start();
+
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -26,26 +31,18 @@ Simple landing page for project.
 </head>
 <body>
 
-    <header class="site-header">
-        <div class="container">
-            <h1 class="site-title"><a href="/index.php">Guilty Spark</a></h1>
-            <nav class="site-nav">
-                <a href="/index.php">Home</a>
-                <a href="/frontend/login.php">Login</a>
-                <a href="/frontend/register.php">Register</a>
-            </nav>
-        </div>
-    </header>
+<!-- Shared site navigation bar -->
+<?php include __DIR__ . '/frontend/includes/navbar.php'; ?>
 
-    <main class="container">
-        <section class="card">
-            
-            <h2>Just testing stuff out</h2>
+<main class="container">
+    <section class="card">
+        
+        <h2>Just testing stuff out</h2>
 
-            <p>Nothing to see here folks!</p>
+        <p>Nothing to see here folks!</p>
 
-        </section>
-    </main>
+    </section>
+</main>
 
 </body>
 </html>

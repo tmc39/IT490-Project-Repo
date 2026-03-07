@@ -85,36 +85,23 @@ try {
     <!-- Shared site CSS -->
     <link rel="stylesheet" href="/public/css/style.css">
 </head>
-
 <body>
 
-<header class="site-header">
-    <div class="container">
-        <h1 class="site-title"><a href="/index.php">Guilty Spark</a></h1>
-
-        <nav class="site-nav">
-            <a href="/index.php">Home</a>
-            <a href="/frontend/home.php">Dashboard</a>
-            <a href="/frontend/logout.php">Logout</a>
-        </nav>
-    </div>
-</header>
-
+<!-- Shared site navigation bar -->
+<?php include __DIR__ . '/includes/navbar.php'; ?>
 
 <main class="container">
+    <section class="card">
 
-<section class="card">
+        <h2>Dashboard</h2>
 
-    <h2>Dashboard</h2>
+        <p>Welcome, <strong><?php echo htmlspecialchars($username); ?></strong>!</p>
 
-    <p>Welcome, <strong><?php echo htmlspecialchars($username); ?></strong>!</p>
+        <p>This is the home page. You are logged in.</p>
 
-    <p>This is the home page. You are logged in.</p>
+        <p><a class="btn" href="/frontend/logout.php">Logout</a></p>
 
-    <p><a class="btn" href="/frontend/logout.php">Logout</a></p>
-
-</section>
-
+    </section>
 </main>
 
 </body>
