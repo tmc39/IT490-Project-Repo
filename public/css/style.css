@@ -8,6 +8,11 @@ body {
     font-family: 'Roboto', Arial, Helvetica, sans-serif;
     background-color: #f4f4f4;
     color: #222;
+
+    /* try to keep the footer on the bottom */
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
 }
 
 /* 
@@ -38,6 +43,7 @@ Header and navigation
     align-items: center;
     gap: 20px;
     flex-wrap: wrap;
+    padding: 0 10px;
 }
 
 .site-title {
@@ -73,19 +79,20 @@ Navbar layout
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+    gap: 10px;
 }
 
 .site-nav a {
     color: white;
     text-decoration: none;
     font-weight: bold;
-    padding: 0 10px;
 }
 
 /* Add separators between nav items */
 .site-nav a:not(:first-child)::before {
     content: "|";
     margin-right: 10px;
+    margin-left: 2px;
     color: #888;
 }
 
@@ -116,6 +123,7 @@ Main content area
 */
 main.container {
     padding: 40px 0;
+    flex: 1;
 }
 
 /* 
