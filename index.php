@@ -32,7 +32,7 @@ session_start();
 <body>
 
 <!-- Shared site navigation bar -->
-<?php include __DIR__ . '/frontend/includes/navbar.php'; ?>
+<?php include __DIR__ . '/frontend/includes/header.php'; ?>
 
 <main class="container">
     <section class="card">
@@ -43,6 +43,9 @@ session_start();
 
     </section>
 </main>
+
+<!-- Shared site footer -->
+<?php include __DIR__ . '/frontend/includes/footer.php'; ?>
 
 </body>
 </html>

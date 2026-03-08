@@ -112,7 +112,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 <body>
 
 <!-- Shared site navigation bar -->
-<?php include __DIR__ . '/includes/navbar.php'; ?>
+<?php include __DIR__ . '/includes/header.php'; ?>
 
 <main class="container">
     <section class="card">
@@ -162,6 +162,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     </section>
 </main>
+
+<!-- Shared site footer -->
+<?php include __DIR__ . '/includes/footer.php'; ?>
 
 </body>
 </html>

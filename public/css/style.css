@@ -8,7 +8,6 @@ body {
     font-family: 'Roboto', Arial, Helvetica, sans-serif;
     background-color: #f4f4f4;
     color: #222;
-    line-height: 1.6;
 }
 
 /* 
@@ -65,31 +64,49 @@ Site title link styling
     opacity: 0.9;
 }
 
-.site-title a:focus {
-    outline: 2px solid #0077cc;
-    outline-offset: 2px;
-    text-decoration: none;
-}
-
+/* 
+-------------------------
+Navbar layout
+------------------------- 
+*/
 .site-nav {
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
-    gap: 16px;
 }
 
 .site-nav a {
     color: white;
     text-decoration: none;
     font-weight: bold;
+    padding: 0 10px;
+}
+
+/* Add separators between nav items */
+.site-nav a:not(:first-child)::before {
+    content: "|";
+    margin-right: 10px;
+    color: #888;
 }
 
 .site-nav a:hover {
     text-decoration: underline;
 }
 
-.site-nav a:focus {
-    outline: 2px solid #0077cc;
-    outline-offset: 2px;
+/* 
+-------------------------
+Logged-in username styling
+------------------------- 
+*/
+.site-nav a.nav-user {
+    color: #bbb;
+    font-weight: 400;
+    text-decoration: none;
+}
+
+.site-nav a.nav-user:hover {
+    color: #fff;
+    text-decoration: none;
 }
 
 /* 
@@ -145,16 +162,6 @@ label input {
     box-sizing: border-box;
 }
 
-/* Keyboard accessibility for form fields */
-input[type="text"]:focus,
-input[type="email"]:focus,
-input[type="password"]:focus,
-input[type="submit"]:focus,
-.btn:focus {
-    outline: 2px solid #0077cc;
-    outline-offset: 2px;
-}
-
 /* 
 -------------------------
 Buttons and links
@@ -189,7 +196,7 @@ input[type="submit"]:hover,
 
 /* 
 -------------------------
-Utility spacing
+Extra spacing for buttons
 ------------------------- 
 */
 .button-row {
@@ -202,20 +209,19 @@ p {
 
 /* 
 -------------------------
-Responsive tweaks
-------------------------- 
+Footer
+-------------------------
 */
-@media (max-width: 600px) {
-    .site-header .container {
-        flex-direction: column;
-        align-items: flex-start;
-    }
 
-    .site-nav {
-        gap: 10px;
-    }
+.site-footer {
+    background-color: #222;
+    color: #bbb;
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 40px;
+}
 
-    .card {
-        padding: 20px;
-    }
+.site-footer p {
+    margin: 0;
+    font-size: 0.9rem;
 }
