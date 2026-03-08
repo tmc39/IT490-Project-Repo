@@ -34,7 +34,7 @@ if (!empty($_GET["msg"])) {
 
 // If already logged in, redirect to home page
 if (!empty($_SESSION["loggedIn"])) {
-    header("Location: home.php");
+    header("Location: dashboard.php");
     exit();
 }
 
@@ -83,7 +83,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["session_key"] = $response['session_key'] ?? '';
 
         // Send the user to the home page after successful login
-        header("Location: home.php");
+        header("Location: dashboard.php");
         exit();
     }
 

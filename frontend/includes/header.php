@@ -6,9 +6,13 @@ header.php
 Reusable header (navigation bar) used by all pages.
 */
 
+// Start session if there isn't one already
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
+
+// Grab current file name
+$currentPage = basename($_SERVER['PHP_SELF']);
 ?>
 
 <header class="site-header">
@@ -18,20 +22,20 @@ if (session_status() === PHP_SESSION_NONE) {
 
         <nav class="site-nav">
 
-            <a href="/index.php">Home</a>
+            <a class="<?= ($currentPage === 'index.php') ? 'active' : '' ?>" href="/index.php">Home</a>
 
             <?php if (!empty($_SESSION["loggedIn"])): ?>
 
-                <a href="/frontend/home.php">Dashboard</a>
+                <a class="<?= ($currentPage === 'dashboard.php') ? 'active' : '' ?>" href="/frontend/dashboard.php">Dashboard</a>
                 <a href="/frontend/logout.php">Logout</a>
 
                 <!-- Bust in Silhouette -->
-                <a class="nav-user" href="/frontend/home.php">&#128100; <?php echo htmlspecialchars($_SESSION["username"]); ?></a>
+                <a class="nav-user" href="/frontend/dashboard.php">&#128100;&#xfe0e; <?php echo htmlspecialchars($_SESSION["username"]); ?></a>
 
             <?php else: ?>
 
-                <a href="/frontend/login.php">Login</a>
-                <a href="/frontend/register.php">Register</a>
+                <a class="<?= ($currentPage === 'login.php') ? 'active' : '' ?>" href="/frontend/login.php">Login</a>
+                <a class="<?= ($currentPage === 'register.php') ? 'active' : '' ?>" href="/frontend/register.php">Register</a>
 
             <?php endif; ?>
 

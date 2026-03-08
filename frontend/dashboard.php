@@ -1,7 +1,7 @@
 <?php
 /* 
 --------
-home.php
+dashboard.php
 --------
 This page should only show if the login session key is still valid.
 
@@ -61,7 +61,7 @@ try {
 
 } catch (Exception $e) {
     // If we can't validate, destroy the session and go back to login with a message
-    error_log("RabbitMQ error in home.php: " . $e->getMessage());
+    error_log("RabbitMQ error in dashboard.php: " . $e->getMessage());
     session_unset();
     session_destroy();
 
