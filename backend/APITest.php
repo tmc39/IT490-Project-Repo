@@ -47,8 +47,8 @@ $url .= "&oauth_timestamp=$timestamp";
 $params .= "&oauth_version=1.0";
 $url .= "&oauth_version=1.0";
 
-$params .= "search_expression=$searchQuery";
-$url .="search_expression=$searchQuery";
+$params .= "&search_expression=$searchQuery";
+$url .="&search_expression=$searchQuery";
 
 
 //creating the signature base which will be turned into a hash value
