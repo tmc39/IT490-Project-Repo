@@ -27,6 +27,17 @@ require_once __DIR__ . '/lib/rabbitMQ_web_client.php';
 // variable to hold messages to be displayed to the user
 $message = "";
 
+// If we have a message in the query string (like from a redirect), show it
+if (!empty($_GET["msg"])) {
+    $message = $_GET["msg"];
+}
+
+// If already logged in, redirect to home page
+if (!empty($_SESSION["loggedIn"])) {
+    header("Location: dashboard.php");
+    exit();
+}
+
 // runs only when the form is submitted
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // get the username and password from the form
@@ -41,8 +52,6 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } elseif (strlen($password) < 6) {
         $message = "Password must be at least 6 characters long.";
     } else {
-        // if all checks pass, set a success message
-        $message = "Login successful! Welcome back, " . htmlspecialchars($username);
 
         // Build the request we send through RabbitMQ to the backend to check the credentials
         $request = array();
@@ -59,7 +68,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         } catch (Exception $e) {
             // Handle any exceptions that occur during the RabbitMQ communication
             $message = "Login service not available (RabbitMQ may not be ready).";
-            error_log("RabbitMQ error: " . $e->getMessage());
+            error_log("RabbitMQ error in login.php: " . $e->getMessage());
         }
         
         // If we got a good response, decide what to do based on the response
@@ -71,10 +80,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $_SESSION["username"] = $username;
 
         // Save the session key if the backend sends one back
-        $_SESSION["sessionKey"] = $response['sessionKey'] ?? '';
+        $_SESSION["session_key"] = $response['session_key'] ?? '';
 
         // Send the user to the home page after successful login
-        header("Location: home.php");
+        header("Location: dashboard.php");
         exit();
     }
 
@@ -96,32 +105,54 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
-    <!-- Link to external JS file -->
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+
+    <!-- Shared site CSS -->
+    <link rel="stylesheet" href="/public/css/style.css">
+
+    <!-- Login validation script -->
     <script src="js/login.js" defer></script>
 </head>
+
 <body>
-    <h1>Login</h1>
 
-    <!-- Display message if there is one -->
-    <?php if (!empty($message)): ?>
-        <p><?php echo htmlspecialchars($message); ?></p>
-    <?php endif; ?>
+<!-- Shared site navigation bar -->
+<?php include __DIR__ . '/includes/header.php'; ?>
 
-    <!-- Login Form Notes:
-        1. I ussually prefer to wrap the label around the input for better accessibility, but you can also use the "for" attribute to link them. 
-    -->
-    <form method="POST" action="login.php" id="loginForm" onsubmit="return validateLoginForm()">
-        <label for="username">Username:
-        <input type="text" id="username" name="username" required></label>
-        <br><br>
-        <label for="password">Password:
-        <input type="password" id="password" name="password" required></label>
-        <br><br>
-        <input type="submit" value="Login">
-    </form>
+<main class="container">
+    <section class="card">
 
-    <!-- Link to register page -->
-    <p>Don't have an account? <a href="register.php">Register here</a>.</p>
+        <h2>Login</h2>
+
+        <!-- Display message if there is one -->
+        <?php if (!empty($message)): ?>
+            <p><?php echo htmlspecialchars($message); ?></p>
+        <?php endif; ?>
+
+        <!-- Login Form -->
+        <form method="POST" action="login.php" id="loginForm" onsubmit="return validateLoginForm()">
+
+            <label for="username">Username
+                <input type="text" id="username" name="username" required>
+            </label>
+        
+            <label for="password">Password
+                <input type="password" id="password" name="password" required>
+            </label>
+            
+            <input type="submit" value="Login">
+        </form>
+
+        <p>Don't have an account? <a href="register.php">Register here</a>.</p>
+
+    </section>
+</main>
+
+<!-- Shared site footer -->
+<?php include __DIR__ . '/includes/footer.php'; ?>
 
 </body>
 </html>
