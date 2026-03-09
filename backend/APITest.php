@@ -75,7 +75,10 @@ $apiresponse = curl_exec($ch);
 
 unset($ch);
 
+$jsonresponse = json_encode($apiresponse);
+
 //If everythin succeeds, raw JSON text from the food search API should be printed onto the screen
+header('Content-Type: application/json');
 echo $apiresponse;
 
 ?>
