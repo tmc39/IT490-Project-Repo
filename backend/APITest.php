@@ -28,8 +28,11 @@ $url = 'https://platform.fatsecret.com/rest/foods/search/v1?';
 //needs to be in alphabetical order for proper encoding to make a signature
 //url will be the actual URL of the request. params will be used in the hashed signature
 
-$params = "oauth_consumer_key=$O1_Consumer_Key";
-$url .= "oauth_consumer_key=$O1_Consumer_Key";
+$params = 'format=json';
+$url .= 'format=json';
+
+$params .= "&oauth_consumer_key=$O1_Consumer_Key";
+$url .= "&oauth_consumer_key=$O1_Consumer_Key";
 
 $params .= "&oauth_nonce=poob";
 $url .= "&oauth_nonce=poob";
