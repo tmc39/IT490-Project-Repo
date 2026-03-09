@@ -4,6 +4,8 @@
 //uses key varaibles called $O1_Consumer_Key (ID key) and $O1_Consumer_Secret (secret key), used for FatSecret's oauth 1.0 URL-based authentication
 require '../../../BigFatKeys.php';
 
+
+// For testing. Put the word you want to search in the URL parameters (i.e. localhost/backend/APITest.php?search=bagel)
 $searchQuery = $_GET['search'];
 
 if($searchQuery == null){
@@ -28,11 +30,6 @@ $url = 'https://platform.fatsecret.com/rest/foods/search/v1?';
 
 $params = "oauth_consumer_key=$O1_Consumer_Key";
 $url .= "oauth_consumer_key=$O1_Consumer_Key";
-
-//for whatever reason, adding this in changes the error shown to "Invalid consumer key: please check your oauth_consumer_key"
-//... but there is no reason for this parameter to be used because I am using the food search URL???
-//$params = "method=foods.search";
-//$url .= "method=foods.search";
 
 $params .= "&oauth_nonce=poob";
 $url .= "&oauth_nonce=poob";
