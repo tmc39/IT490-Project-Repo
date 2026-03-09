@@ -8,6 +8,9 @@ require '../../../BigFatKeys.php';
 // For testing. Put the word you want to search in the URL parameters (i.e. localhost/backend/APITest.php?search=bagel)
 $searchQuery = $_GET['search'];
 
+//how many results will be returned from the search
+$maxresults = 5;
+
 if($searchQuery == null){
     $searchQuery = "bagel";
 }
@@ -25,11 +28,14 @@ $url = 'https://platform.fatsecret.com/rest/foods/search/v1?';
 
 
 //stupid annoying FatSecret oauth 1.0 required parameters
-//needs to be in alphabetical order for proper encoding to make a signature
+//PARAMETERS MUST BE IN ALPHABETICAL ORDER!!!!!!!!!! THIS  IS NEEDED FOR THE AUTHENTICATION SIGNATURE
 //url will be the actual URL of the request. params will be used in the hashed signature
 
 $params = 'format=json';
 $url .= 'format=json';
+
+$params .= "&max_results=$maxresults";
+$url .= "&max_results=$maxresults";
 
 $params .= "&oauth_consumer_key=$O1_Consumer_Key";
 $url .= "&oauth_consumer_key=$O1_Consumer_Key";
