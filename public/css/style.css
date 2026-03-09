@@ -9,11 +9,16 @@ body {
     background-color: #f4f4f4;
     color: #222;
 
-    /* try to keep the footer on the bottom */
+    /* Keep footer near the bottom on short pages */
     min-height: 100vh;
     display: flex;
     flex-direction: column;
 }
+
+p {
+    line-height: 1.6;
+}
+
 
 /* 
 -------------------------
@@ -25,6 +30,7 @@ Shared layout container
     max-width: 900px;
     margin: 0 auto;
 }
+
 
 /* 
 -------------------------
@@ -51,11 +57,7 @@ Header and navigation
     font-size: 1.5rem;
 }
 
-/* 
-------------------------- 
-Site title link styling
-------------------------- 
-*/
+/* Site title link */
 .site-title a {
     color: white;
     text-decoration: none;
@@ -70,11 +72,7 @@ Site title link styling
     opacity: 0.9;
 }
 
-/* 
--------------------------
-Navbar layout
-------------------------- 
-*/
+/* Navbar layout */
 .site-nav {
     display: flex;
     align-items: center;
@@ -88,10 +86,9 @@ Navbar layout
     font-weight: bold;
 }
 
-/* Highlight active page in nav bar */
+/* Highlight the current page */
 .site-nav a.active {
     text-decoration: underline;
-    color: #fff;
 }
 
 /* Add separators between nav items */
@@ -102,16 +99,15 @@ Navbar layout
     color: #888;
 }
 
-.site-nav a:hover {
+/* Only underline normal nav links, not the username */
+.site-nav a:not(.nav-user):hover {
     text-decoration: underline;
 }
 
-/* 
--------------------------
-Logged-in username styling
-------------------------- 
-*/
+/* Logged-in username */
 .site-nav a.nav-user {
+    display: inline-flex;
+    align-items: center;
     color: #bbb;
     font-weight: 400;
     text-decoration: none;
@@ -122,6 +118,20 @@ Logged-in username styling
     text-decoration: none;
 }
 
+/* User icon in navbar */
+.nav-icon {
+    margin-right: 4px;
+    font-size: 1rem;
+    line-height: 1;
+    color: inherit;
+}
+
+/* Keep icon white on hover too */
+.site-nav a.nav-user:hover .nav-icon {
+    color: white;
+}
+
+
 /* 
 -------------------------
 Main content area
@@ -131,6 +141,7 @@ main.container {
     padding: 40px 0;
     flex: 1;
 }
+
 
 /* 
 -------------------------
@@ -147,6 +158,7 @@ Card and content box
 .card h2 {
     margin-top: 0;
 }
+
 
 /* 
 -------------------------
@@ -175,6 +187,7 @@ label input {
     border-radius: 4px;
     box-sizing: border-box;
 }
+
 
 /* 
 -------------------------
@@ -208,25 +221,22 @@ input[type="submit"]:hover,
     background-color: #888;
 }
 
+
 /* 
 -------------------------
-Extra spacing for buttons
+Extra spacing helpers
 ------------------------- 
 */
 .button-row {
     margin-top: 20px;
 }
 
-p {
-    line-height: 1.6;
-}
 
 /* 
 -------------------------
 Footer
--------------------------
+------------------------- 
 */
-
 .site-footer {
     background-color: #222;
     color: #bbb;

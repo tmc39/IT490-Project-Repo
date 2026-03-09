@@ -1,8 +1,8 @@
 <?php
 /* 
---------
+-------------
 dashboard.php
---------
+-------------
 This page should only show if the login session key is still valid.
 
 1) Grab session_key from PHP session
@@ -97,7 +97,7 @@ try {
 
         <p>Welcome, <strong><?php echo htmlspecialchars($username); ?></strong>!</p>
 
-        <p>This is the home page. You are logged in.</p>
+        <p>You are logged in. This is your account dashboard.</p>
 
         <p><a class="btn" href="/frontend/logout.php">Logout</a></p>
 
