@@ -1,8 +1,8 @@
 <?php
 /* 
---------
-home.php
---------
+-------------
+dashboard.php
+-------------
 This page should only show if the login session key is still valid.
 
 1) Grab session_key from PHP session
@@ -61,7 +61,7 @@ try {
 
 } catch (Exception $e) {
     // If we can't validate, destroy the session and go back to login with a message
-    error_log("RabbitMQ error in home.php: " . $e->getMessage());
+    error_log("RabbitMQ error in dashboard.php: " . $e->getMessage());
     session_unset();
     session_destroy();
 
@@ -85,37 +85,27 @@ try {
     <!-- Shared site CSS -->
     <link rel="stylesheet" href="/public/css/style.css">
 </head>
-
 <body>
 
-<header class="site-header">
-    <div class="container">
-        <h1 class="site-title"><a href="/index.php">Guilty Spark</a></h1>
-
-        <nav class="site-nav">
-            <a href="/index.php">Home</a>
-            <a href="/frontend/home.php">Dashboard</a>
-            <a href="/frontend/logout.php">Logout</a>
-        </nav>
-    </div>
-</header>
-
+<!-- Shared site navigation bar -->
+<?php include __DIR__ . '/includes/header.php'; ?>
 
 <main class="container">
+    <section class="card">
 
-<section class="card">
+        <h2>Dashboard</h2>
 
-    <h2>Dashboard</h2>
+        <p>Welcome, <strong><?php echo htmlspecialchars($username); ?></strong>!</p>
 
-    <p>Welcome, <strong><?php echo htmlspecialchars($username); ?></strong>!</p>
+        <p>You are logged in. This is your account dashboard.</p>
 
-    <p>This is the home page. You are logged in.</p>
+        <p><a class="btn" href="/frontend/logout.php">Logout</a></p>
 
-    <p><a class="btn" href="/frontend/logout.php">Logout</a></p>
-
-</section>
-
+    </section>
 </main>
+
+<!-- Shared site footer -->
+<?php include __DIR__ . '/includes/footer.php'; ?>
 
 </body>
 </html>
