@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Food Search</title>
+    <title>Recipe Search</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -15,7 +15,7 @@
     <!-- Shared site CSS -->
     <link rel="stylesheet" href="/public/css/style.css">
 
-    <script src="js/foodsearch.js" defer></script>
+    <script src="js/recipesearch.js" defer></script>
 
     <style>
         td{
@@ -38,8 +38,8 @@
 <main class="container">
     <section class="card">
 
-        <h2>Food Search</h2>
-        <a href="recipesearch.php">Switch to Recipe Search</a>
+        <h2>Recipe Search</h2>
+        <a href="foodsearch.php">Switch to Food Search</a>
 
         <!-- Display message if there is one -->
         <?php if (!empty($message)): ?>
