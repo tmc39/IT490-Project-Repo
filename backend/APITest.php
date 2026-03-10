@@ -2,7 +2,7 @@
 
 //Include the file that stores needed keys. This should hopefully prevent my super secret keys from being leaked on Github.
 //uses key varaibles called $O1_Consumer_Key (ID key) and $O1_Consumer_Secret (secret key), used for FatSecret's oauth 1.0 URL-based authentication
-require '../../../BigFatKeys.php';
+require 'BigFatKeys.php';
 
 
 // For testing. Put the word you want to search in the URL parameters (i.e. localhost/backend/APITest.php?search=bagel)
