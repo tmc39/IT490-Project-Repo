@@ -1,15 +1,13 @@
 /* 
--------------------------
+--------------------
 General page styling
-------------------------- 
+--------------------
 */
 body {
     margin: 0;
     font-family: 'Roboto', Arial, Helvetica, sans-serif;
     background-color: #f4f4f4;
     color: #222;
-
-    /* Keep footer near the bottom on short pages */
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -19,11 +17,10 @@ p {
     line-height: 1.6;
 }
 
-
 /* 
--------------------------
+-----------------------
 Shared layout container
-------------------------- 
+-----------------------
 */
 .container {
     width: 90%;
@@ -31,11 +28,10 @@ Shared layout container
     margin: 0 auto;
 }
 
-
 /* 
--------------------------
+---------------------
 Header and navigation
-------------------------- 
+---------------------
 */
 .site-header {
     background-color: #222;
@@ -57,7 +53,6 @@ Header and navigation
     font-size: 1.5rem;
 }
 
-/* Site title link */
 .site-title a {
     color: white;
     text-decoration: none;
@@ -72,12 +67,16 @@ Header and navigation
     opacity: 0.9;
 }
 
-/* Navbar layout */
+/* 
+-------------
+Navbar layout
+-------------
+ */
 .site-nav {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
 }
 
 .site-nav a {
@@ -86,12 +85,10 @@ Header and navigation
     font-weight: bold;
 }
 
-/* Highlight the current page */
 .site-nav a.active {
     text-decoration: underline;
 }
 
-/* Add separators between nav items */
 .site-nav a:not(:first-child)::before {
     content: "|";
     margin-right: 10px;
@@ -99,12 +96,15 @@ Header and navigation
     color: #888;
 }
 
-/* Only underline normal nav links, not the username */
 .site-nav a:not(.nav-user):hover {
     text-decoration: underline;
 }
 
-/* Logged-in username */
+/* 
+------------------
+Logged-in username 
+------------------
+*/
 .site-nav a.nav-user {
     display: inline-flex;
     align-items: center;
@@ -118,7 +118,6 @@ Header and navigation
     text-decoration: none;
 }
 
-/* User icon in navbar */
 .nav-icon {
     margin-right: 4px;
     font-size: 1rem;
@@ -126,16 +125,57 @@ Header and navigation
     color: inherit;
 }
 
-/* Keep icon white on hover too */
 .site-nav a.nav-user:hover .nav-icon {
     color: white;
 }
 
 
 /* 
--------------------------
+-------------
+Dropdown menu 
+-------------
+*/
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+
+    background-color: #222;
+    min-width: 160px;
+    padding: 6px 0;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
+    z-index: 1000;
+}
+
+.nav-dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 8px 16px;
+    color: white;
+    text-decoration: none;
+    font-weight: normal;
+}
+
+.dropdown-menu a:hover {
+    background-color: #333;
+}
+
+
+/* 
+-----------------
 Main content area
-------------------------- 
+-----------------
 */
 main.container {
     padding: 40px 0;
@@ -144,9 +184,9 @@ main.container {
 
 
 /* 
--------------------------
+--------------------
 Card and content box
-------------------------- 
+--------------------
 */
 .card {
     background-color: white;
@@ -161,23 +201,29 @@ Card and content box
 
 
 /* 
--------------------------
+-----
 Forms
-------------------------- 
+-----
 */
 form {
     margin-top: 20px;
 }
 
-/* Keep labels accessible by wrapping the input */
 label {
     display: block;
     font-weight: bold;
     margin-bottom: 8px;
 }
 
-/* Put wrapped inputs on a new line */
-label input {
+/* 
+-------------------------
+Text inputs inside labels 
+-------------------------
+*/
+label input[type="text"],
+label input[type="email"],
+label input[type="password"],
+label input[type="number"] {
     display: block;
     width: 100%;
     max-width: 400px;
@@ -188,11 +234,66 @@ label input {
     box-sizing: border-box;
 }
 
+/* 
+-------------
+Select fields
+-------------
+ */
+label select {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    margin-top: 4px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: white;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
 
 /* 
--------------------------
+-------------------------------
+Checkbox group for profile page
+-------------------------------
+ */
+.checkbox-group {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: normal;
+    margin-bottom: 6px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+/* 
+-------------
+Form sections
+-------------
+*/
+.form-section {
+    margin-bottom: 20px;
+}
+
+.form-section p {
+    margin-bottom: 8px;
+}
+
+/* 
+-----------------
 Buttons and links
-------------------------- 
+-----------------
 */
 input[type="submit"],
 .btn {
@@ -223,9 +324,9 @@ input[type="submit"]:hover,
 
 
 /* 
--------------------------
-Extra spacing helpers
-------------------------- 
+---------------
+Spacing helpers
+---------------
 */
 .button-row {
     margin-top: 20px;
@@ -233,9 +334,9 @@ Extra spacing helpers
 
 
 /* 
--------------------------
+------
 Footer
-------------------------- 
+------
 */
 .site-footer {
     background-color: #222;
