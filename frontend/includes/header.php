@@ -33,9 +33,15 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 
             <?php if (!empty($_SESSION["loggedIn"])): ?>
 
-                <!-- Dashboard link (shown when user is logged in) -->
-                <a class="<?= ($currentPage === 'dashboard.php') ? 'active' : '' ?>" href="/frontend/dashboard.php">Dashboard</a>
-
+                <div class="nav-dropdown">
+                    <!-- Dashboard link (shown when user is logged in) -->
+                    <a class="<?= ($currentPage === 'dashboard.php' || $currentPage === 'profile.php') ? 'active' : '' ?>" href="/frontend/dashboard.php">Dashboard &#9662;</a>
+                    <div class="dropdown-menu">
+                        <!-- Profile link (a dropdown option under dashboard) -->
+                        <a class="<?= ($currentPage === 'profile.php') ? 'active' : '' ?>" href="/frontend/profile.php">Profile</a>
+                    </div>
+                </div>
+                
                 <!-- Logout link -->
                 <a href="/frontend/logout.php">Logout</a>
 
