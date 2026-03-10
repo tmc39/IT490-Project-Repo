@@ -12,7 +12,7 @@ require '../../../BigFatKeys.php';
 
 
 // access the URL parameters provided. If they are null, set placeholder values
-$searchQuery = $_GET['search'];
+$searchQuery = $_GET['ID'];
 if($searchQuery == null){
     $searchQuery = "3540";
 }

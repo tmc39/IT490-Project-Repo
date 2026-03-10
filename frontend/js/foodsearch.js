@@ -42,12 +42,12 @@ function processAPIResults(){
         //Create the meat and bones of the search results table. The rows containing food item data
         var i = 0;
         while (jsonResults.foods.food[i] != null){
-            resultsList += "<tr>";
-            resultsList += "<td>" + jsonResults.foods.food[i].food_name + "</td>";
+            resultsList += '<tr>';
+            resultsList += '<td> <a target="_blank" href="foodinfo.php?ID=' + jsonResults.foods.food[i].food_id + '">' + jsonResults.foods.food[i].food_name + "</a></td>";
             resultsList += "<td>" + jsonResults.foods.food[i].food_type + "</td>";
             resultsList += "<td>" + jsonResults.foods.food[i].food_description + "</td>";
             resultsList += "<td>" + jsonResults.foods.food[i].food_id + "</td>";
-            resultsList += "</tr>";
+            resultsList += "</tr></a>";
             i += 1;
         }
         resultsList += "</table>";

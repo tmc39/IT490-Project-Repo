@@ -15,7 +15,6 @@
     <!-- Shared site CSS -->
     <link rel="stylesheet" href="/public/css/style.css">
 
-    <!-- Login validation script -->
     <script src="js/foodsearch.js" defer></script>
 
     <style>
