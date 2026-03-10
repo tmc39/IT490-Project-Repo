@@ -55,7 +55,7 @@
             <input type="number" id="searchnum" placeholder="number of results">
             
             <br>
-            <input type="button" onclick="return getSearchResults()" value="Search">
+            <input type="button" onclick="return search()" value="Search">
         </form>
 
         <br>
@@ -63,6 +63,10 @@
         <p id="resultsCounter"></p>
 
         <div id="resultsDiv"></div>
+
+        <input type="button" style="display:none;" id="prevpage" onclick="return previousPage()" value="Previous Page">
+        <input type="number" style="display:none;" id="pagenum" placeholder="page number" value="0">
+        <input type="button" style="display:none;" id="nextpage" onclick="return nextPage()" value="Next Page">
 
     </section>
 </main>

@@ -12,6 +12,7 @@ require '../../../BigFatKeys.php';
 
 
 // access the URL parameters provided. If they are null, set placeholder values
+
 $searchQuery = $_GET['search'];
 if($searchQuery == null){
     $searchQuery = "bagel";
@@ -20,6 +21,11 @@ if($searchQuery == null){
 $maxresults = $_GET['results'];
 if($maxresults == null){
     $maxresults = 10;
+}
+
+$page = $_GET['page'];
+if($page == null){
+    $page = 0;
 }
 
 $ch = curl_init();
@@ -59,6 +65,9 @@ $url .= "&oauth_timestamp=$timestamp";
 
 $params .= "&oauth_version=1.0";
 $url .= "&oauth_version=1.0";
+
+$params .= "&page_number=$page";
+$url .= "&page_number=$page";
 
 $params .= "&search_expression=$searchQuery";
 $url .="&search_expression=$searchQuery";

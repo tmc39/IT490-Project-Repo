@@ -2,6 +2,7 @@
 function getSearchResults(){
     //replaces spaces with dashes in search term, as spaces causes shit to break
     var searchTerm = document.getElementById('searchterm').value.replace(/\s+/g, '-');
+    var pageNum = document.getElementById('pagenum').value;
     if(searchTerm == null || searchTerm == ""){
         alert('Please fill in search field.');
         return false;
@@ -14,9 +15,28 @@ function getSearchResults(){
     //get the search results from the PHP script in backend and exeute
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onload = processAPIResults;
-    var searchURL = "../backend/APIFoodSearch.php?search=" + searchTerm + "&results=" + maxresults;
+    var searchURL = "../backend/APIFoodSearch.php?search=" + searchTerm + "&results=" + maxresults + "&page=" + pageNum;
     xmlhttp.open("GET", searchURL, true);
     xmlhttp.send();
+}
+
+function search(){
+    getSearchResults();
+    document.getElementById('prevpage').style.display = "block";
+    document.getElementById('pagenum').style.display = "none";
+    document.getElementById('nextpage').style.display = "block";
+}
+
+function nextPage(){
+    document.getElementById('pagenum').value = parseInt(document.getElementById('pagenum').value) + 1;
+
+    search();
+}
+function previousPage(){
+    if(document.getElementById('pagenum').value > 0){
+        document.getElementById('pagenum').value = parseInt(document.getElementById('pagenum').value) - 1;
+        search();
+    }
 }
 
 //This function runs when the XMLHTTP request gets a response
