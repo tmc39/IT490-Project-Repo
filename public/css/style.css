@@ -57,7 +57,6 @@ Header and navigation
     font-size: 1.5rem;
 }
 
-/* Site title link */
 .site-title a {
     color: white;
     text-decoration: none;
@@ -72,12 +71,13 @@ Header and navigation
     opacity: 0.9;
 }
 
+
 /* Navbar layout */
 .site-nav {
     display: flex;
     align-items: center;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 12px;
 }
 
 .site-nav a {
@@ -86,7 +86,7 @@ Header and navigation
     font-weight: bold;
 }
 
-/* Highlight the current page */
+/* Highlight current page */
 .site-nav a.active {
     text-decoration: underline;
 }
@@ -99,10 +99,11 @@ Header and navigation
     color: #888;
 }
 
-/* Only underline normal nav links, not the username */
+/* Only underline normal nav links */
 .site-nav a:not(.nav-user):hover {
     text-decoration: underline;
 }
+
 
 /* Logged-in username */
 .site-nav a.nav-user {
@@ -126,9 +127,46 @@ Header and navigation
     color: inherit;
 }
 
-/* Keep icon white on hover too */
 .site-nav a.nav-user:hover .nav-icon {
     color: white;
+}
+
+
+/* Dropdown menu */
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+
+    background-color: #222;
+    min-width: 160px;
+    padding: 6px 0;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+
+    z-index: 1000;
+}
+
+.nav-dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 8px 16px;
+    color: white;
+    text-decoration: none;
+    font-weight: normal;
+}
+
+.dropdown-menu a:hover {
+    background-color: #333;
 }
 
 
@@ -169,15 +207,17 @@ form {
     margin-top: 20px;
 }
 
-/* Keep labels accessible by wrapping the input */
 label {
     display: block;
     font-weight: bold;
     margin-bottom: 8px;
 }
 
-/* Put wrapped inputs on a new line */
-label input {
+/* Text inputs inside labels */
+label input[type="text"],
+label input[type="email"],
+label input[type="password"],
+label input[type="number"] {
     display: block;
     width: 100%;
     max-width: 400px;
@@ -188,6 +228,53 @@ label input {
     box-sizing: border-box;
 }
 
+/* Select fields */
+label select {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    margin-top: 4px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: white;
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+
+/* Checkbox group for profile page */
+.checkbox-group {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: normal;
+    margin-bottom: 6px;
+}
+
+.checkbox-group input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+}
+
+/* 
+-------------------------
+Form sections
+-------------------------
+*/
+.form-section {
+    margin-bottom: 20px;
+}
+
+.form-section p {
+    margin-bottom: 8px;
+}
 
 /* 
 -------------------------
@@ -224,7 +311,7 @@ input[type="submit"]:hover,
 
 /* 
 -------------------------
-Extra spacing helpers
+Spacing helpers
 ------------------------- 
 */
 .button-row {

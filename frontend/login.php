@@ -32,7 +32,7 @@ if (!empty($_GET["msg"])) {
     $message = $_GET["msg"];
 }
 
-// If already logged in, redirect to home page
+// If already logged in, redirect to the dashboard
 if (!empty($_SESSION["loggedIn"])) {
     header("Location: dashboard.php");
     exit();
