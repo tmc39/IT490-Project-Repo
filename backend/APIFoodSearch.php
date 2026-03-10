@@ -1,8 +1,7 @@
 <?php
 
 /*
-/   This script is made to be called by frontend/js/foodsearch.js for the food and recipe search personal deliverables
-/   Its job is to use FatSecret's food search and return the relevant results data in JSON format.
+/   This script's job is to use FatSecret's food search and return the relevant results data in JSON format.
 /   parameters are put into this script via URL parameters
 */
 
