@@ -1,50 +1,29 @@
-<?php 
+<?php
 /*
 ---------
 login.php
 ---------
-Shows login form.
-
-On submit: validate input and send credentials to backend via RabbitMQ.
-
-If success, then create session, save session key, redirect to home.
-
-If fail, then show error message.
-
-If RabbitMQ/backend down, then show service unavailable message.
+Shows the login form and handles login.
 */
 
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
-
-// Start the session to manage user sessions
 session_start();
 
-// Include the rabbitMQ_web_client to handle communication with the backend
 require_once __DIR__ . '/lib/rabbitMQ_web_client.php';
 
-// variable to hold messages to be displayed to the user
 $message = "";
 
-// If we have a message in the query string (like from a redirect), show it
-if (!empty($_GET["msg"])) {
-    $message = $_GET["msg"];
-}
-
-// If already logged in, redirect to the dashboard
+// If already logged in, go to dashboard
 if (!empty($_SESSION["loggedIn"])) {
     header("Location: dashboard.php");
     exit();
 }
 
-// runs only when the form is submitted
+// Run only when the form is submitted
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // get the username and password from the form
     $username = trim($_POST["username"] ?? '');
     $password = trim($_POST["password"] ?? '');
 
-    // validate the form data
+    // Basic validation
     if (empty($username) || empty($password)) {
         $message = "Please fill in all fields.";
     } elseif (strlen($username) < 3 || strlen($username) > 20) {
@@ -52,49 +31,33 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } elseif (strlen($password) < 6) {
         $message = "Password must be at least 6 characters long.";
     } else {
-
-        // Build the request we send through RabbitMQ to the backend to check the credentials
-        $request = array();
-        $request['type'] = 'login';
-        $request['username'] = $username;
-        $request['password'] = $password;
-
-        // Try to contact the login service through RabbitMQ
-        $response = null;
+        $request = [
+            'type' => 'login',
+            'username' => $username,
+            'password' => $password
+        ];
 
         try {
-            // Send the request to the backend through RabbitMQ and wait for the response
             $response = sendToRabbitMQ($request);
+
+            if (is_array($response) && isset($response['status'])) {
+                if ($response['status'] === 'success') {
+                    $_SESSION["loggedIn"] = true;
+                    $_SESSION["username"] = $username;
+                    $_SESSION["session_key"] = $response['session_key'] ?? '';
+
+                    header("Location: dashboard.php");
+                    exit();
+                } else {
+                    $message = $response['message'] ?? 'Login failed. Please try again.';
+                }
+            } else {
+                $message = "Unexpected response from server.";
+            }
         } catch (Exception $e) {
-            // Handle any exceptions that occur during the RabbitMQ communication
-            $message = "Login service not available (RabbitMQ may not be ready).";
+            $message = "Login service not available.";
             error_log("RabbitMQ error in login.php: " . $e->getMessage());
         }
-        
-        // If we got a good response, decide what to do based on the response
-        if (is_array($response) && isset($response['status']) && $response['status'] === 'success') {
-
-        // Set session variables to indicate the user is logged in
-        // NOTE: RabbitMQ will send it to the DB to confirm if the credentials are correct
-        $_SESSION["loggedIn"] = true;
-        $_SESSION["username"] = $username;
-
-        // Save the session key if the backend sends one back
-        $_SESSION["session_key"] = $response['session_key'] ?? '';
-
-        // Send the user to the home page after successful login
-        header("Location: dashboard.php");
-        exit();
-    }
-
-    // If we got a bad response, display the error message
-    if (is_array($response) && isset($response['status']) && $response['status'] === 'error') {
-        // If the backend sends an error response, display the error message, otherwise show a generic error message
-        $message = $response['message'] ?? 'Login failed. Please try again.';
-    } elseif ($response !== null && !is_array($response)) {
-        // If we got a response but it's not in the expected format, show a generic error message
-        $message = "Unexpected response from server.";
-    }
     }
 }
 ?>
@@ -106,52 +69,37 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-    <!-- Shared site CSS -->
     <link rel="stylesheet" href="/public/css/style.css">
-
-    <!-- Login validation script -->
     <script src="js/login.js" defer></script>
 </head>
-
 <body>
 
-<!-- Shared site navigation bar -->
 <?php include __DIR__ . '/includes/header.php'; ?>
 
 <main class="container">
     <section class="card">
-
         <h2>Login</h2>
 
-        <!-- Display message if there is one -->
         <?php if (!empty($message)): ?>
             <p><?php echo htmlspecialchars($message); ?></p>
         <?php endif; ?>
 
-        <!-- Login Form -->
         <form method="POST" action="login.php" id="loginForm" onsubmit="return validateLoginForm()">
-
             <label for="username">Username
                 <input type="text" id="username" name="username" required>
             </label>
-        
+
             <label for="password">Password
                 <input type="password" id="password" name="password" required>
             </label>
-            
+
             <input type="submit" value="Login">
         </form>
 
         <p>Don't have an account? <a href="register.php">Register here</a>.</p>
-
     </section>
 </main>
 
-<!-- Shared site footer -->
 <?php include __DIR__ . '/includes/footer.php'; ?>
 
 </body>
