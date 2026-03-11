@@ -3,37 +3,34 @@
 -----------------------
 rabbitMQ_web_client.php
 -----------------------
-
-This is a small helper file for the web pages (login.php, home.php, register.php).
-
-Important note:
-1) We only pass the INI filename (example: "testRabbitMQ.ini").
-2) Our get_host_info.inc already knows to load config files from integration/config/.
+Small helper used by web pages to send requests to RabbitMQ.
 */
 
 function sendToRabbitMQ(array $request)
 {
-    // Point PHP to the integration/lib folder so rabbitMQLib.inc can find its helpers.
+    // Path to RabbitMQ library
     $integrationLib = realpath(__DIR__ . '/../../integration/lib');
+
     if ($integrationLib === false) {
-        throw new Exception("Could not find integration/lib folder on this machine.");
+        throw new Exception("Could not find integration/lib folder.");
     }
 
-    set_include_path(get_include_path() . PATH_SEPARATOR . $integrationLib);
+    // Load RabbitMQ library
+    require_once $integrationLib . '/rabbitMQLib.inc';
 
-    // Load the RabbitMQ library (it will pull in get_host_info.inc internally)
-    require_once 'rabbitMQLib.inc';
-
-    // NOTE: to test locally use "testServer" 
-    // NOTE: to test over ZeroTier use "guiltyDatabase"
+    /*
+    -----
+    NOTE:
+    -----
+        1) Local testing use "testServer"
+        2) ZeroTier testing use "guiltyDatabase"
+    */
     $iniFile = "testRabbitMQ.ini";
     $serverSection = "testServer";
 
-    // Create RabbitMQ client and send request
+    // Create client
     $client = new rabbitMQClient($iniFile, $serverSection);
 
-    // send_request waits for a reply
-    $response = $client->send_request($request);
-
-    return $response;
+    // Send request and wait for reply
+    return $client->send_request($request);
 }

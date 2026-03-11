@@ -1,15 +1,13 @@
 /* 
--------------------------
+--------------------
 General page styling
-------------------------- 
+--------------------
 */
 body {
     margin: 0;
     font-family: 'Roboto', Arial, Helvetica, sans-serif;
     background-color: #f4f4f4;
     color: #222;
-
-    /* Keep footer near the bottom on short pages */
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -19,11 +17,10 @@ p {
     line-height: 1.6;
 }
 
-
 /* 
--------------------------
+-----------------------
 Shared layout container
-------------------------- 
+-----------------------
 */
 .container {
     width: 90%;
@@ -31,11 +28,10 @@ Shared layout container
     margin: 0 auto;
 }
 
-
 /* 
--------------------------
+---------------------
 Header and navigation
-------------------------- 
+---------------------
 */
 .site-header {
     background-color: #222;
@@ -71,8 +67,11 @@ Header and navigation
     opacity: 0.9;
 }
 
-
-/* Navbar layout */
+/* 
+-------------
+Navbar layout
+-------------
+ */
 .site-nav {
     display: flex;
     align-items: center;
@@ -86,12 +85,10 @@ Header and navigation
     font-weight: bold;
 }
 
-/* Highlight current page */
 .site-nav a.active {
     text-decoration: underline;
 }
 
-/* Add separators between nav items */
 .site-nav a:not(:first-child)::before {
     content: "|";
     margin-right: 10px;
@@ -99,13 +96,15 @@ Header and navigation
     color: #888;
 }
 
-/* Only underline normal nav links */
 .site-nav a:not(.nav-user):hover {
     text-decoration: underline;
 }
 
-
-/* Logged-in username */
+/* 
+------------------
+Logged-in username 
+------------------
+*/
 .site-nav a.nav-user {
     display: inline-flex;
     align-items: center;
@@ -119,7 +118,6 @@ Header and navigation
     text-decoration: none;
 }
 
-/* User icon in navbar */
 .nav-icon {
     margin-right: 4px;
     font-size: 1rem;
@@ -132,7 +130,11 @@ Header and navigation
 }
 
 
-/* Dropdown menu */
+/* 
+-------------
+Dropdown menu 
+-------------
+*/
 .nav-dropdown {
     position: relative;
     display: inline-block;
@@ -171,9 +173,9 @@ Header and navigation
 
 
 /* 
--------------------------
+-----------------
 Main content area
-------------------------- 
+-----------------
 */
 main.container {
     padding: 40px 0;
@@ -182,9 +184,9 @@ main.container {
 
 
 /* 
--------------------------
+--------------------
 Card and content box
-------------------------- 
+--------------------
 */
 .card {
     background-color: white;
@@ -199,9 +201,9 @@ Card and content box
 
 
 /* 
--------------------------
+-----
 Forms
-------------------------- 
+-----
 */
 form {
     margin-top: 20px;
@@ -213,7 +215,11 @@ label {
     margin-bottom: 8px;
 }
 
-/* Text inputs inside labels */
+/* 
+-------------------------
+Text inputs inside labels 
+-------------------------
+*/
 label input[type="text"],
 label input[type="email"],
 label input[type="password"],
@@ -228,7 +234,11 @@ label input[type="number"] {
     box-sizing: border-box;
 }
 
-/* Select fields */
+/* 
+-------------
+Select fields
+-------------
+ */
 label select {
     display: block;
     width: 100%;
@@ -244,7 +254,11 @@ label select {
 }
 
 
-/* Checkbox group for profile page */
+/* 
+-------------------------------
+Checkbox group for profile page
+-------------------------------
+ */
 .checkbox-group {
     margin-top: 10px;
     margin-bottom: 10px;
@@ -264,9 +278,9 @@ label select {
 }
 
 /* 
--------------------------
+-------------
 Form sections
--------------------------
+-------------
 */
 .form-section {
     margin-bottom: 20px;
@@ -277,9 +291,9 @@ Form sections
 }
 
 /* 
--------------------------
+-----------------
 Buttons and links
-------------------------- 
+-----------------
 */
 input[type="submit"],
 .btn {
@@ -310,9 +324,9 @@ input[type="submit"]:hover,
 
 
 /* 
--------------------------
+---------------
 Spacing helpers
-------------------------- 
+---------------
 */
 .button-row {
     margin-top: 20px;
@@ -320,9 +334,9 @@ Spacing helpers
 
 
 /* 
--------------------------
+------
 Footer
-------------------------- 
+------
 */
 .site-footer {
     background-color: #222;
