@@ -19,5 +19,11 @@ CREATE TABLE user_profiles (
 Instructions for how to use this file
 -------------------------------------
 1) Run the following command inside your VM terminal:
-    mysql -u root -p [YOUR DB NAME] < [YOUR DIRECTORY PATH]/create_user_profiles.sql
+    sudo mysql -u root -p [YOUR DB NAME] < [YOUR DIRECTORY PATH]/create_user_profiles.sql
+
+------------
+For example:
+------------
+Based on my database name and directory, I would use: 
+    sudo mysql -u root -p testdb < database/create_user_profiles.sql 
 */
