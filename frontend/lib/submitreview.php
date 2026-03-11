@@ -13,11 +13,27 @@ if (empty($_SESSION["loggedIn"]) || empty($_SESSION["username"])) {
 $username = $_SESSION["username"] ?? "";
 $sessionKey = $_SESSION["session_key"] ?? "";
 
-// Ask backend to validate the session
+//everything following this line only runs if the session is valid--------------------------------------
+
+//gets the parameters provided to this script
+$recipeID = $_GET['recipe'];
+$positive = $_GET['isPositive'];
+$reviewText = $_GET['text'];
+
+//cancels if neccessary data is missing
+if($recipeID == "" || $positive == ""|| $reviewText == "" || $username == "" || $sessionKey = ""){
+    echo "Failed to submit review: missing required data";
+    exit();
+}
+
+//prepares the request to post a review, which will then be sent to the RabbitMQ server
 $request = [
-    "type" => "validate_session",
+    "type" => "post_review",
     "sessionId" => $sessionKey,
-    "username" => $username
+    "username" => $username,
+    "recipe" => $recipeID,
+    "positive" => $positive,
+    "reviewtext" => $reviewText
 ];
 try {
     $response = sendToRabbitMQ($request);
@@ -29,6 +45,9 @@ try {
         exit();
     }
 
+    echo $response["status"];
+    exit();
+
 } catch (Exception $e) {
     error_log("RabbitMQ error in dashboard.php: " . $e->getMessage());
     session_unset();
@@ -37,5 +56,5 @@ try {
     exit();
 }
 
-echo $username;
+echo "user: " . $username . ", isPositive: " . $positive . ", text: " . $reviewText . ", recipe: " . $recipeID;
 ?>

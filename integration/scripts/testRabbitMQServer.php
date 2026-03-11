@@ -209,6 +209,17 @@ function doValidate($sessionId, $username)
 
 /*
 ----------------------------
+FUNCTION: postReview()
+----------------------------
+This function is used when a request to post a recipe review is received by RabbitMQ.
+*/
+function postReview ($request){
+    echo "review posted" . PHP_EOL;
+    return array("status" => "success", "message" => "Review has been posted.");
+}
+
+/*
+----------------------------
 FUNCTION: requestProcessor()
 ----------------------------
 This function is called by the RabbitMQ server whenever a new request is received.
@@ -250,6 +261,9 @@ function requestProcessor($request)
       }
       return doValidate($request["sessionId"], $request["username"]);
 
+    case "post_review":
+        echo "attempting to post review" . PHP_EOL;
+        return postReview($request);
     default:
     // If the request type is not recognized, return an error message
       return array("status" => "error", "message" => "Unsupported request type: " . $request["type"]);

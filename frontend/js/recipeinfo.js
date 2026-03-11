@@ -88,8 +88,6 @@ function processAPIResults(){
 }
 
 function postReview(){
-    document.getElementById('postReviewResult').innerText = "...";
-
     //gets the contents of the review
     const reviewText = document.getElementById('newReviewContent').value;
 
@@ -97,6 +95,8 @@ function postReview(){
         alert("Your review must contain body text.")
         return;
     }
+
+    document.getElementById('postReviewResult').innerText = "...";
 
     //gets whether or not the new review is positive
     var pos = false;
@@ -115,12 +115,20 @@ function postReview(){
     }
     const recipeID = searchID;
 
+    console.log("Gathered data from review form");
+
     //Attempt to submit a new review via the submitreview.php script
     var xmlhttp = new XMLHttpRequest();
     xmlhttp.onload = processPostReview;
-    var searchURL = "lib/submitreview.php";
+    var reviewparameters = "text=" + reviewText.replaceAll(/\s+/g, "_") + "&isPositive=" + isPositive + "&recipe=" + recipeID;
+    var searchURL = "lib/submitreview.php?" + reviewparameters;
+
+    console.log("Preparing to send review form to submitreview");
+
     xmlhttp.open("GET", searchURL, true);
     xmlhttp.send();
+
+    console.log("Sent review form to submitreview");
 }
 
 function processPostReview(){
