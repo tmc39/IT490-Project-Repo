@@ -3,7 +3,7 @@ function getInfo(){
     document.getElementById('info').innerHTML = "please wait...";
     var url = new URL(location.href);
     var params = new URLSearchParams(url.search);
-    searchID = params.get('ID');
+    var searchID = params.get('ID');
     if(searchID == null || searchID == ""){
         alert('Invalid ID.');
         return false;
@@ -88,5 +88,37 @@ function processAPIResults(){
 }
 
 function postReview(){
-    
+    document.getElementById('postReviewResult').innerText = "...";
+
+    //gets the contents of the review
+    const reviewText = document.getElementById('newReviewContent').value;
+
+    if(reviewText == null || reviewText == ""){
+        alert("Your review must contain body text.")
+        return;
+    }
+
+    //gets whether or not the new review is positive
+    var pos = false;
+    if(document.getElementById('newReviewType').value = "positive"){
+        pos = true;
+    }
+    const isPositive = pos;
+
+    //gets the ID of the recipe being reviewed
+    var url = new URL(location.href);
+    var params = new URLSearchParams(url.search);
+    var searchID = params.get('ID');
+    if(searchID == null || searchID == ""){
+        alert('Invalid ID.');
+        return false;
+    }
+    const recipeID = searchID;
+
+    postReviewSuccess(reviewText);
+}
+
+function postReviewSuccess(reviewText = ""){
+    document.getElementById('postReviewResult').innerText = "Review submitted";
+    document.getElementById('newReviewContent').value = "";
 }

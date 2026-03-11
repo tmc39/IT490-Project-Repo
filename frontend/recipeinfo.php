@@ -1,4 +1,56 @@
 <?php
+/*
+-------------
+dashboard.php
+-------------
+Shows the dashboard only if the user has a valid session.
+*/
+
+session_start();
+
+require_once __DIR__ . '/lib/rabbitMQ_web_client.php';
+
+// If user is not logged in, go to login page
+if (empty($_SESSION["loggedIn"]) || empty($_SESSION["username"])) {
+    header("Location: login.php");
+    exit();
+}
+
+$username = $_SESSION["username"] ?? "";
+$sessionKey = $_SESSION["session_key"] ?? "";
+
+// If session key is missing, log out
+if (empty($sessionKey)) {
+    session_unset();
+    session_destroy();
+    header("Location: login.php");
+    exit();
+}
+
+// Ask backend to validate the session
+$request = [
+    "type" => "validate_session",
+    "sessionId" => $sessionKey,
+    "username" => $username
+];
+
+try {
+    $response = sendToRabbitMQ($request);
+
+    if (!is_array($response) || ($response["status"] ?? "") !== "success") {
+        session_unset();
+        session_destroy();
+        header("Location: login.php");
+        exit();
+    }
+
+} catch (Exception $e) {
+    error_log("RabbitMQ error in dashboard.php: " . $e->getMessage());
+    session_unset();
+    session_destroy();
+    header("Location: login.php?msg=" . urlencode("Session check is unavailable."));
+    exit();
+}
 ?>
 
 <!DOCTYPE html>
@@ -57,7 +109,11 @@
 
         <br></br>
 
-        <input type="button" onclick="return submitReview()" value="Submit Review">
+        <input type="button" onclick="return postReview()" value="Submit Review">
+        
+        <br></br>
+
+        <p id="postReviewResult"></p>
     </section>
 
     <br></br>
@@ -65,6 +121,14 @@
     <!-- where user reviews for a recipe will show -->
     <section class="card">
         <h1>User Reviews</h1>
+
+        <div id="reviewslist">
+            <div style="border-style: solid;">
+                <h2>Testman</h2>
+                <h4 style="background-color: lime;">Recommends this recipe</h4>
+                <p>This bagel fucking sucks.</p>
+            </div>
+        </div>
     </section>
 </main>
 
