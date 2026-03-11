@@ -26,7 +26,7 @@ function sendToRabbitMQ(array $request)
         2) ZeroTier testing use "guiltyDatabase"
     */
     $iniFile = "testRabbitMQ.ini";
-    $serverSection = "testServer";
+    $serverSection = "guiltyDatabase";
 
     // Create client
     $client = new rabbitMQClient($iniFile, $serverSection);
