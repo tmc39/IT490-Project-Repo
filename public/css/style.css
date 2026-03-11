@@ -89,7 +89,7 @@ Navbar layout
     text-decoration: underline;
 }
 
-.site-nav a:not(:first-child)::before {
+.site-nav > a:not(:first-child)::before {
     content: "|";
     margin-right: 10px;
     margin-left: 2px;

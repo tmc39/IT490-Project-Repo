@@ -29,10 +29,9 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                 <div class="nav-dropdown">
                     <a class="<?= ($currentPage === 'dashboard.php' || $currentPage === 'profile.php') ? 'active' : '' ?>" href="/frontend/dashboard.php">Dashboard &#9662;</a>
                     <div class="dropdown-menu">
-                        <a class="<?= ($currentPage === 'profile.php') ? 'active' : '' ?>" 
-                           href="/frontend/profile.php">
-                            Profile
-                        </a>
+                        <a class="<?= ($currentPage === 'profile.php') ? 'active' : '' ?>" href="/frontend/profile.php">Profile</a>
+                        <a class="<?= ($currentPage === 'foodsearch.php') ? 'active' : '' ?>" href="/frontend/foodsearch.php">Food Search</a>
+                        <a class="<?= ($currentPage === 'recipesearch.php') ? 'active' : '' ?>" href="/frontend/recipesearch.php">Recipe Search</a>
                     </div>
                 </div>
 
