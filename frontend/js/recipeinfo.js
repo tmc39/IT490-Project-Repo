@@ -108,7 +108,7 @@ function postReview(){
     //gets the ID of the recipe being reviewed
     var url = new URL(location.href);
     var params = new URLSearchParams(url.search);
-    var searchID = params.get('ID');
+    var searchID = params.get('recipe');
     if(searchID == null || searchID == ""){
         alert('Invalid ID.');
         return false;

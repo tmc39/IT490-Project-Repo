@@ -214,6 +214,59 @@ FUNCTION: postReview()
 This function is used when a request to post a recipe review is received by RabbitMQ.
 */
 function postReview ($request){
+    //try to connect to database
+    $db = getDbConnection();
+    if ($db === null) {
+        return array("status" => "error", "message" => "Database is not reachable at the moment.");
+    }
+    $username = $request["username"];
+    $recipeID = $request["recipe"];
+    $positive = 1;
+    if($request["positive"] == false){
+        $positive = 0;
+    }
+    $reviewtext = $request["reviewtext"];
+
+    //returns error if any values aren't set
+    if($username == null) {
+        return array("status" => "error", "message" => "Missing required variable " . "user: " . $username);
+    }
+    else if($recipeID == null){
+        return array("status" => "error", "message" => "Missing required variable " . "recipe ID: " . $recipeID);
+    }
+    else if($positive == null){
+        return array("status" => "error", "message" => "Missing required variable " . "ispositive: " . $positive);
+    }
+    else if($reviewtext == null){
+        return array("status" => "error", "message" => "Missing required variable " . "review text: " . $reviewtext);
+    }
+
+    //prepare a MySQL statement to send to the database
+    $stmt = $db->prepare("INSERT INTO recipereviews (recipeID, username, isPositive, reviewDescription) VALUES (?, ?, ?, ?)");
+    //cancel if the preparation fails
+    if($stmt === false){
+        $db->close();
+        return array("status" => "error", "message" => "Failed to prepare statement for database.");
+    }
+
+    // Bind the request's variables to the statement
+    if(!$stmt->bind_param("ssss", $recipeID,$username,$positive,$reviewtext)){
+        //exits if bind_param fails (indicated by it returning false)
+        return array("status" => "error", "message" => "Could not bind values to SQL query.");
+    }
+
+    // If execute fails, we return an error message and close the statement and database connection
+    if (!$stmt->execute()) {
+        $stmt->close();
+        $db->close();
+        return array("status" => "error", "message" => "Could not save session key.");
+    }
+
+    //close statement and databse connection
+    $stmt->close();
+    $db->close();
+    
+
     echo "review posted" . PHP_EOL;
     return array("status" => "success", "message" => "Review has been posted.");
 }

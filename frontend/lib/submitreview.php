@@ -21,7 +21,7 @@ $positive = $_GET['isPositive'];
 $reviewText = $_GET['text'];
 
 //cancels if neccessary data is missing
-if($recipeID == "" || $positive == ""|| $reviewText == "" || $username == "" || $sessionKey = ""){
+if($recipeID == "" || $positive == ""|| $reviewText == "" || $username == "" || $sessionKey == ""){
     echo "Failed to submit review: missing required data";
     exit();
 }
@@ -38,14 +38,20 @@ $request = [
 try {
     $response = sendToRabbitMQ($request);
 
-    if (!is_array($response) || ($response["status"] ?? "") !== "success") {
+    if (!is_array($response)){
         session_unset();
         session_destroy();
-        echo "Error: session not validated.";
+        echo "Error: Unreadable response from server.";
+        exit();
+    }
+    else if(($response["status"] ?? "") !== "success"){
+        session_unset();
+        session_destroy();
+        echo ($response["status"] . ": " . $response["message"]);
         exit();
     }
 
-    echo $response["status"];
+    echo ($response["status"] . ": " . $response["message"]);
     exit();
 
 } catch (Exception $e) {
