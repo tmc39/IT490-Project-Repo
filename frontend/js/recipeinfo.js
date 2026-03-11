@@ -115,10 +115,19 @@ function postReview(){
     }
     const recipeID = searchID;
 
-    postReviewSuccess(reviewText);
+    //Attempt to submit a new review via the submitreview.php script
+    var xmlhttp = new XMLHttpRequest();
+    xmlhttp.onload = processPostReview;
+    var searchURL = "lib/submitreview.php";
+    xmlhttp.open("GET", searchURL, true);
+    xmlhttp.send();
 }
 
-function postReviewSuccess(reviewText = ""){
-    document.getElementById('postReviewResult').innerText = "Review submitted";
+function processPostReview(){
+    postReviewResult(this.responseText);
+}
+
+function postReviewResult(resultStatus){
+    document.getElementById('postReviewResult').innerText = resultStatus;
     document.getElementById('newReviewContent').value = "";
 }

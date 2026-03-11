@@ -78,7 +78,11 @@ try {
 <main class="container">
     <!-- Display recipe information here -->
     <section class="card">
-
+        <div>
+            <p>
+                <?php echo($sessionKey) ?>
+            </p>
+        </div>
         <h1>Recipe Information</h1>
 
         <!-- Display message if there is one -->
