@@ -8,7 +8,7 @@
 
 //Include the file that stores needed keys. This should hopefully prevent my super secret keys from being leaked on Github.
 //uses key varaibles called $O1_Consumer_Key (ID key) and $O1_Consumer_Secret (secret key), used for FatSecret's oauth 1.0 URL-based authentication
-require 'BigFatKeys.php';
+require './BigFatKeys.php';
 
 
 // access the URL parameters provided. If they are null, set placeholder values
@@ -38,7 +38,6 @@ $ch = curl_init();
 //mainUrl is used for signature encoding
 $mainUrl = "https://platform.fatsecret.com/rest/foods/search/v1";
 $url = 'https://platform.fatsecret.com/rest/foods/search/v1?';
-
 
 //stupid annoying FatSecret oauth 1.0 required parameters
 //PARAMETERS MUST BE IN ALPHABETICAL ORDER!!!!!!!!!! THIS  IS NEEDED FOR THE AUTHENTICATION SIGNATURE
@@ -71,7 +70,6 @@ $url .= "&page_number=$page";
 
 $params .= "&search_expression=$searchQuery";
 $url .="&search_expression=$searchQuery";
-
 
 //creating the signature base which will be turned into a hash value
 $signatureBase = "GET&";
