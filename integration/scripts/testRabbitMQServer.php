@@ -258,7 +258,7 @@ function requestProcessor($request)
 
 // NOTE: to test locally use "testServer" 
 // NOTE: to test over ZeroTier use "guiltyDatabase"
-$server = new rabbitMQServer("testRabbitMQ.ini", "testServer");
+$server = new rabbitMQServer("testRabbitMQ.ini", "guiltyDatabase");
 
 echo "testRabbitMQServer BEGIN" . PHP_EOL;
 $server->process_requests("requestProcessor");
