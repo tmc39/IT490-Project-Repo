@@ -259,7 +259,7 @@ function postReview ($request){
     if (!$stmt->execute()) {
         $stmt->close();
         $db->close();
-        return array("status" => "error", "message" => "Could not save session key.");
+        return array("status" => "error", "message" => "Could not post review.");
     }
 
     //close statement and databse connection
@@ -269,6 +269,62 @@ function postReview ($request){
 
     echo "review posted" . PHP_EOL;
     return array("status" => "success", "message" => "Review has been posted.");
+}
+
+function listReviews($request){
+    //gets the requested recipe ID
+    $recipeID = $request["recipe"];
+    if($recipeID == null){
+        return json_encode(array("status" => "error", "message" => "Null RecipeID."), JSON_FORCE_OBJECT);
+    }
+
+    $db = getDbConnection();
+    if ($db === null) {
+        return json_encode(array("status" => "error", "message" => "Database is not reachable at the moment."), JSON_FORCE_OBJECT);
+    }
+
+    //prepare SQL statement to receive reviews for a specific recipeID
+    $stmt = $db->prepare("SELECT * FROM recipereviews WHERE recipeID = ?;");
+    if(!$stmt->bind_param("s", $recipeID)){
+        //exits if bind_param fails (indicated by it returning false)
+        return json_encode(array("status" => "error", "message" => "Could not bind values to SQL query."), JSON_FORCE_OBJECT);
+    }
+
+    //executes SQL statement
+    if (!$stmt->execute()) {
+        $stmt->close();
+        $db->close();
+        return json_encode(array("status" => "error", "message" => "Could not receive reviews."), JSON_FORCE_OBJECT);
+    }
+
+    //gets results of statement
+    $results = $stmt->get_result();
+
+    //returns if the results are null
+    if($results == null){
+        $stmt->close();
+        $db->close();
+        return json_encode(array("status" => "error", "message" => "No results from database."), JSON_FORCE_OBJECT);
+    }
+
+    if($results->num_rows <= 0){
+        $stmt->close();
+        $db->close();
+        return json_encode(array("status" => "success", "message" => "There are no reviews for this recipe."), JSON_FORCE_OBJECT);
+    }
+
+    $resultsarray["status"] = "success";
+    $resultsarray["message"] = "This recipe has " . $results->num_rows . " reviews.";
+    $resultsarray["review"][0] = $results->fetch_assoc();
+
+    for($i = 1; $i < $results->num_rows;$i++){
+        $resultsarray["review"][] = $results->fetch_assoc();
+    }
+
+    $stmt->close();
+    $db->close();
+    
+    return json_encode($resultsarray, JSON_FORCE_OBJECT);
 }
 
 /*
@@ -317,6 +373,9 @@ function requestProcessor($request)
     case "post_review":
         echo "attempting to post review" . PHP_EOL;
         return postReview($request);
+    case "load_reviews":
+        echo "attempting to load reviews" . PHP_EOL;
+        return listReviews($request);
     default:
     // If the request type is not recognized, return an error message
       return array("status" => "error", "message" => "Unsupported request type: " . $request["type"]);
