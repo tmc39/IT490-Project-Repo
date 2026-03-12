@@ -21,9 +21,20 @@ Instructions for how to use this file
 1) Run the following command inside your VM terminal:
     sudo mysql -u root -p [YOUR DB NAME] < [YOUR DIRECTORY PATH]/create_user_profiles.sql
 
+2) Check if table added:
+    sudo mysql -u root -p [YOUR DB NAME] -e "SHOW TABLES;"
+
+3) Check table details
+    sudo mysql -u root -p [YOUR DB NAME] -e "DESCRIBE [YOUR DB NAME];"
+
 ------------
 For example:
 ------------
 Based on my database name and directory, I would use: 
-    sudo mysql -u root -p testdb < database/create_user_profiles.sql 
+    
+    1) sudo mysql -u root -p testdb < database/create_user_profiles.sql 
+
+    2) sudo mysql -u root -p testdb -e "SHOW TABLES;"
+
+    3) sudo mysql -u root -p testdb -e "DESCRIBE user_profiles;"
 */

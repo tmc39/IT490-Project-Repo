@@ -13,60 +13,60 @@ This function registers a new user in the database.
 */
 function doRegister($firstname, $lastname, $email, $username, $hashedPassword)
 {
-    // Connect to the database
+    // Connect to database
     $db = getDbConnection();
     if ($db === null) {
         return array("status" => "error", "message" => "Database is not reachable at the moment.");
     }
 
-    // Basic checks to ensure required fields are provided
+    // Ensure required fields are provided
     if (trim($username) === "" || trim($hashedPassword) === "" || trim($email) === "") {
         $db->close();
         return array("status" => "error", "message" => "Missing required registration fields.");
     }
 
-    // Prevent duplicate usernames
+    // Prevent duplicate username
     $stmt = $db->prepare("SELECT username FROM users WHERE username = ?");
     if ($stmt === false) {
         $db->close();
         return array("status" => "error", "message" => "Could not prepare username check.");
     }
-    // Bind the username parameter and execute the query
+    // Bind username parameter and execute the query
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
 
-    // If username already exists, return an error message and close the statement and database connection
+    // If username exists, return error message, close statement and DB connection
     if ($result->num_rows > 0) {
         $stmt->close();
         $db->close();
         return array("status" => "error", "message" => "Username already exists.");
     }
-    // Done with the SELECT statement
+    // Done with SELECT statement
     $stmt->close();
 
-    // Insert user (store hashed password exactly as received, do NOT hash again!)
+    // Insert user
     $stmt = $db->prepare("INSERT INTO users (username, password, email, firstname, lastname) VALUES (?, ?, ?, ?, ?)");
     if ($stmt === false) {
         $db->close();
         return array("status" => "error", "message" => "Could not prepare insert statement.");
     }
 
-    // Bind the parameters and execute the query
+    // Bind parameters and execute query
     $stmt->bind_param("sssss", $username, $hashedPassword, $email, $firstname, $lastname);
 
-    // If execute fails, return an error message and close the statement and database connection
+    // If execute fails, return error message, close statement and DB connection
     if (!$stmt->execute()) {
         $stmt->close();
         $db->close();
         return array("status" => "error", "message" => "Could not create user.");
     }
 
-    // Done with the INSERT statement
+    // Done with INSERT statement
     $stmt->close();
     $db->close();
 
-    // The user was created successfully
+    // User created successfully
     return array("status" => "success", "message" => "User created.");
 }
 
@@ -74,27 +74,27 @@ function doRegister($firstname, $lastname, $email, $username, $hashedPassword)
 -------------------
 FUNCTION: doLogin()
 -------------------
-This function checks if the provided username and password are correct. If they are, it creates a session key and stores it in the database.
+This function checks if the provided username and password are correct. If true, creates asession key and stores in DB.
 */
 function doLogin($username, $password)
 {
   // Connect to the database
   $db = getDbConnection();
 
-  // If DB is down, we return a clear error message
+  // If DB is down, we return a error message
   if ($db === null) {
       return array("status" => "error", "message" => "Database is not reachable at the moment.");
   }
 
-  // Look up the user in the database
+  // Look up user in database
   $stmt = $db->prepare("SELECT password FROM users WHERE username = ?");
 
-  // If prepare fails, $stmt is false, so we can only close $db
+  // If prepare fails, return error message, close DB connection
   if ($stmt === false) {
       $db->close();
       return array("status" => "error", "message" => "Database query could not be prepared.");
   }
-  // Bind the username parameter and execute the query
+  // Bind username parameter and execute query
   $stmt->bind_param("s", $username);
   $stmt->execute();
   $result = $stmt->get_result();
@@ -106,47 +106,47 @@ function doLogin($username, $password)
       return array("status" => "error", "message" => "Login failed, username or password incorrect.");
   }
 
-  // Fetch the stored password for the user
+  // Fetch stored password for the user
   $row = $result->fetch_assoc();
   $storedPassword = $row["password"];
 
-  // Using password_verify() because DB now stores hashed passwords
+  // Using password_verify() because DB stores hashed passwords
   if (!password_verify($password, $storedPassword)) {
       $stmt->close();
       $db->close();
       return array("status" => "error", "message" => "Login failed, username or password incorrect.");
   }
 
-  // Done with the SELECT statement
+  // Done with SELECT statement
   $stmt->close();
 
   // Create a session key
   $sessionKey = bin2hex(random_bytes(16));
 
-  // Store the session key in the sessions table
+  // Store session key in the sessions table
   $stmt = $db->prepare("INSERT INTO sessions (session_key, username) VALUES (?, ?)");
 
-  // If prepare fails, $stmt is false, so we can only close $db
+  // If prepare fails, return error message, and close DB connection
   if ($stmt === false) {
       $db->close();
       return array("status" => "error", "message" => "Could not prepare statement to save session key.");
   }
 
-  // Bind the session key and username parameters and execute the query
+  // Bind session key and username parameters and execute query
   $stmt->bind_param("ss", $sessionKey, $username);
 
-  // If execute fails, we return an error message and close the statement and database connection
+  // If execute fails, return error message, close statement and DB connection
   if (!$stmt->execute()) {
       $stmt->close();
       $db->close();
       return array("status" => "error", "message" => "Could not save session key.");
   }
 
-  // Done with the INSERT statement
+  // Done with INSERT statement
   $stmt->close();
   $db->close();
 
-  // Send session key back so the frontend can store it in $_SESSION
+  // Send session key back so frontend can store in $_SESSION arrayy variable
   return array("status" => "success", "session_key" => $sessionKey);
 }
 
@@ -161,33 +161,33 @@ function doValidate($sessionId, $username)
   // Connect to the database
   $db = getDbConnection();
 
-  // If DB is down, we return a clear error message
+  // If DB is down, we return a error message
   if ($db === null) {
       return array("status" => "error", "message" => "Database is not reachable at the moment.");
   }
 
-  // Check if sessionId is provided
+  // Check if sessionId provided
   if (!isset($sessionId) || trim($sessionId) === "") {
       $db->close();
       return array("status" => "error", "message" => "No session key was provided.");
   }
 
-  // Check if username is provided
+  // Check if username provided
   if (!isset($username) || trim($username) === "") {
       $db->close();
       return array("status" => "error", "message" => "No username was provided.");
   }
 
-  // Look up the session key in the database
+  // Look up session key in the sessions db
   $stmt = $db->prepare("SELECT session_key FROM sessions WHERE session_key = ? AND username = ?");
 
-  // If prepare fails, $stmt is false, so we can only close $db
+  // If prepare fails, return error message, closee DB connection
   if ($stmt === false) {
       $db->close();
       return array("status" => "error", "message" => "Could not prepare statement to check session key.");
   }
 
-  // Bind the session key and username parameters and execute the query
+  // Bind session key and username parameters and execute query
   $stmt->bind_param("ss", $sessionId, $username);
   $stmt->execute();
   $result = $stmt->get_result();
@@ -199,11 +199,11 @@ function doValidate($sessionId, $username)
       return array("status" => "error", "message" => "Session key not valid.");
   }
 
-  // Done with the SELECT statement
+  // Done with SELECT statement
   $stmt->close();
   $db->close();
 
-  // The session key is valid
+  // Session key is valid
   return array("status" => "success", "message" => "Session key is valid.");
 }
 
@@ -328,10 +328,81 @@ function listReviews($request){
 }
 
 /*
+-----------------------------
+FUNCTION: doSaveProfile()
+-----------------------------
+This function saves or updates a users dietary profile.
+*/
+function doSaveProfile($request)
+{
+    // Connect to the database
+    $db = getDbConnection();
+
+    // If DB is down, return error message
+    if ($db === null) {
+        return array("status" => "error", "message" => "Database is not reachable right now.");
+    }
+
+    // Get values from the request
+    $username = $request["username"] ?? null;
+    $goal = $request["dietary_goal"] ?? null;
+    $calories = $request["calorie_target"] ?? null;
+    $kosher = $request["kosher"] ?? 0;
+    $halal = $request["halal"] ?? 0;
+    $vegetarian = $request["vegetarian"] ?? 0;
+    $vegan = $request["vegan"] ?? 0;
+    $allergies = $request["allergies"] ?? null;
+
+    // Check for usernme
+    if ($username == null) {
+        $db->close();
+        return array("status" => "error", "message" => "Missing username.");
+    }
+
+    // Insert new profile or update if username exists
+    $sql = "INSERT INTO user_profiles (username, dietary_goal, calorie_target, kosher, halal, vegetarian, vegan, allergies)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+
+            ON DUPLICATE KEY UPDATE
+
+            dietary_goal = VALUES(dietary_goal),
+            calorie_target = VALUES(calorie_target),
+            kosher = VALUES(kosher),
+            halal = VALUES(halal),
+            vegetarian = VALUES(vegetarian),
+            vegan = VALUES(vegan),
+            allergies = VALUES(allergies)";
+
+    $stmt = $db->prepare($sql);
+
+    // Cancel if preparation fails
+    if ($stmt === false) {
+        $db->close();
+        return array("status" => "error", "message" => "Could not prepare profile query.");
+    }
+
+    // Bind parameters and execute the query
+    $stmt->bind_param("ssiiiiis", $username, $goal, $calories, $kosher, $halal, $vegetarian, $vegan, $allergies);
+
+    // If execute fails, return error message, close statement and DB connection
+    if (!$stmt->execute()) {
+        $stmt->close();
+        $db->close();
+        return array("status" => "error", "message" => "Could not save profile.");
+    }
+
+    // Done with the statement
+    $stmt->close();
+    $db->close();
+
+    return array("status" => "success", "message" => "Profile saved.");
+}
+
+/*
 ----------------------------
 FUNCTION: requestProcessor()
 ----------------------------
-This function is called by the RabbitMQ server whenever a new request is received.
+This function is called whenever a new request is received.
 */
 function requestProcessor($request)
 {
@@ -343,28 +414,28 @@ function requestProcessor($request)
       return array("status" => "error", "message" => "Request type is missing.");
   }
 
-  // Process the request based on its type
+  // Process request based on it's type
   switch ($request["type"]) {
 
     case "register":
-    // Check if all required fields are provided
+    // Check if all required fields provided
         if (!isset($request["firstname"], $request["lastname"], $request["email"], $request["username"], $request["password"])) {
             return array("status" => "error", "message" => "Register request is missing fields.");
         }
         return doRegister(
-            // NOTE: the password is already hashed by the client, so do NOT hash it again!
+            // NOTE: password already hashed by client side
             $request["firstname"], $request["lastname"], $request["email"], $request["username"], $request["password"]
         );
 
     case "login":
-    // Check if username and password are provided
+    // Check if username and password provided
       if (!isset($request["username"]) || !isset($request["password"])) {
           return array("status" => "error", "message" => "Login request is missing username or password.");
       }
       return doLogin($request["username"], $request["password"]);
 
     case "validate_session":
-    // Check if sessionId is provided
+    // Check if sessionId provided
       if (!isset($request["sessionId"]) || !isset($request["username"])) {
           return array("status" => "error", "message" => "Session validation request is missing sessionId or username.");
       }
@@ -376,15 +447,23 @@ function requestProcessor($request)
     case "load_reviews":
         echo "attempting to load reviews" . PHP_EOL;
         return listReviews($request);
+
+    case "save_profile":
+    // Check if username provided
+        if (!isset($request["username"])) {
+            return array("status" => "error", "message" => "Profile request is missing username.");
+        }
+        return doSaveProfile($request);
+
     default:
-    // If the request type is not recognized, return an error message
+    // If request type not recognized, return error message
       return array("status" => "error", "message" => "Unsupported request type: " . $request["type"]);
   }
 }
 
 // NOTE: to test locally use "testServer" 
 // NOTE: to test over ZeroTier use "guiltyDatabase"
-$server = new rabbitMQServer("testRabbitMQ.ini", "guiltyDatabase");
+$server = new rabbitMQServer("testRabbitMQ.ini", "testServer");
 
 echo "testRabbitMQServer BEGIN" . PHP_EOL;
 $server->process_requests("requestProcessor");
