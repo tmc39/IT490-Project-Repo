@@ -70,7 +70,7 @@ try {
     <script src="js/recipeinfo.js" defer></script>
 </head>
 
-<body onload="getInfo();">
+<body onload="getInfo(); getReviews();">
 
 <!-- Shared site navigation bar -->
 <?php include __DIR__ . '/includes/header.php'; ?>
@@ -78,11 +78,6 @@ try {
 <main class="container">
     <!-- Display recipe information here -->
     <section class="card">
-        <div>
-            <p>
-                <?php echo($sessionKey) ?>
-            </p>
-        </div>
         <h1>Recipe Information</h1>
 
         <!-- Display message if there is one -->
@@ -125,13 +120,8 @@ try {
     <!-- where user reviews for a recipe will show -->
     <section class="card">
         <h1>User Reviews</h1>
-
+        <input type="button" onclick="return getReviews()" value="Reload reviews">
         <div id="reviewslist">
-            <div style="border-style: solid;">
-                <h2>Testman</h2>
-                <h4 style="background-color: lime;">Recommends this recipe</h4>
-                <p>This bagel fucking sucks.</p>
-            </div>
         </div>
     </section>
 </main>
