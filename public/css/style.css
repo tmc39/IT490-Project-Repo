@@ -129,7 +129,6 @@ Logged-in username
     color: white;
 }
 
-
 /* 
 -------------
 Dropdown menu 
@@ -171,7 +170,6 @@ Dropdown menu
     background-color: #333;
 }
 
-
 /* 
 -----------------
 Main content area
@@ -181,7 +179,6 @@ main.container {
     padding: 40px 0;
     flex: 1;
 }
-
 
 /* 
 --------------------
@@ -199,7 +196,6 @@ Card and content box
     margin-top: 0;
 }
 
-
 /* 
 -----
 Forms
@@ -213,6 +209,29 @@ label {
     display: block;
     font-weight: bold;
     margin-bottom: 8px;
+}
+
+/* 
+-------------
+Form messages
+-------------
+*/
+.form-message {
+    padding: 10px 12px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+}
+
+.form-message.success {
+    background-color: #e6f4ea;
+    border: 1px solid #7acb8c;
+    color: #1f5f2c;
+}
+
+.form-message.error {
+    background-color: #fbeaea;
+    border: 1px solid #d88a8a;
+    color: #7a1f1f;
 }
 
 /* 
@@ -252,7 +271,6 @@ label select {
     font-family: inherit;
     font-size: 1rem;
 }
-
 
 /* 
 -------------------------------
@@ -322,7 +340,6 @@ input[type="submit"]:hover,
     background-color: #888;
 }
 
-
 /* 
 ---------------
 Spacing helpers
@@ -331,7 +348,6 @@ Spacing helpers
 .button-row {
     margin-top: 20px;
 }
-
 
 /* 
 ------

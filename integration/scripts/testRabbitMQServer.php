@@ -400,6 +400,68 @@ function doSaveProfile($request)
 
 /*
 ----------------------------
+FUNCTION: doGetProfile()
+----------------------------
+This function loads a user's dietary profile.
+*/
+function doGetProfile($username)
+{
+    // Connect to the database
+    $db = getDbConnection();
+
+    // If DB is down, return a error message
+    if ($db === null) {
+        return array("status" => "error", "message" => "Database is not reachable at the moment.");
+    }
+
+    // Check if username provided
+    if (!isset($username) || trim($username) === "") {
+        $db->close();
+        return array("status" => "error", "message" => "No username was provided.");
+    }
+
+    // Look up user's profile
+    $stmt = $db->prepare("SELECT dietary_goal, calorie_target, kosher, halal, vegetarian, vegan, allergies FROM user_profiles WHERE username = ?");
+
+    // Cancel if preparation fails
+    if ($stmt === false) {
+        $db->close();
+        return array("status" => "error", "message" => "Could not prepare profile query.");
+    }
+
+    // Bind username and execute the query
+    $stmt->bind_param("s", $username);
+    $stmt->execute();
+    $result = $stmt->get_result();
+
+    // If no profile exists, return success with empty values
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        $db->close();
+        return array("status" => "success", "message" => "No profile found.",
+            "profile" => array(
+                "dietary_goal" => "",
+                "calorie_target" => "",
+                "kosher" => 0,
+                "halal" => 0,
+                "vegetarian" => 0,
+                "vegan" => 0,
+                "allergies" => ""
+            )
+        );
+    }
+
+    $row = $result->fetch_assoc();
+
+    // Done with the statement
+    $stmt->close();
+    $db->close();
+
+    return array("status" => "success", "message" => "Profile loaded.", "profile" => $row);
+}
+
+/*
+----------------------------
 FUNCTION: requestProcessor()
 ----------------------------
 This function is called whenever a new request is received.
@@ -454,6 +516,13 @@ function requestProcessor($request)
             return array("status" => "error", "message" => "Profile request is missing username.");
         }
         return doSaveProfile($request);
+
+    case "get_profile":
+    // Check if username provided
+        if (!isset($request["username"])) {
+            return array("status" => "error", "message" => "Profile request is missing username.");
+        }
+        return doGetProfile($request["username"]);
 
     default:
     // If request type not recognized, return error message
