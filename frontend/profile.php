@@ -10,6 +10,8 @@ session_start();
 
 require_once __DIR__ . '/lib/rabbitMQ_web_client.php';
 
+$message = "";
+
 if (empty($_SESSION["loggedIn"]) || empty($_SESSION["username"])) {
     header("Location: login.php");
     exit();
@@ -25,14 +27,14 @@ if (empty($sessionKey)) {
     exit();
 }
 
-$request = [
+$sessionRequest = [
     "type" => "validate_session",
     "sessionId" => $sessionKey,
     "username" => $username
 ];
 
 try {
-    $response = sendToRabbitMQ($request);
+    $response = sendToRabbitMQ($sessionRequest);
 
     if (!is_array($response) || ($response["status"] ?? "") !== "success") {
         session_unset();
@@ -47,6 +49,46 @@ try {
     session_destroy();
     header("Location: login.php?msg=" . urlencode("Session check is unavailable."));
     exit();
+}
+
+if ($_SERVER["REQUEST_METHOD"] === "POST") {
+
+    $dietaryGoal = trim($_POST["dietary_goal"] ?? "");
+    $calorieTarget = trim($_POST["calorie_target"] ?? "");
+    $allergies = trim($_POST["allergies"] ?? "");
+
+    $kosher = isset($_POST["kosher"]) ? 1 : 0;
+    $halal = isset($_POST["halal"]) ? 1 : 0;
+    $vegetarian = isset($_POST["vegetarian"]) ? 1 : 0;
+    $vegan = isset($_POST["vegan"]) ? 1 : 0;
+
+    $profileRequest = [
+        "type" => "save_profile",
+        "username" => $username,
+        "dietary_goal" => $dietaryGoal,
+        "calorie_target" => $calorieTarget,
+        "kosher" => $kosher,
+        "halal" => $halal,
+        "vegetarian" => $vegetarian,
+        "vegan" => $vegan,
+        "allergies" => $allergies,
+    ];
+
+    try {
+        $response = sendToRabbitMQ($profileRequest);
+
+        if (is_array($response) && ($response["status"] ?? "") === "success") {
+            $message = "Profile saved successfully.";
+        } elseif (is_array($response) && ($response["status"] ?? "") === "error") {
+            $message = "Could not save profile: " . ($response["message"] ?? "Unknown error.");
+        } else {
+            $message = "Unexpected response from server.";
+        }
+
+    } catch (Exception $e) {
+        error_log("RabbitMQ error in profile.php: " . $e->getMessage());
+        $message = "Profile service is currently unavailable.";
+    }
 }
 ?>
 
@@ -74,6 +116,10 @@ try {
 
         <p>Update your dietary preferences. These settings may later be used to filter foods, recipes, or recommendations.</p>
 
+        <?php if (!empty($message)): ?>
+            <p><?php echo htmlspecialchars($message); ?></p>
+        <?php endif; ?>
+
         <form id="profileForm" method="POST" action="profile.php" onsubmit="return validateProfileForm()">
 
             <div class="form-section">
@@ -96,7 +142,6 @@ try {
 
             <div class="form-section">
                 <p><strong>Dietary Restrictions</strong></p>
-
                 <div class="checkbox-group">
                     <label><input type="checkbox" id="kosher" name="kosher"> Kosher</label>
                     <label><input type="checkbox" id="halal" name="halal"> Halal</label>
