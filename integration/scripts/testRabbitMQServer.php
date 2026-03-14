@@ -335,13 +335,18 @@ This function saves or updates a users dietary profile.
 */
 function doSaveProfile($request)
 {
+    echo "doSaveProfile BEGIN at " . date("Y-m-d H:i:s") . PHP_EOL;
+
     // Connect to the database
     $db = getDbConnection();
 
     // If DB is down, return error message
     if ($db === null) {
+        echo "doSaveProfile: DB connection failed at " . date("Y-m-d H:i:s") . PHP_EOL;
         return array("status" => "error", "message" => "Database is not reachable right now.");
     }
+
+    echo "doSaveProfile: DB connected at " . date("Y-m-d H:i:s") . PHP_EOL;
 
     // Get values from the request
     $username = $request["username"] ?? null;
@@ -355,9 +360,12 @@ function doSaveProfile($request)
 
     // Check for usernme
     if ($username == null) {
+        echo "doSaveProfile: missing username at " . date("Y-m-d H:i:s") . PHP_EOL;
         $db->close();
         return array("status" => "error", "message" => "Missing username.");
     }
+
+    echo "doSaveProfile: preparing query at " . date("Y-m-d H:i:s") . PHP_EOL;
 
     // Insert new profile or update if username exists
     $sql = "INSERT INTO user_profiles (username, dietary_goal, calorie_target, kosher, halal, vegetarian, vegan, allergies)
@@ -377,24 +385,31 @@ function doSaveProfile($request)
 
     // Cancel if preparation fails
     if ($stmt === false) {
+        echo "doSaveProfile: prepare failed: " . $db->error . " at " . date("Y-m-d H:i:s") . PHP_EOL;
         $db->close();
         return array("status" => "error", "message" => "Could not prepare profile query.");
     }
 
+    echo "doSaveProfile: binding params at " . date("Y-m-d H:i:s") . PHP_EOL;
     // Bind parameters and execute the query
     $stmt->bind_param("ssiiiiis", $username, $goal, $calories, $kosher, $halal, $vegetarian, $vegan, $allergies);
 
+    echo "doSaveProfile: executing at " . date("Y-m-d H:i:s") . PHP_EOL;
     // If execute fails, return error message, close statement and DB connection
     if (!$stmt->execute()) {
+        echo "doSaveProfile: execute failed: " . $stmt->error . " at " . date("Y-m-d H:i:s") . PHP_EOL;
         $stmt->close();
         $db->close();
         return array("status" => "error", "message" => "Could not save profile.");
     }
 
+    echo "doSaveProfile: execute finished at " . date("Y-m-d H:i:s") . PHP_EOL;
+
     // Done with the statement
     $stmt->close();
     $db->close();
 
+    echo "doSaveProfile END at " . date("Y-m-d H:i:s") . PHP_EOL;
     return array("status" => "success", "message" => "Profile saved.");
 }
 
@@ -406,36 +421,52 @@ This function loads a user's dietary profile.
 */
 function doGetProfile($username)
 {
+    echo "doGetProfile BEGIN at " . date("Y-m-d H:i:s") . PHP_EOL;
+
     // Connect to the database
     $db = getDbConnection();
 
     // If DB is down, return a error message
     if ($db === null) {
+        echo "doGetProfile: DB connection failed at " . date("Y-m-d H:i:s") . PHP_EOL;
         return array("status" => "error", "message" => "Database is not reachable at the moment.");
     }
 
+    echo "doGetProfile: DB connected at " . date("Y-m-d H:i:s") . PHP_EOL;
+
     // Check if username provided
     if (!isset($username) || trim($username) === "") {
+        echo "doGetProfile: missing username at " . date("Y-m-d H:i:s") . PHP_EOL;
         $db->close();
         return array("status" => "error", "message" => "No username was provided.");
     }
 
+    echo "doGetProfile: preparing query at " . date("Y-m-d H:i:s") . PHP_EOL;
     // Look up user's profile
     $stmt = $db->prepare("SELECT dietary_goal, calorie_target, kosher, halal, vegetarian, vegan, allergies FROM user_profiles WHERE username = ?");
 
     // Cancel if preparation fails
     if ($stmt === false) {
+        echo "doGetProfile: prepare failed: " . $db->error . " at " . date("Y-m-d H:i:s") . PHP_EOL;
         $db->close();
         return array("status" => "error", "message" => "Could not prepare profile query.");
     }
 
     // Bind username and execute the query
+    echo "doGetProfile: binding param at " . date("Y-m-d H:i:s") . PHP_EOL;
     $stmt->bind_param("s", $username);
+
+    echo "doGetProfile: executing at " . date("Y-m-d H:i:s") . PHP_EOL;
     $stmt->execute();
+
+    echo "doGetProfile: getting result at " . date("Y-m-d H:i:s") . PHP_EOL;
     $result = $stmt->get_result();
+
+    echo "doGetProfile: result received at " . date("Y-m-d H:i:s") . PHP_EOL;
 
     // If no profile exists, return success with empty values
     if ($result->num_rows === 0) {
+        echo "doGetProfile: no profile found at " . date("Y-m-d H:i:s") . PHP_EOL;
         $stmt->close();
         $db->close();
         return array("status" => "success", "message" => "No profile found.",
@@ -452,11 +483,13 @@ function doGetProfile($username)
     }
 
     $row = $result->fetch_assoc();
+    echo "doGetProfile: row fetched at " . date("Y-m-d H:i:s") . PHP_EOL;
 
     // Done with the statement
     $stmt->close();
     $db->close();
 
+    echo "doGetProfile END at " . date("Y-m-d H:i:s") . PHP_EOL;
     return array("status" => "success", "message" => "Profile loaded.", "profile" => $row);
 }
 

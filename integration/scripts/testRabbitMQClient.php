@@ -16,11 +16,35 @@ else
   $msg = "test message";
 }
 
+/*
+// get_profile test
+$request = array();
+$request['type'] = "get_profile";
+$request['username'] = "NJ2026";
+*/
+
+
+// save_profile test
+$request = array();
+$request['type'] = "save_profile";
+$request['username'] = "NJ2026";
+$request['dietary_goal'] = "weight_loss";
+$request['calorie_target'] = 2300;
+$request['kosher'] = 0;
+$request['halal'] = 0;
+$request['vegetarian'] = 0;
+$request['vegan'] = 1;
+$request['allergies'] = "strawberry";
+
+
+/*
 $request = array();
 $request['type'] = "login";
 $request['username'] = "steve";
 $request['password'] = "password";
 $request['message'] = $msg;
+*/
+
 $response = $client->send_request($request);
 //$response = $client->publish($request);
 
@@ -29,4 +53,4 @@ print_r($response);
 echo "\n\n";
 
 echo $argv[0]." END".PHP_EOL;
-
+?>

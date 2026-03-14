@@ -68,7 +68,9 @@ $getProfileRequest = [
 ];
 
 try {
+    error_log("profile.php BEFORE get_profile at " . date("Y-m-d H:i:s"));
     $profileResponse = sendToRabbitMQ($getProfileRequest);
+    error_log("profile.php AFTER get_profile at " . date("Y-m-d H:i:s"));
 
     if (is_array($profileResponse) && ($profileResponse["status"] ?? "") === "success" && isset($profileResponse["profile"])) {
         $profileData = $profileResponse["profile"];
@@ -102,7 +104,9 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     ];
 
     try {
+        error_log("profile.php BEFORE save_profile at " . date("Y-m-d H:i:s"));
         $response = sendToRabbitMQ($profileRequest);
+        error_log("profile.php AFTER save_profile at " . date("Y-m-d H:i:s"));
 
         if (is_array($response) && ($response["status"] ?? "") === "success") {
             $message = "Profile saved successfully.";
