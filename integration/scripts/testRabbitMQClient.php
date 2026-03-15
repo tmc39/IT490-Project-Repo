@@ -16,16 +16,16 @@ else
   $msg = "test message";
 }
 
+$request = array();
+
 /*
 // get_profile test
-$request = array();
 $request['type'] = "get_profile";
 $request['username'] = "NJ2026";
 */
 
-
+/*
 // save_profile test
-$request = array();
 $request['type'] = "save_profile";
 $request['username'] = "NJ2026";
 $request['dietary_goal'] = "weight_loss";
@@ -35,16 +35,16 @@ $request['halal'] = 0;
 $request['vegetarian'] = 0;
 $request['vegan'] = 1;
 $request['allergies'] = "strawberry";
+*/
 
 
-/*
-$request = array();
+// login test
 $request['type'] = "login";
 $request['username'] = "steve";
 $request['password'] = "password";
-$request['message'] = $msg;
-*/
 
+
+$request['message'] = $msg;
 $response = $client->send_request($request);
 //$response = $client->publish($request);
 
