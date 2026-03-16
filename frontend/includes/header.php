@@ -32,6 +32,7 @@ $currentPage = basename($_SERVER['PHP_SELF']);
                         <a class="<?= ($currentPage === 'profile.php') ? 'active' : '' ?>" href="/frontend/profile.php">Profile</a>
                         <a class="<?= ($currentPage === 'foodsearch.php') ? 'active' : '' ?>" href="/frontend/foodsearch.php">Food Search</a>
                         <a class="<?= ($currentPage === 'recipesearch.php') ? 'active' : '' ?>" href="/frontend/recipesearch.php">Recipe Search</a>
+                        <a class="<?= ($currentPage === 'fridge.php') ? 'active' : '' ?>" href="/frontend/fridge.php">Scan Fridge</a>
                     </div>
                 </div>
 
