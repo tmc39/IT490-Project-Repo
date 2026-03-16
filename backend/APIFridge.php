@@ -1,7 +1,6 @@
 <?php
 // backend/APIFridge.php
 
-// 1. FIX PATH: Points exactly to where your 'cat' command showed the file
 $keyPath = '/home/it490/Desktop/IT490-Project-Repo/backend/BigFatKeys.php';
 
 if (file_exists($keyPath)) {
@@ -11,7 +10,6 @@ if (file_exists($keyPath)) {
 }
 
 function identifyFridgeItems($base64Image) {
-    // 2. USE YOUR VARIABLES: Bringing them into the function scope
     global $fatSecretKey, $fatSecretSecret;
 
     if (!isset($fatSecretKey) || !isset($fatSecretSecret)) {
@@ -21,7 +19,7 @@ function identifyFridgeItems($base64Image) {
         ];
     }
 
-    // 3. GET OAUTH2 TOKEN
+    // GET OAUTH2 TOKEN
     $tokenUrl = "https://oauth.fatsecret.com/connect/token";
 
     $ch = curl_init();
@@ -43,7 +41,7 @@ function identifyFridgeItems($base64Image) {
         ];
     }
 
-    // 4. SEND IMAGE TO RECOGNIZE API
+    // SEND IMAGE TO RECOGNIZE API
     $apiUrl = "https://platform.fatsecret.com/rest/server.api";
     $postData = [
         'method' => 'food.recognize',
@@ -64,7 +62,7 @@ function identifyFridgeItems($base64Image) {
     $apiResult = json_decode(curl_exec($ch), true);
     curl_close($ch);
 
-    // 5. RETURN THE DATA
+    // RETURN THE DATA
     if (isset($apiResult['food_recognition']['suggestions']['suggestion'])) {
         $topSuggestion = $apiResult['food_recognition']['suggestions']['suggestion'][0];
         return [
