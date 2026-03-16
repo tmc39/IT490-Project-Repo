@@ -1,32 +1,34 @@
 <?php
 // backend/APIFridge.php
-
 $keyPath = '/home/it490/Desktop/IT490-Project-Repo/backend/BigFatKeys.php';
 
 if (file_exists($keyPath)) {
     require_once($keyPath);
-} else {
-    echo "CRITICAL ERROR: BigFatKeys.php not found at: $keyPath" . PHP_EOL;
 }
 
 function identifyFridgeItems($base64Image) {
+    // You must tell the function to use the variables from BigFatKeys.php
     global $fatSecretKey, $fatSecretSecret;
 
-    if (!isset($fatSecretKey) || !isset($fatSecretSecret)) {
+    // Debugging check: if these are empty, the error message will tell us
+    if (empty($fatSecretKey) || empty($fatSecretSecret)) {
         return [
             "status" => "error", 
-            "message" => "API Credentials ($fatSecretKey/$fatSecretSecret) are not set in BigFatKeys.php"
+            "message" => "API Credentials are empty in BigFatKeys.php"
         ];
     }
 
-    // GET OAUTH2 TOKEN
-    $tokenUrl = "https://oauth.fatsecret.com/connect/token";
+    // Use the variables for the OAuth2 call
+    $id = $fatSecretKey;
+    $secret = $fatSecretSecret;
 
+    // --- OAuth2 Token Logic ---
+    $tokenUrl = "https://oauth.fatsecret.com/connect/token";
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $tokenUrl);
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, "grant_type=client_credentials&scope=basic");
-    curl_setopt($ch, CURLOPT_USERPWD, "$fatSecretKey:$fatSecretSecret");
+    curl_setopt($ch, CURLOPT_USERPWD, "$id:$secret");
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     
     $tokenResponse = json_decode(curl_exec($ch), true);
@@ -34,14 +36,10 @@ function identifyFridgeItems($base64Image) {
     curl_close($ch);
 
     if (!$accessToken) {
-        return [
-            "status" => "error", 
-            "message" => "Failed to get API Token. Check your Key and Secret.",
-            "debug" => $tokenResponse
-        ];
+        return ["status" => "error", "message" => "Failed to get API Token from FatSecret"];
     }
 
-    // SEND IMAGE TO RECOGNIZE API
+    // --- API Recognition Logic ---
     $apiUrl = "https://platform.fatsecret.com/rest/server.api";
     $postData = [
         'method' => 'food.recognize',
@@ -53,29 +51,21 @@ function identifyFridgeItems($base64Image) {
     curl_setopt($ch, CURLOPT_URL, $apiUrl);
     curl_setopt($ch, CURLOPT_POST, 1);
     curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($postData));
-    curl_setopt($ch, CURLOPT_HTTPHEADER, [
-        "Authorization: Bearer $accessToken",
-        "Content-Type: application/x-www-form-urlencoded"
-    ]);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, ["Authorization: Bearer $accessToken"]);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     
     $apiResult = json_decode(curl_exec($ch), true);
     curl_close($ch);
 
-    // RETURN THE DATA
     if (isset($apiResult['food_recognition']['suggestions']['suggestion'])) {
-        $topSuggestion = $apiResult['food_recognition']['suggestions']['suggestion'][0];
+        $food = $apiResult['food_recognition']['suggestions']['suggestion'][0];
         return [
             "status" => "success",
-            "food_name" => $topSuggestion['food_name'] ?? "Unknown Food",
-            "calories" => $topSuggestion['calories'] ?? "N/A",
-            "message" => "Successfully identified food!"
+            "food_name" => $food['food_name'],
+            "calories" => $food['calories'],
+            "message" => "API identification successful"
         ];
     }
 
-    return [
-        "status" => "error", 
-        "message" => "API could not identify image", 
-        "debug" => $apiResult
-    ];
+    return ["status" => "error", "message" => "Food not recognized", "raw" => $apiResult];
 }
