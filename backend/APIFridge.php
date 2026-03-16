@@ -1,7 +1,7 @@
 <?php
 require_once(__DIR__ . '/BigFatKeys.php');
 
-function getFoodIdentification($base64Image) {
+function identifyFridgeItems($base64Image) {
     // This is where you'd call your Image Recognition API (like Google Vision or FatSecret)
     // For IT490, we often use a mock or a specific API endpoint.
     
