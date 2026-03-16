@@ -1,7 +1,7 @@
 <?php
 session_start();
 // Pointing to the actual integration folder
-require_once __DIR__ . '/../integration/lib/rabbitMQClient.php';
+require_once(__DIR__ . '/../integration/lib/rabbitMQLib.inc');
 
 if (empty($_SESSION["username"])) {
     header("Location: login.php");
