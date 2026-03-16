@@ -526,6 +526,14 @@ function requestProcessor($request)
         }
         return doGetProfile($request["username"]);
 
+    case "fridge_scan":
+        // Ensure we point to the correct file path
+        require_once(__DIR__ . '/../../backend/APIFridge.php'); 
+        if (!isset($request['image_data'])) {
+            return array("status" => "error", "message" => "Missing image data.");
+        }
+        return identifyFridgeItems($request['image_data']);
+
     default:
     // If request type not recognized, return error message
       return array("status" => "error", "message" => "Unsupported request type: " . $request["type"]);
