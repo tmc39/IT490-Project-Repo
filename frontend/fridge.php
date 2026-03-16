@@ -35,7 +35,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_FILES["fridge_image"])) {
              * 1. Create the client object pointing to your .ini
              * 2. Use the 'testServer' instance defined in your .ini
              */
-            $client = new rabbitMQClient(__DIR__ . "/../integration/scripts/testRabbitMQ.ini", "testServer");
+            $client = new rabbitMQClient("/home/it490/Desktop/IT490-Project-Repo/integration/scripts/testRabbitMQ.ini", "testServer");
             $results = $client->send_request($request);
             
         } catch (Exception $e) {
