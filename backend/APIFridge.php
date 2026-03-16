@@ -1,5 +1,5 @@
 <?php
-require_once(__DIR__ . '/BigFatKeys.php');
+require_once('/home/it490/Desktop/IT490-Project-Repo/backend/BigFatKeys.php');
 
 function identifyFridgeItems($base64Image) {
     // 1. Get OAuth2 Token from FatSecret
