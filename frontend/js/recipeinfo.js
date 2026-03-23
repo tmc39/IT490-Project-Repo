@@ -107,9 +107,9 @@ function postReview(){
     document.getElementById('postReviewResult').innerText = "...";
 
     //gets whether or not the new review is positive
-    var pos = false;
-    if(document.getElementById('newReviewType').value = "positive"){
-        pos = true;
+    var pos = 0;
+    if(document.getElementById('newReviewType').value == "positive"){
+        pos = 1;
     }
     const isPositive = pos;
 
@@ -231,7 +231,8 @@ function displayReviews(){
             reviewResultsHTML += '<h2>' + jsonResults.review[i].username + '</h2>';
         }
         reviewResultsHTML += '<p>' + jsonResults.review[i].reviewDescription.replaceAll("_", " ") + '</p>';
-
+        //reviewResultsHTML += '<p>' + jsonResults.review[i].isPositive + '</p>';
+        console.log("Review is positive: " + jsonResults.review[i].isPositive);
         reviewResultsHTML += '</div>';
         i++;
     }
