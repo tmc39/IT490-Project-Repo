@@ -3,23 +3,27 @@
 # ---------------------------------------------------
 # install_bundle.sh
 #
-# Installs a deployment bundle onto this VM.
+# This script installs a bundle onto this machine.
 #
 # NOTE:
 #   If you see "Permission denied", run:
 #   chmod +x install_bundle.sh
 #
-# Bundle structure:
+# Usage:
+#   ./install_bundle.sh /path/to/bundle.zip [install_target]
+#
+# Bundle layout:
 #   bundle/
 #     ├── version.txt
 #     ├── commands.txt (optional)
 #     └── files/
 #         ├── index.php
-#         ├── frontend/
-#         ├── backend/
-#         ├── integration/
-#         ├── public/
-#         └── database/
+#         └── project folders (frontend, backend, etc.)
+#
+# NOTE:
+#   This script does NOT restart services on its own.
+#   If you need to restart something (like Apache),
+#   put those commands in commands.txt.
 # ---------------------------------------------------
 
 
@@ -29,7 +33,7 @@
 
 set -e
 set -o pipefail
-trap 'echo "ERROR: Command \"$BASH_COMMAND\" failed on line $LINENO"; exit 1' ERR
+trap 'echo "ERROR: Something failed on line $LINENO"; exit 1' ERR
 
 
 # ---------------------------------------------------
@@ -37,48 +41,47 @@ trap 'echo "ERROR: Command \"$BASH_COMMAND\" failed on line $LINENO"; exit 1' ER
 # ---------------------------------------------------
 
 BUNDLE_ZIP="$1"
-WEBROOT="/var/www/html"
+WEBROOT="${2:-/var/www/html}"
 TEMP_DIR="/tmp/it490_bundle_install"
 BUNDLE_ROOT="$TEMP_DIR/bundle"
 FILES_DIR="$BUNDLE_ROOT/files"
 VERSION_FILE="$BUNDLE_ROOT/version.txt"
 COMMANDS_FILE="$BUNDLE_ROOT/commands.txt"
 
-PROJECT_FOLDERS=("frontend" "backend" "integration" "public" "database")
-
 
 # ---------------------------------------------------
-# 1) Safety checks
+# 1) Basic checks
 # ---------------------------------------------------
 
-echo "Starting bundle installation..."
+echo "Starting install..."
 
 if [[ -z "$BUNDLE_ZIP" ]]; then
-    echo "ERROR: No bundle provided"
+    echo "No bundle provided."
+    echo "Usage: ./install_bundle.sh /path/to/bundle.zip [install_target]"
     exit 1
 fi
 
 if [[ ! -f "$BUNDLE_ZIP" ]]; then
-    echo "ERROR: Bundle not found: $BUNDLE_ZIP"
+    echo "Bundle not found: $BUNDLE_ZIP"
     exit 1
 fi
 
 if [[ ! -d "$WEBROOT" ]]; then
-    echo "ERROR: Webroot not found: $WEBROOT"
+    echo "Install location not found: $WEBROOT"
     exit 1
 fi
 
 if ! command -v unzip >/dev/null 2>&1; then
-    echo "ERROR: unzip not installed"
+    echo "unzip is not installed."
     exit 1
 fi
 
 
 # ---------------------------------------------------
-# 2) Prepare temp folder
+# 2) Set up temp workspace
 # ---------------------------------------------------
 
-echo "Preparing workspace..."
+echo "Setting up temporary workspace..."
 rm -rf "$TEMP_DIR"
 mkdir -p "$TEMP_DIR"
 
@@ -92,72 +95,81 @@ unzip -q "$BUNDLE_ZIP" -d "$TEMP_DIR"
 
 
 # ---------------------------------------------------
-# 4) Verify bundle structure
+# 4) Check bundle structure
 # ---------------------------------------------------
 
-echo "Checking bundle structure..."
+echo "Checking bundle contents..."
 
 if [[ ! -d "$BUNDLE_ROOT" || ! -d "$FILES_DIR" ]]; then
-    echo "ERROR: Invalid bundle structure"
+    echo "Bundle structure is not correct."
     exit 1
 fi
 
 if [[ ! -f "$VERSION_FILE" ]]; then
-    echo "ERROR: version.txt missing"
+    echo "version.txt is missing."
     exit 1
 fi
 
 VERSION=$(tr -d '[:space:]' < "$VERSION_FILE")
 
 if [[ -z "$VERSION" ]]; then
-    echo "ERROR: version.txt empty"
+    echo "version.txt is empty."
     exit 1
 fi
 
 echo "Bundle version: $VERSION"
+echo "Installing to: $WEBROOT"
 
 
 # ---------------------------------------------------
-# 5) Copy bundled project folders
+# 5) Copy project folders
 # ---------------------------------------------------
 
 echo "Copying project folders..."
 
-for folder in "${PROJECT_FOLDERS[@]}"; do
-    if [[ -d "$FILES_DIR/$folder" ]]; then
-        echo "Installing: $folder"
-        sudo rm -rf "$WEBROOT/$folder"
-        sudo cp -a "$FILES_DIR/$folder" "$WEBROOT/"
-    else
-        echo "Skipping: $folder"
+FOUND_FOLDER=false
+
+for item in "$FILES_DIR"/*; do
+    if [[ -d "$item" ]]; then
+        folder_name=$(basename "$item")
+        echo "Installing folder: $folder_name"
+        sudo rm -rf "$WEBROOT/$folder_name"
+        sudo cp -a "$item" "$WEBROOT/"
+        FOUND_FOLDER=true
     fi
 done
 
+if [[ "$FOUND_FOLDER" == false ]]; then
+    echo "No folders found to install."
+fi
+
 
 # ---------------------------------------------------
-# 6) Copy index.php if present
+# 6) Copy index.php (if included)
 # ---------------------------------------------------
 
 if [[ -f "$FILES_DIR/index.php" ]]; then
     echo "Installing index.php"
     sudo cp "$FILES_DIR/index.php" "$WEBROOT/index.php"
+else
+    echo "No index.php in bundle (skipping)"
 fi
 
 
 # ---------------------------------------------------
-# 7) Run commands.txt if present
+# 7) Run commands (if provided)
 # ---------------------------------------------------
 
 if [[ -f "$COMMANDS_FILE" ]]; then
-    echo "Running commands..."
+    echo "Running commands from commands.txt..."
 
     while IFS= read -r command || [[ -n "$command" ]]; do
         [[ -z "$command" || "$command" =~ ^# ]] && continue
-        echo "Running Command: $command"
+        echo "Running: $command"
         eval "$command"
     done < "$COMMANDS_FILE"
 else
-    echo "No commands.txt (skipping)"
+    echo "No commands.txt found (skipping)"
 fi
 
 
@@ -165,27 +177,15 @@ fi
 # 8) Fix permissions
 # ---------------------------------------------------
 
-echo "Setting permissions..."
+echo "Fixing file permissions..."
 sudo chown -R www-data:www-data "$WEBROOT"
 
 
 # ---------------------------------------------------
-# 9) Reload services
+# 9) Clean up
 # ---------------------------------------------------
 
-echo "Reloading Apache..."
-sudo systemctl reload apache2
-
-if sudo systemctl list-unit-files | grep -q "^testRabbitMQServer.service"; then
-    echo "Restarting backend service..."
-    sudo systemctl restart testRabbitMQServer.service
-fi
-
-
-# ---------------------------------------------------
-# 10) Cleanup
-# ---------------------------------------------------
-
+echo "Cleaning up temp files..."
 rm -rf "$TEMP_DIR"
 
 
@@ -193,4 +193,4 @@ rm -rf "$TEMP_DIR"
 # Done
 # ---------------------------------------------------
 
-echo "Bundle installation complete! Version: $VERSION"
+echo "Install complete! Version: $VERSION"

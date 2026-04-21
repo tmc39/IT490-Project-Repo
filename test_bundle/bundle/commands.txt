@@ -1,1 +1,1 @@
-echo "commands.txt ran successfully"
+echo "commands.txt ran during full bundle test"
