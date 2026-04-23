@@ -18,10 +18,10 @@
 #   [machine]        = current username (whoami)
 #
 # Example (using defaults):
-#   ./install_bundle.sh IT490-Test-Bundle-2.0.0.zip
+#   ./install_bundle.sh IT490-Test-Bundle-1.0.0.zip
 #
-# Example (custom values):
-#   ./install_bundle.sh IT490-Test-Bundle-2.0.0.zip /var/www/html guiltyspark mushran
+# Example (custom values - team setup):
+#   ./install_bundle.sh IT490-Test-Bundle-1.0.0.zip /var/www/html guiltyDatabase mushran
 #
 # Bundle layout:
 #   bundle/

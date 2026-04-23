@@ -22,8 +22,8 @@
 # Example (using defaults):
 #   ./rollback_bundle.sh
 #
-# Example (custom values):
-#   ./rollback_bundle.sh guiltyspark mushran ./Versions /var/www/html
+# Example (custom values - team setup):
+#   ./rollback_bundle.sh guiltyDatabase mushran ./Versions /var/www/html
 #
 # If machine is not provided, the script uses the
 # current Ubuntu username.
