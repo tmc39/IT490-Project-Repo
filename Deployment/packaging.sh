@@ -1,10 +1,17 @@
 #!/bin/bash
 cd ..
-#Using the command below to collate files for the bundle is kinda sloppy and probably not how we should do it, but I see no other options for the time being
-git diff-tree -r --no-commit-id --name-only HEAD > fileChanges.txt
+$1 > version.txt
+
+mv ./version.txt /home/message-broker/Deployment-Server/Versions
+
 while read file; do
-    zip $1.zip $file
-done < fileChanges.txt
-zip $1.zip fileChanges.txt
-rm fileChanges.txt
+    if [ "$file" == "rabbitmq" ]; then
+       sudo zip -r $1.zip /var/lib/rabbitmq
+    else
+        zip $1.zip $file
+    fi
+done < /home/message-broker/Deployment-Server/Sensitive-Info/fileChanges.txt
+zip $1.zip /home/message-broker/Deployment-Server/Versions/fileChanges.txt
+zip $1.zip /home/message-broker/Deployment-Server/Versions/version.txt
+
 mv $1.zip ../Versions

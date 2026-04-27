@@ -4,26 +4,66 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once('rabbitMQLib.inc');
 require_once('DeploymentDatabase.php');
-//require_once(''); include database file here (Im just making a bunch of code that might be useful once we figure out the broker thing)
-//Possibly we could include the client file here as a way to have the server send messages, idk
-
+require_once('DeploymentClient.php');
+/*
+ *
+ * THIS FILE IS ONLY TO BE USED ON THE DEPLOYMENT SERVER
+ *
+ */
 #Pulls a bundle from a machine and stores it on the machine using the scp command (Currently works)
-function pullNewVersion($machine, $ip, $path, $version)
+function pullNewVersion($machine, $ip, $path, $version, $cluster)
 {
   $success = shell_exec("scp $machine@$ip:$path /home/message-broker/Deployment-Server/Versions");
-  #These return statements don't work for some reason
-  if(is_null($success)){
-    return "Pull unsuccessful";
-  }
-  else{
+
+  //if(!$success){
+ //   return "Pull unsuccessful";
+  //}
+  //else{
+    //Run function for adding version to database
+    addVersion($machine, 2, $version);
+    $ip = gethostbyname($machine);
+    //Creates a request to send the new version to the machine it is to be installed on
+    $request = [
+      "type" => "update",
+      "ip" => $ip,
+      "path" => "/home/message-broker/Deployment-Server/Versions/$version.zip",
+      "version" => $version,
+    ];
+
+    echo sendNewVersion($request, $machine, $cluster);
     return "Pull successful";
+ // }
+}
+
+//Function to update the status of a package following testing
+function updateStatus($version, $status, $machine)
+{
+  //Run SQL commandds to update the database with the validation data
+  if($status == "failed")
+  {
+    //needs to pull the name of the last good version from the database
+    updateVersion($version, "failed", $machine);
+
+    $ip = gethostbyname($machine);
+
+    $request = [
+      "type" => "update",
+      "ip" => $ip,
+      "path" => "/home/message-broker/Deployment-Server/Versions/$version.zip",
+      "version" => $version,
+    ];
+  }
+  else if($status == "passed")
+  {
+    //Run SQL command to update
+    updateVersion($version, "good", $machine);
   }
 }
+
 
 function requestProcessor($request)
 {
   echo "received request".PHP_EOL;
-  //This function displays the contents of the request in the terminal in a structured format
   var_dump($request);
 
   if(!isset($request['type']))
@@ -34,7 +74,10 @@ function requestProcessor($request)
   {
     //Switch statement covers responses to different types of requests
     case "new_version":
-      return pullNewVersion($request['machine'], $request['ip'], $request['path'], $request['version']);
+      return pullNewVersion($request['machine'], $request['ip'], $request['path'], $request['version'], $request['cluster']);
+    case "versionValidate":
+      return updateStatus($request['version'], $request['status'], $request['machine']);
+
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
