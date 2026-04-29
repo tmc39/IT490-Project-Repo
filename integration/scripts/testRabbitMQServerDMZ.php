@@ -32,13 +32,13 @@ function requestProcessor($request)
 
     case "recipe_search":
         //check for paremeters
-        if(isset($request["search"])){
+        if(!isset($request["search"])){
             return array("status" => "error", "message" => 'Missing parameter search.');
         }
-        if(isset($request["maxresults"])){
+        if(!isset($request["maxresults"])){
             return array("status" => "error", "message" => 'Missing parameter maxresults.');
         }
-        if(isset($request["page"])){
+        if(!isset($request["page"])){
             return array("status" => "error", "message" => 'Missing parameter page.');
         }
 
@@ -48,12 +48,12 @@ function requestProcessor($request)
         if(!isset($result["status"])){
             return array("status" => "error", "message" => "Failed to get response from methods.");
         }
-        
+        echo "\nreturning API response\n";
         return $result;
 
     case "recipe_info":
         //check for paremeters
-        if(isset($request["search"])){
+        if(!isset($request["search"])){
             return array("status" => "error", "message" => 'Missing parameter search.');
         }
 
@@ -63,18 +63,18 @@ function requestProcessor($request)
         if(!isset($result["status"])){
             return array("status" => "error", "message" => "Failed to get response from methods.");
         }
-        
+        echo "\nreturning API response\n";
         return $result;
 
     case "food_search":
         //check for paremeters
-        if(isset($request["search"])){
+        if(!isset($request["search"])){
             return array("status" => "error", "message" => 'Missing parameter search.');
         }
-        if(isset($request["maxresults"])){
+        if(!isset($request["maxresults"])){
             return array("status" => "error", "message" => 'Missing parameter maxresults.');
         }
-        if(isset($request["page"])){
+        if(!isset($request["page"])){
             return array("status" => "error", "message" => 'Missing parameter page.');
         }
 
@@ -84,12 +84,12 @@ function requestProcessor($request)
         if(!isset($result["status"])){
             return array("status" => "error", "message" => "Failed to get response from methods.");
         }
-        
+        echo "\nreturning API response\n";
         return $result;
 
     case "food_info":
         //check for paremeters
-        if(isset($request["search"])){
+        if(!isset($request["search"])){
             return array("status" => "error", "message" => 'Missing parameter search.');
         }
 
@@ -99,7 +99,7 @@ function requestProcessor($request)
         if(!isset($result["status"])){
             return array("status" => "error", "message" => "Failed to get response from methods.");
         }
-        
+        echo "\nreturning API response\n";
         return $result;
 
     default:

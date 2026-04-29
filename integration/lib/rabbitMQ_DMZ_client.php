@@ -1,15 +1,15 @@
 <?php
 /*
 -----------------------
-rabbitMQ_web_client.php
+rabbitMQ_DMZ_client.php
 -----------------------
-Small helper used by web pages to send requests to RabbitMQ.
+Small helper used by the backend listener to send requests to the DMZ listener.
 */
 
 function sendToRabbitMQ(array $request)
 {
     // Path to RabbitMQ library
-    $integrationLib = realpath(__DIR__ . '/../../integration/lib');
+    $integrationLib = realpath(__DIR__);
 
     if ($integrationLib === false) {
         throw new Exception("Could not find integration/lib folder.");

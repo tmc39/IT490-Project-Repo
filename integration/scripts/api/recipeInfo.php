@@ -85,7 +85,7 @@ unset($ch);
 
 $resultsarray["status"] = "success";
 $resultsarray["message"] = "Recipe search response received.";
-$resultsarray["response"] = $apiresponse;
+$resultsarray["response"] = json_decode($apiresponse, true);
 return $resultsarray;
 
 }
