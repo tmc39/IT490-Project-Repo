@@ -8,7 +8,20 @@ $maxResults = $_GET['maxresults'];
 $pageNumber = $_GET['page'];
 $type = $_GET['type'];
 
+//sets placeholder values if none are given. For parity with old API scripts.
+if($maxresults == null){
+    $maxresults = 10;
+}
+if($page == null){
+    $page = 0;
+}
+
 if($type == "recipe_search" || $type == "food_search"){
+    //Search Query placeholder. If the user somehow fails to give a requested name, they get bageled.
+    if($searchQuery == null){
+        $searchQuery = "bagel";
+    }
+
     $request = [
     "type" => $type,
     "search" => $searchQuery,
@@ -35,6 +48,11 @@ if($type == "recipe_search" || $type == "food_search"){
 
 }
 else if($type == "recipe_info" || $type == "food_info"){
+    //Search Query placeholder. If the user somehow fails to give a requested ID, they get bageled.
+    if($searchQuery == null){
+        $searchQuery = "3540";
+    }
+
     $request = [
     "type" => $type,
     "search" => $searchQuery
