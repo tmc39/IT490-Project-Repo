@@ -16,12 +16,20 @@ function sendBundle(){
     $versionName = readline("Enter bundle name: ");
     chop($versionName);
 
+    $current = getcwd();
+
+    chdir("..");
+    chdir("..");
+    $cwd = getcwd() . "/Versions";
+    $path = "$cwd/$versionName.zip";
+
+    chdir($current);
+
     //Runs the bash packaging script, passing the version name as a parameter
-    $success = shell_exec("./packaging.sh $versionName");
+    $success = shell_exec("./packaging.sh $versionName $cwd");
+    return null;
 
     $machine = get_current_user();
-
-    $path = "/home/message-broker/Deployment-Server/Versions/$versionName.zip";
 
     $ip = gethostbyname($machine);
 
@@ -43,15 +51,16 @@ function updateStatus(){
         chop($status);
     }while(!($status == "passed" || $status == "failed"));
 
+    $machine = get_current_user();
+
     $ip = gethostbyname($machine);
 
     $request = [
         "type" => "versionValidate",
-        "machine" => "message-broker",
-        "status" => $input
+        "machine" => $machine,
+        "status" => $status,
         "ip" => $ip,
-        "version" => $versionName,
-        "cluster" => "qa",
+        #"version" => $versionName,
     ];
 
     echo sendRequest($request);
@@ -61,13 +70,14 @@ $input = 'temp';
 do{
     $input = readline("Function to perform(bundle/status): ");
     chop($input);
-}while(!($cluster == "bundle" || $cluster == "status"));
+}while(!($input == "bundle" || $input == "status"));
 
-switch($input):
+switch($input){
     case('bundle'):
         sendBundle();
         break;
     case('status'):
         updateStatus();
         break;
+}
 ?>

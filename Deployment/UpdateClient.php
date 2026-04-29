@@ -13,16 +13,5 @@ function sendRequest(array $request)
     return $client->send_request($request);
 }
 
-function statusUpdate(){
-    $request = [
-        "type" => "versionValidate",
-        "machine" => "message-broker",
-        "ip" => "192.168.220.131",
-        "version" => $versionName,
-        "cluster" => "qa",
-    ];
+?>
 
-    $client = new rabbitMQClient("guiltyRabbitMQ.ini","guiltyDeployment");
-
-    return $client->send_request($request);
-}

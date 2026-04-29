@@ -10,8 +10,9 @@ while read file; do
     else
         zip $1.zip $file
     fi
-done < /home/message-broker/Deployment-Server/Sensitive-Info/fileChanges.txt
-zip $1.zip /home/message-broker/Deployment-Server/Versions/fileChanges.txt
-zip $1.zip /home/message-broker/Deployment-Server/Versions/version.txt
+done < $2/fileChanges.txt
+zip $1.zip $2/fileChanges.txt
+zip $1.zip $2/commands.txt
+
 
 mv $1.zip ../Versions

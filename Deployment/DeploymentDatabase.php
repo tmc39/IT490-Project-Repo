@@ -13,30 +13,30 @@ function getdbConnection(){
     return $mydb;
 }
 
-function addVersion($machine, $number, $version){
+function addVersion($machine, $version){
         $db = getdbConnection();
-        $query = "INSERT INTO bundles (Bundlename, Versionnumber, Status, Machine) VALUES ('$version', $number, 'new', '$machine');";
+        $query = "INSERT INTO bundles (Bundlename, Versionnumber, Status, Machine) VALUES ('$version', 'new', '$machine');";
         $db->query($query);
         $db->close();
 }
 
 function lastGood($machine){
     $db = getdbConnection();
-    $query = "SELECT MAX(Versionnumber) FROM bundles (Bundlename, Versionnumber, Status, Machine) WHERE Status = 'good' AND Machine = '$machine';";
+    $query = "SELECT Bundlename FROM bundles WHERE Status = 'good' AND Machine = '$machine' ORDER BY Versionnumber DESC LIMIT 1;";
     $result = $db->query($query);
     $db->close();
     return $result;
 }
 
 
-function updateVersion($version, $status, $machine){
+function updateVersion($status, $machine){
     $db = getdbConnection();
     $query = " ";
     if($status == "passed"){
-        $query = "UPDATE bundles SET Status='good' WHERE Bundlename=$version;";
+        $query = "UPDATE bundles SET Status='good' WHERE Status = 'new' AND Machine = '$machine';";
     }
     else if($status == "failed"){
-        $query = "UPDATE bundles SET Status='failed' WHERE Bundlename=$version;";
+        $query = "UPDATE bundles SET Status='failed' WHERE Status = 'new' AND Machine = '$machine';";
         return lastGood($machine);
     }
     $db->query($query);

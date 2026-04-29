@@ -8,14 +8,28 @@ require_once('DeploymentDatabase.php');
 #Pulls a bundle from a machine and stores it on the machine using the scp command (Currently works)
 function pullNewVersion($ip, $path, $version)
 {
-  $success = shell_exec("scp message-broker@$ip:$path /home/message-broker/Deployment-Server/Versions");
-  #These return statements don't work for some reason
-  if(is_null($success)){
-    return "Pull unsuccessful";
-  }
-  else{
-    //Run function for installing new package    return "Pull successful";
-  }
+    $current = getcwd();
+    chdir("..");
+    chdir("..");
+    $destination = getcwd() . "/Versions";
+    chdir($current);
+
+  shell_exec("scp message-broker@$ip:$path $destination");
+
+  shell_exec("./install_bundle.sh $version");
+}
+
+function rollback($version, $ip, $path){
+
+  $current = getcwd();
+  chdir("..");
+  chdir("..");
+  $destination = getcwd() . "/Versions";
+  chdir($current);
+
+  shell_exec("scp message-broker@$ip:$path $destination");
+
+  shell_exec("./rollback_bundle.sh $version");
 }
 
 function requestProcessor($request)
@@ -33,6 +47,8 @@ function requestProcessor($request)
     //Switch statement covers responses to different types of requests
     case "update":
       return pullNewVersion($request['ip'], $request['path'], $request['version']);
+    case "rollback"
+      return rollback()
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
