@@ -17,7 +17,8 @@ function pullNewVersion($machine, $ip, $path, $version, $cluster)
 
     //Run function for adding version to database
     addVersion($machine, $version);
-    $ip = gethostbyname($machine);
+    #$ip = gethostbyname($machine);
+    $ip = '192.168.192.128';
 
     //Creates a request to send the new version to the machine it is to be installed on
     $request = [
@@ -28,8 +29,7 @@ function pullNewVersion($machine, $ip, $path, $version, $cluster)
     ];
 
     echo sendNewVersion($request, $machine, $cluster);
-    return "Pull successful";
- }
+    return "good";
 }
 
 //Function to update the status of a package following testing
@@ -41,7 +41,8 @@ function updateStatus($status, $machine)
     //needs to pull the name of the last good version from the database
     updateVersion("failed", $machine);
 
-    $ip = gethostbyname($machine);
+    #$ip = gethostbyname($machine);
+    $ip = '192.168.192.128';
 
     $goodBundle = lastGood($machine);
     echo $goodBundle;
@@ -84,7 +85,7 @@ function requestProcessor($request)
 }
 
 //instantiates new server object
-$server = new rabbitMQServer("guiltyRabbitMQ.ini","guiltyDeployment");
+$server = new rabbitMQServer("guiltyDeployment.ini","guiltyDeployment");
 
 echo "testRabbitMQServer BEGIN".PHP_EOL;
 //process_requests starts the server and has it listen for messages

@@ -4,6 +4,10 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once __DIR__ . '/UpdateClient.php';
 
+/*
+ for testing purposes, just put test when prompted for a cluster and make
+ the version's name whatever you want
+ */
 function sendBundle(){
     $cluster = "temp";
 

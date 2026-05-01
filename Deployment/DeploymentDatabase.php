@@ -15,7 +15,7 @@ function getdbConnection(){
 
 function addVersion($machine, $version){
         $db = getdbConnection();
-        $query = "INSERT INTO bundles (Bundlename, Versionnumber, Status, Machine) VALUES ('$version', 'new', '$machine');";
+        $query = "INSERT INTO bundles (Bundlename, Status, Machine) VALUES ('$version', 'new', '$machine');";
         $db->query($query);
         $db->close();
 }

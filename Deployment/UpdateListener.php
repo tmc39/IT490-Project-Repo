@@ -47,8 +47,8 @@ function requestProcessor($request)
     //Switch statement covers responses to different types of requests
     case "update":
       return pullNewVersion($request['ip'], $request['path'], $request['version']);
-    case "rollback"
-      return rollback()
+    case "rollback":
+      return rollback($request['version'], $request['ip'], $request['path']);
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");
 }
