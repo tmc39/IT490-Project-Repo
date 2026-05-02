@@ -36,10 +36,20 @@ function sendLogMessage($message, $level = "ERROR", $source = "UNKNOWN")
 
     } catch (Exception $e) {
 
-        // fallback if RabbitMQ fails
+        // fallback if RabbitMQ fails (same format as main logs)
+        $fallbackFile = "/tmp/local_fallback.log";
+
+        $fallbackEntry =
+            "{\n" .
+            "    timestamp: {$logData['timestamp']},\n" .
+            "    level: {$logData['level']},\n" .
+            "    source: {$logData['source']},\n" .
+            "    message: {$logData['message']}\n" .
+            "}\n\n";
+
         file_put_contents(
-            "/tmp/local_fallback.log",
-            json_encode($logData) . PHP_EOL,
+            $fallbackFile,
+            $fallbackEntry,
             FILE_APPEND
         );
     }
