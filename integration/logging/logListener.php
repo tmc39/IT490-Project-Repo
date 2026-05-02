@@ -19,14 +19,25 @@ Runs whenever a log message is received.
 */
 function logCallback($request)
 {
-    $logFile = "/var/log/guiltyspark/distributed.log";
+    $logDir = "/var/log/guiltyspark";
+    $logFile = $logDir . "/distributed.log";
 
-    // append log to file
-    file_put_contents(
-        $logFile,
-        json_encode($request) . PHP_EOL,
-        FILE_APPEND
-    );
+    // create log directory if it does not exist
+    if (!is_dir($logDir)) {
+        mkdir($logDir, 0777, true);
+    }
+
+    // build readable log entry
+    $logEntry =
+        "{\n" .
+        "    timestamp: " . ($request["timestamp"] ?? "N/A") . ",\n" .
+        "    level: " . ($request["level"] ?? "N/A") . ",\n" .
+        "    source: " . ($request["source"] ?? "N/A") . ",\n" .
+        "    message: " . ($request["message"] ?? "N/A") . "\n" .
+        "}\n\n";
+
+    // append log to file with spacing between entries
+    file_put_contents($logFile, $logEntry, FILE_APPEND);
 
     return [
         "status" => "logged",
@@ -34,10 +45,9 @@ function logCallback($request)
     ];
 }
 
-// NOTE: to test locally use "testServer"
-// NOTE: to test over ZeroTier use "guiltyDatabase"
-$server = new rabbitMQServer(__DIR__ . '/../config/testRabbitMQ.ini', "testServer");
+// NOTE: logServer is the RabbitMQ section used only for logging
+$server = new rabbitMQServer(__DIR__ . '/../config/testRabbitMQ.ini', "logServer");
 
-// receive log messages using the current RabbitMQ library
+// receive log messages from RabbitMQ
 $server->process_requests("logCallback");
 ?>

@@ -28,12 +28,11 @@ function sendLogMessage($message, $level = "ERROR", $source = "UNKNOWN")
     ];
 
     try {
-        // NOTE: to test locally use "testServer" 
-        // NOTE: to test over ZeroTier use "guiltyDatabase"
-        $client = new rabbitMQClient(__DIR__ . '/../config/testRabbitMQ.ini', "testServer");
+        // NOTE: logServer is the RabbitMQ section used only for logging
+        $client = new rabbitMQClient(__DIR__ . '/../config/testRabbitMQ.ini', "logServer");
 
-        // send log message (current library format)
-        $client->publish(json_encode($logData));
+        // send log message to RabbitMQ
+        $client->publish($logData);
 
     } catch (Exception $e) {
 
