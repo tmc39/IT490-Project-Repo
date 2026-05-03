@@ -30,7 +30,7 @@ function sendBundle(){
     chdir($current);
 
     //Runs the bash packaging script, passing the version name as a parameter
-    $success = shell_exec("./packaging.sh $versionName $cwd");
+    $success = shell_exec("./packaging.sh $versionName");
     return null;
 
     $machine = get_current_user();

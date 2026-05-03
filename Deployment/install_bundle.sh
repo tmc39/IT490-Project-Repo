@@ -57,7 +57,7 @@ trap 'echo "ERROR: Something failed on line $LINENO"; exit 1' ERR
 # Variables
 # ---------------------------------------------------
 
-BUNDLE_ZIP="$1.zip"
+BUNDLE_ZIP="$2/$1.zip"
 WEBROOT="${2:-/var/www/html}"
 DB_NAME="${3:-testdb}"
 MACHINE="${4:-$(whoami)}"

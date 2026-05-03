@@ -16,7 +16,7 @@ function pullNewVersion($ip, $path, $version)
 
   shell_exec("scp message-broker@$ip:$path $destination");
 
-  shell_exec("./install_bundle.sh $version");
+  shell_exec("./install_bundle.sh $version $destination");
 }
 
 function rollback($version, $ip, $path){
