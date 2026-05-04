@@ -22,8 +22,8 @@ function sendToRabbitMQ(array $request)
     -----
     NOTE:
     -----
-        1) Local testing use "testServer"
-        2) ZeroTier testing use "guiltyDatabase"
+        1) Local testing use "testDMZ"
+        2) ZeroTier testing use "guiltyDMZ"
     */
     $iniFile = "testRabbitMQ.ini";
     $serverSection = "testServer";
