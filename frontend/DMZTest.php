@@ -1,6 +1,6 @@
 <?php
 
-require_once './lib/rabbitMQ_web_client.php';
+require_once './lib/rabbitMQ_web_client_DMZ.php';
 
 // For testing. Put the word you want to search in the URL parameters (i.e. localhost/backend/APITest.php?search=bagel)
 $searchQuery = $_GET['search'];
