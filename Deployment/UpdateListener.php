@@ -29,7 +29,7 @@ function rollback($version, $ip, $path){
 
   shell_exec("scp message-broker@$ip:$path $destination");
 
-  shell_exec("./rollback_bundle.sh $version");
+  shell_exec("./rollback_bundle.sh $version $destination");
 }
 
 function requestProcessor($request)

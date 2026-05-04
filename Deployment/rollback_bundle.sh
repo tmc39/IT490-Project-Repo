@@ -44,7 +44,7 @@ trap 'echo "ERROR: Something failed on line $LINENO"; exit 1' ERR
 # ---------------------------------------------------
 
 MACHINE="${2:-$(whoami)}"
-BUNDLE_DIR="${3:-.}"
+BUNDLE_DIR=$2
 WEBROOT="${4:-/var/www/html}"
 
 TEMP_DIR="/tmp/it490_rollback_bundle"
@@ -99,8 +99,6 @@ fi
 # 2) Look up latest passed bundle
 # ---------------------------------------------------
 
-echo "Looking up latest passed bundle..."
-
 BUNDLE_NAME="$VERSION.zip"
 
 BUNDLE_PATH="$BUNDLE_DIR/$BUNDLE_NAME"
@@ -150,7 +148,7 @@ fi
 # ---------------------------------------------------
 
 echo "Reinstalling bundle..."
-./install_bundle.sh "$BUNDLE_PATH" "$WEBROOT" "$DB_NAME" "$MACHINE"
+./install_bundle.sh "$VERSION" "$BUNDLE_DIR" "$DB_NAME" "$MACHINE"
 
 
 # ---------------------------------------------------

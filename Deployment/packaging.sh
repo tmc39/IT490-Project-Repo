@@ -3,13 +3,16 @@ cd ..
 
 while read file; do
     if [ "$file" == "rabbitmq" ]; then
-       sudo zip -r $1.zip /var/lib/rabbitmq
+       sudo zip -r files.zip /var/lib/rabbitmq
     else
-        zip $1.zip $file
+        zip files.zip $file
     fi
 done < ../Versions/fileChanges.txt
-
-zip $1.zip ../Versions/fileChanges.txt
-zip $1.zip ../Versions/commands.txt
-
+zip $1.zip files.zip
 mv $1.zip ../Versions
+cd ../Versions
+zip $1.zip ./fileChanges.txt
+zip $1.zip ./commands.txt
+
+
+

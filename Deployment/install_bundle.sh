@@ -59,12 +59,11 @@ trap 'echo "ERROR: Something failed on line $LINENO"; exit 1' ERR
 
 BUNDLE_ZIP="$2/$1.zip"
 WEBROOT="${2:-/var/www/html}"
-DB_NAME="${3:-testdb}"
 MACHINE="${4:-$(whoami)}"
 
 TEMP_DIR="/tmp/it490_bundle_install"
-BUNDLE_ROOT="$TEMP_DIR/bundle"
-FILES_DIR="$BUNDLE_ROOT/files"
+BUNDLE_ROOT="$TEMP_DIR"
+FILES_DIR="$TEMP_DIR/files"
 VERSION="$1"
 COMMANDS_FILE="$BUNDLE_ROOT/commands.txt"
 
@@ -119,7 +118,13 @@ mkdir -p "$TEMP_DIR"
 
 echo "Extracting bundle..."
 unzip -q "$BUNDLE_ZIP" -d "$TEMP_DIR"
-
+cwd=$(pwd)
+cd $TEMP_DIR
+ls -l
+unzip -q files.zip -d ./files
+rm -rf files.zip
+ls -l
+cd $cwd
 
 # ---------------------------------------------------
 # 4) Check bundle structure
@@ -127,7 +132,7 @@ unzip -q "$BUNDLE_ZIP" -d "$TEMP_DIR"
 
 echo "Checking bundle contents..."
 
-if [[ ! -d "$BUNDLE_ROOT" || ! -d "$FILES_DIR" ]]; then
+if [[ ! -d "$FILES_DIR" ]]; then
     echo "Bundle structure is not correct."
     exit 1
 fi
@@ -135,7 +140,6 @@ fi
 echo "Bundle version: $VERSION"
 echo "Bundle file name: $BUNDLE_NAME"
 echo "Installing to: $WEBROOT"
-echo "Database: $DB_NAME"
 echo "Machine: $MACHINE"
 
 
