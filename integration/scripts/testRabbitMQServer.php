@@ -319,6 +319,12 @@ function postReview ($request){
     //try to connect to database
     $db = getDbConnection();
     if ($db === null) {
+        sendLogMessage(
+            "Post review failed because database is not reachable.",
+            "ERROR",
+            "backend"
+        );
+
         return array("status" => "error", "message" => "Database is not reachable at the moment.");
     }
     $username = $request["username"];
@@ -331,15 +337,39 @@ function postReview ($request){
 
     //returns error if any values aren't set
     if($username == null) {
+        sendLogMessage(
+            "Post review failed because username is missing.",
+            "WARNING",
+            "backend"
+        );
+
         return array("status" => "error", "message" => "Missing required variable " . "user: " . $username);
     }
     else if($recipeID == null){
+        sendLogMessage(
+            "Post review failed because recipe ID is missing.",
+            "WARNING",
+            "backend"
+        );
+
         return array("status" => "error", "message" => "Missing required variable " . "recipe ID: " . $recipeID);
     }
     else if($positive == null){
+        sendLogMessage(
+            "Post review failed because positive value is missing.",
+            "WARNING",
+            "backend"
+        );
+
         return array("status" => "error", "message" => "Missing required variable " . "ispositive: " . $positive);
     }
     else if($reviewtext == null){
+        sendLogMessage(
+            "Post review failed because review text is missing.",
+            "WARNING",
+            "backend"
+        );
+
         return array("status" => "error", "message" => "Missing required variable " . "review text: " . $reviewtext);
     }
 
@@ -347,18 +377,36 @@ function postReview ($request){
     $stmt = $db->prepare("INSERT INTO recipereviews (recipeID, username, isPositive, reviewDescription) VALUES (?, ?, ?, ?)");
     //cancel if the preparation fails
     if($stmt === false){
+        sendLogMessage(
+            "Post review failed because database statement could not be prepared.",
+            "ERROR",
+            "backend"
+        );
+
         $db->close();
         return array("status" => "error", "message" => "Failed to prepare statement for database.");
     }
 
     // Bind the request's variables to the statement
     if(!$stmt->bind_param("ssss", $recipeID,$username,$positive,$reviewtext)){
+        sendLogMessage(
+            "Post review failed because values could not be bound to SQL query.",
+            "ERROR",
+            "backend"
+        );
+
         //exits if bind_param fails (indicated by it returning false)
         return array("status" => "error", "message" => "Could not bind values to SQL query.");
     }
 
     // If execute fails, we return an error message and close the statement and database connection
     if (!$stmt->execute()) {
+        sendLogMessage(
+            "Post review failed because database execute failed for username: " . $username,
+            "ERROR",
+            "backend"
+        );
+
         $stmt->close();
         $db->close();
         return array("status" => "error", "message" => "Could not post review.");
@@ -373,27 +421,57 @@ function postReview ($request){
     return array("status" => "success", "message" => "Review has been posted.");
 }
 
+/*
+----------------------------
+FUNCTION: listReviews()
+----------------------------
+This function is used when a request to list recipe reviews is received by RabbitMQ.
+*/
 function listReviews($request){
     //gets the requested recipe ID
     $recipeID = $request["recipe"];
     if($recipeID == null){
+        sendLogMessage(
+            "Load reviews failed because recipe ID is missing.",
+            "WARNING",
+            "backend"
+        );
+
         return json_encode(array("status" => "error", "message" => "Null RecipeID."), JSON_FORCE_OBJECT);
     }
 
     $db = getDbConnection();
     if ($db === null) {
+        sendLogMessage(
+            "Load reviews failed because database is not reachable.",
+            "ERROR",
+            "backend"
+        );
+
         return json_encode(array("status" => "error", "message" => "Database is not reachable at the moment."), JSON_FORCE_OBJECT);
     }
 
     //prepare SQL statement to receive reviews for a specific recipeID
     $stmt = $db->prepare("SELECT * FROM recipereviews WHERE recipeID = ?;");
     if(!$stmt->bind_param("s", $recipeID)){
+        sendLogMessage(
+            "Load reviews failed because values could not be bound to SQL query.",
+            "ERROR",
+            "backend"
+        );
+
         //exits if bind_param fails (indicated by it returning false)
         return json_encode(array("status" => "error", "message" => "Could not bind values to SQL query."), JSON_FORCE_OBJECT);
     }
 
     //executes SQL statement
     if (!$stmt->execute()) {
+        sendLogMessage(
+            "Load reviews failed because database execute failed for recipe ID: " . $recipeID,
+            "ERROR",
+            "backend"
+        );
+
         $stmt->close();
         $db->close();
         return json_encode(array("status" => "error", "message" => "Could not receive reviews."), JSON_FORCE_OBJECT);
@@ -404,6 +482,12 @@ function listReviews($request){
 
     //returns if the results are null
     if($results == null){
+        sendLogMessage(
+            "Load reviews failed because database returned no result object for recipe ID: " . $recipeID,
+            "ERROR",
+            "backend"
+        );
+
         $stmt->close();
         $db->close();
         return json_encode(array("status" => "error", "message" => "No results from database."), JSON_FORCE_OBJECT);
