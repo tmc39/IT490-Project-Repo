@@ -526,6 +526,12 @@ function doSaveProfile($request)
 
     // If DB is down, return error message
     if ($db === null) {
+        sendLogMessage(
+            "Save profile failed because database is not reachable.",
+            "ERROR",
+            "backend"
+        );
+
         return array("status" => "error", "message" => "Database is not reachable right now.");
     }
 
@@ -541,6 +547,12 @@ function doSaveProfile($request)
 
     // Check for usernme
     if ($username == null) {
+        sendLogMessage(
+            "Save profile failed because username is missing.",
+            "WARNING",
+            "backend"
+        );
+
         $db->close();
         return array("status" => "error", "message" => "Missing username.");
     }
@@ -563,6 +575,12 @@ function doSaveProfile($request)
 
     // Cancel if preparation fails
     if ($stmt === false) {
+        sendLogMessage(
+            "Save profile failed because profile query could not be prepared for username: " . $username,
+            "ERROR",
+            "backend"
+        );
+
         $db->close();
         return array("status" => "error", "message" => "Could not prepare profile query.");
     }
@@ -572,6 +590,12 @@ function doSaveProfile($request)
 
     // If execute fails, return error message, close statement and DB connection
     if (!$stmt->execute()) {
+        sendLogMessage(
+            "Save profile failed because database execute failed for username: " . $username,
+            "ERROR",
+            "backend"
+        );
+
         $stmt->close();
         $db->close();
         return array("status" => "error", "message" => "Could not save profile.");
@@ -597,11 +621,23 @@ function doGetProfile($username)
 
     // If DB is down, return a error message
     if ($db === null) {
+        sendLogMessage(
+            "Get profile failed because database is not reachable.",
+            "ERROR",
+            "backend"
+        );
+
         return array("status" => "error", "message" => "Database is not reachable at the moment.");
     }
 
     // Check if username provided
     if (!isset($username) || trim($username) === "") {
+        sendLogMessage(
+            "Get profile failed because username is missing.",
+            "WARNING",
+            "backend"
+        );
+
         $db->close();
         return array("status" => "error", "message" => "No username was provided.");
     }
@@ -611,6 +647,12 @@ function doGetProfile($username)
 
     // Cancel if preparation fails
     if ($stmt === false) {
+        sendLogMessage(
+            "Get profile failed because profile query could not be prepared for username: " . $username,
+            "ERROR",
+            "backend"
+        );
+
         $db->close();
         return array("status" => "error", "message" => "Could not prepare profile query.");
     }
