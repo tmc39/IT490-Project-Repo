@@ -16,11 +16,23 @@ function doRegister($firstname, $lastname, $email, $username, $hashedPassword)
     // Connect to database
     $db = getDbConnection();
     if ($db === null) {
+        sendLogMessage(
+            "Registration failed because database is not reachable.",
+            "ERROR",
+            "backend"
+        );
+
         return array("status" => "error", "message" => "Database is not reachable at the moment.");
     }
 
     // Ensure required fields are provided
     if (trim($username) === "" || trim($hashedPassword) === "" || trim($email) === "") {
+        sendLogMessage(
+            "Registration failed because required fields are missing.",
+            "WARNING",
+            "backend"
+        );
+
         $db->close();
         return array("status" => "error", "message" => "Missing required registration fields.");
     }
@@ -28,6 +40,12 @@ function doRegister($firstname, $lastname, $email, $username, $hashedPassword)
     // Prevent duplicate username
     $stmt = $db->prepare("SELECT username FROM users WHERE username = ?");
     if ($stmt === false) {
+        sendLogMessage(
+            "Registration failed because username check could not be prepared.",
+            "ERROR",
+            "backend"
+        );
+
         $db->close();
         return array("status" => "error", "message" => "Could not prepare username check.");
     }
@@ -38,6 +56,12 @@ function doRegister($firstname, $lastname, $email, $username, $hashedPassword)
 
     // If username exists, return error message, close statement and DB connection
     if ($result->num_rows > 0) {
+        sendLogMessage(
+            "Registration failed because username already exists: " . $username,
+            "WARNING",
+            "backend"
+        );
+
         $stmt->close();
         $db->close();
         return array("status" => "error", "message" => "Username already exists.");
@@ -48,6 +72,12 @@ function doRegister($firstname, $lastname, $email, $username, $hashedPassword)
     // Insert user
     $stmt = $db->prepare("INSERT INTO users (username, password, email, firstname, lastname) VALUES (?, ?, ?, ?, ?)");
     if ($stmt === false) {
+        sendLogMessage(
+            "Registration failed because insert statement could not be prepared.",
+            "ERROR",
+            "backend"
+        );
+
         $db->close();
         return array("status" => "error", "message" => "Could not prepare insert statement.");
     }
@@ -57,6 +87,12 @@ function doRegister($firstname, $lastname, $email, $username, $hashedPassword)
 
     // If execute fails, return error message, close statement and DB connection
     if (!$stmt->execute()) {
+        sendLogMessage(
+            "Registration failed because user could not be created: " . $username,
+            "ERROR",
+            "backend"
+        );
+
         $stmt->close();
         $db->close();
         return array("status" => "error", "message" => "Could not create user.");
@@ -83,6 +119,12 @@ function doLogin($username, $password)
 
   // If DB is down, we return a error message
   if ($db === null) {
+      sendLogMessage(
+          "Login failed because database is not reachable.",
+          "ERROR",
+          "backend"
+      );
+
       return array("status" => "error", "message" => "Database is not reachable at the moment.");
   }
 
@@ -91,6 +133,12 @@ function doLogin($username, $password)
 
   // If prepare fails, return error message, close DB connection
   if ($stmt === false) {
+      sendLogMessage(
+          "Login failed because database query could not be prepared.",
+          "ERROR",
+          "backend"
+      );
+
       $db->close();
       return array("status" => "error", "message" => "Database query could not be prepared.");
   }
@@ -101,6 +149,12 @@ function doLogin($username, $password)
 
   // If user doesn't exist
   if ($result->num_rows === 0) {
+      sendLogMessage(
+          "Login failed because username was not found: " . $username,
+          "WARNING",
+          "backend"
+      );
+
       $stmt->close();
       $db->close();
       return array("status" => "error", "message" => "Login failed, username or password incorrect.");
@@ -112,6 +166,12 @@ function doLogin($username, $password)
 
   // Using password_verify() because DB stores hashed passwords
   if (!password_verify($password, $storedPassword)) {
+      sendLogMessage(
+          "Login failed because password was incorrect for username: " . $username,
+          "WARNING",
+          "backend"
+      );
+
       $stmt->close();
       $db->close();
       return array("status" => "error", "message" => "Login failed, username or password incorrect.");
@@ -128,6 +188,12 @@ function doLogin($username, $password)
 
   // If prepare fails, return error message, and close DB connection
   if ($stmt === false) {
+      sendLogMessage(
+          "Login failed because session key statement could not be prepared for username: " . $username,
+          "ERROR",
+          "backend"
+      );
+
       $db->close();
       return array("status" => "error", "message" => "Could not prepare statement to save session key.");
   }
@@ -137,6 +203,12 @@ function doLogin($username, $password)
 
   // If execute fails, return error message, close statement and DB connection
   if (!$stmt->execute()) {
+      sendLogMessage(
+          "Login failed because session key could not be saved for username: " . $username,
+          "ERROR",
+          "backend"
+      );
+
       $stmt->close();
       $db->close();
       return array("status" => "error", "message" => "Could not save session key.");
@@ -163,17 +235,35 @@ function doValidate($sessionId, $username)
 
   // If DB is down, we return a error message
   if ($db === null) {
+      sendLogMessage(
+          "Session validation failed because database is not reachable.",
+          "ERROR",
+          "backend"
+      );
+
       return array("status" => "error", "message" => "Database is not reachable at the moment.");
   }
 
   // Check if sessionId provided
   if (!isset($sessionId) || trim($sessionId) === "") {
+      sendLogMessage(
+          "Session validation failed because no session key was provided.",
+          "WARNING",
+          "backend"
+      );
+
       $db->close();
       return array("status" => "error", "message" => "No session key was provided.");
   }
 
   // Check if username provided
   if (!isset($username) || trim($username) === "") {
+      sendLogMessage(
+          "Session validation failed because no username was provided.",
+          "WARNING",
+          "backend"
+      );
+
       $db->close();
       return array("status" => "error", "message" => "No username was provided.");
   }
@@ -183,6 +273,12 @@ function doValidate($sessionId, $username)
 
   // If prepare fails, return error message, closee DB connection
   if ($stmt === false) {
+      sendLogMessage(
+          "Session validation failed because statement could not be prepared for username: " . $username,
+          "ERROR",
+          "backend"
+      );
+
       $db->close();
       return array("status" => "error", "message" => "Could not prepare statement to check session key.");
   }
@@ -194,6 +290,12 @@ function doValidate($sessionId, $username)
 
   // If session key doesn't exist
   if ($result->num_rows === 0) {
+      sendLogMessage(
+          "Session validation failed because session key was not valid for username: " . $username,
+          "WARNING",
+          "backend"
+      );
+
       $stmt->close();
       $db->close();
       return array("status" => "error", "message" => "Session key not valid.");
