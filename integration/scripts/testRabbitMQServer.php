@@ -473,8 +473,25 @@ function requestProcessor($request)
   echo "received request" . PHP_EOL;
   var_dump($request);
 
+// Check if request is valid
+  if (!is_array($request)) {
+      sendLogMessage(
+          "Invalid backend request received. Request was not an array.",
+          "ERROR",
+          "backend"
+      );
+
+      return array("status" => "error", "message" => "Invalid request format.");
+  }
+
   // Check if the request has a type
   if (!isset($request["type"])) {
+      sendLogMessage(
+          "Backend request missing type.",
+          "ERROR",
+          "backend"
+      );
+
       return array("status" => "error", "message" => "Request type is missing.");
   }
 
@@ -484,6 +501,12 @@ function requestProcessor($request)
     case "register":
     // Check if all required fields provided
         if (!isset($request["firstname"], $request["lastname"], $request["email"], $request["username"], $request["password"])) {
+            sendLogMessage(
+                "Register request is missing required fields.",
+                "ERROR",
+                "backend"
+            );
+
             return array("status" => "error", "message" => "Register request is missing fields.");
         }
         return doRegister(
@@ -494,6 +517,12 @@ function requestProcessor($request)
     case "login":
     // Check if username and password provided
       if (!isset($request["username"]) || !isset($request["password"])) {
+          sendLogMessage(
+              "Login request is missing username or password.",
+              "ERROR",
+              "backend"
+          );
+
           return array("status" => "error", "message" => "Login request is missing username or password.");
       }
       return doLogin($request["username"], $request["password"]);
@@ -501,6 +530,12 @@ function requestProcessor($request)
     case "validate_session":
     // Check if sessionId provided
       if (!isset($request["sessionId"]) || !isset($request["username"])) {
+          sendLogMessage(
+              "Session validation request is missing sessionId or username.",
+              "ERROR",
+              "backend"
+          );
+
           return array("status" => "error", "message" => "Session validation request is missing sessionId or username.");
       }
       return doValidate($request["sessionId"], $request["username"]);
@@ -515,6 +550,12 @@ function requestProcessor($request)
     case "save_profile":
     // Check if username provided
         if (!isset($request["username"])) {
+            sendLogMessage(
+                "Profile request is missing username.",
+                "ERROR",
+                "backend"
+            );
+
             return array("status" => "error", "message" => "Profile request is missing username.");
         }
         return doSaveProfile($request);
@@ -522,12 +563,24 @@ function requestProcessor($request)
     case "get_profile":
     // Check if username provided
         if (!isset($request["username"])) {
+            sendLogMessage(
+                "Profile request is missing username.",
+                "ERROR",
+                "backend"
+            );
+
             return array("status" => "error", "message" => "Profile request is missing username.");
         }
         return doGetProfile($request["username"]);
 
     default:
     // If request type not recognized, return error message
+      sendLogMessage(
+          "Unsupported backend request type: " . $request["type"],
+          "WARNING",
+          "backend"
+      );
+
       return array("status" => "error", "message" => "Unsupported request type: " . $request["type"]);
   }
 }
