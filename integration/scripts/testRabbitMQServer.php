@@ -396,6 +396,8 @@ function postReview ($request){
         );
 
         //exits if bind_param fails (indicated by it returning false)
+        $stmt->close();
+        $db->close();
         return array("status" => "error", "message" => "Could not bind values to SQL query.");
     }
 
@@ -453,6 +455,19 @@ function listReviews($request){
 
     //prepare SQL statement to receive reviews for a specific recipeID
     $stmt = $db->prepare("SELECT * FROM recipereviews WHERE recipeID = ?;");
+    
+    // check prepare before bind_param
+    if ($stmt === false) {
+        sendLogMessage(
+            "Load reviews failed because database statement could not be prepared for recipe ID: " . $recipeID,
+            "ERROR",
+            "backend"
+        );
+
+        $db->close();
+        return json_encode(array("status" => "error", "message" => "Could not prepare reviews query."), JSON_FORCE_OBJECT);
+    }
+
     if(!$stmt->bind_param("s", $recipeID)){
         sendLogMessage(
             "Load reviews failed because values could not be bound to SQL query.",
@@ -461,6 +476,8 @@ function listReviews($request){
         );
 
         //exits if bind_param fails (indicated by it returning false)
+        $stmt->close();
+        $db->close();
         return json_encode(array("status" => "error", "message" => "Could not bind values to SQL query."), JSON_FORCE_OBJECT);
     }
 
