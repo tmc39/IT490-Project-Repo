@@ -7,6 +7,7 @@
 /   https://platform.fatsecret.com/docs/v2/recipe.get
 */
 
+require_once(__DIR__ . '/../integration/logging/logClient.php');
 
 //Include the file that stores needed keys. This should hopefully prevent my super secret keys from being leaked on Github.
 //uses key varaibles called $O1_Consumer_Key (ID key) and $O1_Consumer_Secret (secret key), used for FatSecret's oauth 1.0 URL-based authentication
@@ -14,8 +15,14 @@ require 'BigFatKeys.php';
 
 
 // access the URL parameters provided. If they are null, set placeholder values
-$searchQuery = $_GET['ID'];
+$searchQuery = $_GET['ID'] ?? null;
 if($searchQuery == null){
+    sendLogMessage(
+        "Recipe info request missing recipe ID. Defaulting to 3540.",
+        "WARNING",
+        "backend-api"
+    );
+
     $searchQuery = "3540";
 }
 
@@ -74,7 +81,46 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 $apiresponse = curl_exec($ch);
 
-unset($ch);
+if ($apiresponse === false) {
+    sendLogMessage(
+        "Recipe info API cURL failed: " . curl_error($ch),
+        "ERROR",
+        "backend-api"
+    );
+
+    header('Content-Type: application/json');
+    echo json_encode(array("status" => "error", "message" => "Recipe info API request failed."));
+    curl_close($ch);
+    exit();
+}
+
+curl_close($ch);
+
+if ($apiresponse == null || trim($apiresponse) === "") {
+    sendLogMessage(
+        "Recipe info API returned an empty response for recipe ID: " . $searchQuery,
+        "ERROR",
+        "backend-api"
+    );
+
+    header('Content-Type: application/json');
+    echo json_encode(array("status" => "error", "message" => "Recipe info API returned no data."));
+    exit();
+}
+
+$decodedResponse = json_decode($apiresponse, true);
+
+if ($decodedResponse === null) {
+    sendLogMessage(
+        "Recipe info API returned invalid JSON for recipe ID: " . $searchQuery,
+        "ERROR",
+        "backend-api"
+    );
+
+    header('Content-Type: application/json');
+    echo json_encode(array("status" => "error", "message" => "Recipe info API returned invalid data."));
+    exit();
+}
 
 //$jsonresponse = json_encode($apiresponse);
 

@@ -7,6 +7,7 @@
 /   https://platform.fatsecret.com/docs/v3/recipes.search
 */
 
+require_once(__DIR__ . '/../integration/logging/logClient.php');
 
 //Include the file that stores needed keys. This should hopefully prevent my super secret keys from being leaked on Github.
 //This script usess key varaibles called $O1_Consumer_Key (ID key) and $O1_Consumer_Secret (secret key), used for FatSecret's oauth 1.0 URL-based authentication
@@ -14,18 +15,36 @@ require 'BigFatKeys.php';
 
 
 // access the URL parameters provided. If they are null, set placeholder values
-$searchQuery = $_GET['search'];
+$searchQuery = $_GET['search'] ?? null;
 if($searchQuery == null){
+    sendLogMessage(
+        "Recipe search request missing search query. Defaulting to bagel.",
+        "WARNING",
+        "backend-api"
+    );
+
     $searchQuery = "bagel";
 }
 
-$maxresults = $_GET['results'];
+$maxresults = $_GET['results'] ?? null;
 if($maxresults == null){
+    sendLogMessage(
+        "Recipe search request missing results value. Defaulting to 10.",
+        "WARNING",
+        "backend-api"
+    );
+
     $maxresults = 10;
 }
 
-$page = $_GET['page'];
+$page = $_GET['page'] ?? null;
 if($page == null){
+    sendLogMessage(
+        "Recipe search request missing page value. Defaulting to 0.",
+        "WARNING",
+        "backend-api"
+    );
+
     $page = 0;
 }
 
@@ -90,7 +109,46 @@ curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
 $apiresponse = curl_exec($ch);
 
-unset($ch);
+if ($apiresponse === false) {
+    sendLogMessage(
+        "Recipe search API cURL failed: " . curl_error($ch),
+        "ERROR",
+        "backend-api"
+    );
+
+    header('Content-Type: application/json');
+    echo json_encode(array("status" => "error", "message" => "Recipe search API request failed."));
+    curl_close($ch);
+    exit();
+}
+
+curl_close($ch);
+
+if ($apiresponse == null || trim($apiresponse) === "") {
+    sendLogMessage(
+        "Recipe search API returned an empty response for search query: " . $searchQuery,
+        "ERROR",
+        "backend-api"
+    );
+
+    header('Content-Type: application/json');
+    echo json_encode(array("status" => "error", "message" => "Recipe search API returned no data."));
+    exit();
+}
+
+$decodedResponse = json_decode($apiresponse, true);
+
+if ($decodedResponse === null) {
+    sendLogMessage(
+        "Recipe search API returned invalid JSON for search query: " . $searchQuery,
+        "ERROR",
+        "backend-api"
+    );
+
+    header('Content-Type: application/json');
+    echo json_encode(array("status" => "error", "message" => "Recipe search API returned invalid data."));
+    exit();
+}
 
 //$jsonresponse = json_encode($apiresponse);
 
