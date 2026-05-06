@@ -52,7 +52,7 @@ function sendToRabbitMQ(array $request)
 
         if (!$response) {
             sendLogMessage(
-                "RabbitMQ returned an empty response.",
+                "RabbitMQ returned an empty response for request type: " . ($request["type"] ?? "UNKNOWN"),
                 "ERROR",
                 "frontend"
             );
@@ -62,7 +62,7 @@ function sendToRabbitMQ(array $request)
 
     } catch (Exception $e) {
         sendLogMessage(
-            "RabbitMQ request failed: " . $e->getMessage(),
+            "RabbitMQ request failed for request type " . ($request["type"] ?? "UNKNOWN") . ": " . $e->getMessage(),
             "ERROR",
             "frontend"
         );
@@ -70,3 +70,4 @@ function sendToRabbitMQ(array $request)
         throw $e;
     }
 }
+?>
