@@ -1,58 +1,56 @@
 #!/usr/bin/php
 <?php
 /*
----------------------------
-Database Connection Helper
----------------------------
-This function creates a connection to MySQL.
+----------------
+mysqlconnect.php
+----------------
+Creates a MySQL connection for backend use.
 
 Used by:
-- RabbitMQ server (login, session validation)
-- Any backend components that need DB access
+- RabbitMQ backend server
+- Any component that needs database access
 
 Returns:
-- mysqli connection if successful
-- null if connection fails
+- mysqli connection on success
+- null on failure (error is logged)
 */
+
+require_once(__DIR__ . '/../integration/logging/logClient.php');
+
 function getDbConnection()
 {
-	// Attempt to connect to the database
-	// NOTE: to test locally use '127.0.0.1','testUser','12345','testdb' 
-	// NOTE: to test over ZeroTier use '127.0.0.1', 'test', 'testpassword', 'guiltysparkdb'
-	$mydb = new mysqli('127.0.0.1','testUser','12345','testdb');
+        // NOTE: to test locally use '127.0.0.1','testUser','12345','testdb'
+        // NOTE: to test over ZeroTier use '127.0.0.1', 'test', 'testpassword', 'guiltysparkdb'
 
-	// Check for connection errors
-	if ($mydb->connect_error) {
-		// Return null so the caller can decide what message to send back
-		return null;
-	}
-	// If we got here, we successfully connected to the database, so return the connection
-	return $mydb;
+        try {
+                // attempt connection
+                $mydb = new mysqli('127.0.0.1','testUser','12345','testdb');
+
+        } catch (mysqli_sql_exception $e) {
+
+                // log exception-based failure
+                sendLogMessage(
+                        "Database connection failed: " . $e->getMessage(),
+                        "ERROR",
+                        "database"
+                );
+
+                return null;
+        }
+
+        // log non-exception connection failure
+        if ($mydb->connect_error) {
+
+                sendLogMessage(
+                        "Database connection failed: " . $mydb->connect_error,
+                        "ERROR",
+                        "database"
+                );
+
+                return null;
+        }
+
+        // success
+        return $mydb;
 }
-
-/*
-------------------------------
-TEMPLATE PROVIDED BY PROFESSOR
-------------------------------
-
-$mydb = new mysqli('127.0.0.1','testUser','12345','testdb');
-
-if ($mydb->errno != 0)
-{
-	echo "failed to connect to database: ". $mydb->error . PHP_EOL;
-	exit(0);
-}
-
-echo "successfully connected to database".PHP_EOL;
-
-$query = "select * from users;";
-
-$response = $mydb->query($query);
-if ($mydb->errno != 0)
-{
-	echo "failed to execute query:".PHP_EOL;
-	echo __FILE__.':'.":error: ".$mydb->error.PHP_EOL;
-	exit(0);
-}
-*/
 ?>
