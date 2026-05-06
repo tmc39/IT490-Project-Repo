@@ -13,7 +13,7 @@ NOTE:
 function loadProfile() {
     const message = document.getElementById("profileMessage");
 
-    message.className = "form-message";
+    message.className = "form-message success";
     message.textContent = "Loading profile...";
 
     const xmlhttp = new XMLHttpRequest();
@@ -75,7 +75,7 @@ function saveProfile() {
     const vegan = document.getElementById("vegan").checked ? 1 : 0;
     const allergies = document.getElementById("allergies").value;
 
-    message.className = "form-message";
+    message.className = "form-message success";
     message.textContent = "Saving profile...";
 
     const params =

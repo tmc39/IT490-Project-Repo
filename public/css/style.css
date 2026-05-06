@@ -215,11 +215,38 @@ label {
 }
 
 /* 
+----------------
+Profile messages
+----------------
+*/
+.form-message {
+    display: none;
+    padding: 12px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.form-message.success {
+    display: block;
+    background-color: #e6f4ea;
+    border: 1px solid #7acb8c;
+    color: #1f5f2c;
+}
+
+.form-message.error {
+    display: block;
+    background-color: #fbeaea;
+    border: 1px solid #d88a8a;
+    color: #7a1f1f;
+}
+
+/* 
 ------------------------------
-Inputs + textarea (combined)
+Inputs + textarea
 ------------------------------
 */
-label input,
+label input:not([type="checkbox"]),
 label select,
 textarea,
 #searchterm,
@@ -254,8 +281,17 @@ Checkbox group
 .checkbox-group label {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
     font-weight: normal;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
 }
 
 /* 
