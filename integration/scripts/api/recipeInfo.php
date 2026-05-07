@@ -18,7 +18,7 @@ require '../../backend/BigFatKeys.php';
 
 // access the function parameters. If they are null, set placeholder values
 if($searchQuery == null){
-    $searchQuery = "3540";
+    $searchQuery = "65267310";
 }
 
 $ch = curl_init();
