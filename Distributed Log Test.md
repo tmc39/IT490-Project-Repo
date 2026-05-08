@@ -204,17 +204,16 @@ CTRL + C
 ---
 
 # Main Distributed Logging Components
-|--------------------------------------------------------------------------------|
-| Component............................Purpose                                   |
-|--------------------------------------------------------------------------------|
-| `logClient.php`......................Sends log messages to RabbitMQ            |
-| `logListener.php`....................Receives log messages from RabbitMQ       |
-| `distributed.log`....................Centralized log file                      |
-| `logListener.service`................Systemd service for log listener          |
-| `testRabbitMQServer.service`.........Backend RabbitMQ listener service         |
-| `logExchange`........................RabbitMQ fanout exchange for logs         |
-| `logQueue`...........................RabbitMQ queue that receives log messages |
-|--------------------------------------------------------------------------------|
+
+| Component | Purpose |
+|---|---|
+| `logClient.php` | Sends log messages to RabbitMQ |
+| `logListener.php` | Receives log messages from RabbitMQ |
+| `distributed.log` | Centralized log file |
+| `logListener.service` | Systemd service for log listener |
+| `testRabbitMQServer.service` | Backend RabbitMQ listener service |
+| `logExchange` | RabbitMQ fanout exchange for logs |
+| `logQueue` | RabbitMQ queue that receives log messages |
 
 ---
 
