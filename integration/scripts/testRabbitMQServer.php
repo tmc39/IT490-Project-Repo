@@ -336,7 +336,7 @@ function postReview ($request){
     $reviewtext = $request["reviewtext"];
 
     //returns error if any values aren't set
-    if($username == null) {
+    if($username === null) {
         sendLogMessage(
             "Post review failed because username is missing.",
             "WARNING",
@@ -345,7 +345,7 @@ function postReview ($request){
 
         return array("status" => "error", "message" => "Missing required variable " . "user: " . $username);
     }
-    else if($recipeID == null){
+    else if($recipeID === null){
         sendLogMessage(
             "Post review failed because recipe ID is missing.",
             "WARNING",
@@ -354,7 +354,7 @@ function postReview ($request){
 
         return array("status" => "error", "message" => "Missing required variable " . "recipe ID: " . $recipeID);
     }
-    else if($positive == null){
+    else if($positive != 0 && $positive === null){
         sendLogMessage(
             "Post review failed because positive value is missing.",
             "WARNING",
@@ -363,7 +363,7 @@ function postReview ($request){
 
         return array("status" => "error", "message" => "Missing required variable " . "ispositive: " . $positive);
     }
-    else if($reviewtext == null){
+    else if($reviewtext === null){
         sendLogMessage(
             "Post review failed because review text is missing.",
             "WARNING",
