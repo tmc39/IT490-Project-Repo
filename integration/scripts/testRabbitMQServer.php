@@ -228,16 +228,16 @@ function postReview ($request){
     $reviewtext = $request["reviewtext"];
 
     //returns error if any values aren't set
-    if($username == null) {
+    if($username === null) {
         return array("status" => "error", "message" => "Missing required variable " . "user: " . $username);
     }
-    else if($recipeID == null){
+    else if($recipeID === null){
         return array("status" => "error", "message" => "Missing required variable " . "recipe ID: " . $recipeID);
     }
-    else if($positive == null){
+    else if($positive != 0 && $positive == null){
         return array("status" => "error", "message" => "Missing required variable " . "ispositive: " . $positive);
     }
-    else if($reviewtext == null){
+    else if($reviewtext === null){
         return array("status" => "error", "message" => "Missing required variable " . "review text: " . $reviewtext);
     }
 

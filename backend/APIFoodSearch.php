@@ -1,100 +1,53 @@
 <?php
 
 /*
-/   This script's job is to use FatSecret's food search and return the relevant results data in JSON format.
-/   parameters are put into this script via URL parameters
+/   This script is a middle-man between the requests made by the frontend Javascript and the DMZ talking to the API
+/   Food Search uses this script
 */
 
-
-//Include the file that stores needed keys. This should hopefully prevent my super secret keys from being leaked on Github.
-//uses key varaibles called $O1_Consumer_Key (ID key) and $O1_Consumer_Secret (secret key), used for FatSecret's oauth 1.0 URL-based authentication
-require 'BigFatKeys.php';
-
-
-// access the URL parameters provided. If they are null, set placeholder values
+require_once '../frontend/lib/rabbitMQ_web_client_DMZ.php';
 
 $searchQuery = $_GET['search'];
-if($searchQuery == null){
-    $searchQuery = "bagel";
+$maxResults = $_GET['results'];
+$pageNumber = $_GET['page'];
+
+$type = "food_search";
+
+//sets placeholder values if none are given. For parity with old API scripts.
+if(empty($_GET['results'])){
+    $maxResults = 10;
+}
+if(empty($_GET['page'])){
+    $pageNumber = 0;
 }
 
-$maxresults = $_GET['results'];
-if($maxresults == null){
-    $maxresults = 10;
-}
+//Search Query placeholder. If the user somehow fails to give a requested name, they get bageled.
+    if($searchQuery == null){
+        $searchQuery = "bagel";
+    }
 
-$page = $_GET['page'];
-if($page == null){
-    $page = 0;
-}
+    $request = [
+    "type" => $type,
+    "search" => $searchQuery,
+    "maxresults" => $maxResults,
+    "page" => $pageNumber
+    ];
+    try {
+        $response = sendToRabbitMQ($request);
 
-$ch = curl_init();
+        //returns the results as a json object
+        header('Content-Type: application/json');
+        echo json_encode($response, JSON_FORCE_OBJECT);
+        
+        //echo implode("\n", $response);
+        exit();
 
-
-//https://platform.fatsecret.com/docs/guides/authentication/oauth1
-
-
-//adds the given search query into the curl session's url
-//mainUrl is used for signature encoding
-$mainUrl = "https://platform.fatsecret.com/rest/foods/search/v1";
-$url = 'https://platform.fatsecret.com/rest/foods/search/v1?';
-
-
-//stupid annoying FatSecret oauth 1.0 required parameters
-//PARAMETERS MUST BE IN ALPHABETICAL ORDER!!!!!!!!!! THIS  IS NEEDED FOR THE AUTHENTICATION SIGNATURE
-//url will be the actual URL of the request. params will be used in the hashed signature
-
-$params = 'format=json';
-$url .= 'format=json';
-
-$params .= "&max_results=$maxresults";
-$url .= "&max_results=$maxresults";
-
-$params .= "&oauth_consumer_key=$O1_Consumer_Key";
-$url .= "&oauth_consumer_key=$O1_Consumer_Key";
-
-$params .= "&oauth_nonce=poob";
-$url .= "&oauth_nonce=poob";
-
-$params .= "&oauth_signature_method=HMAC-SHA1";
-$url .= "&oauth_signature_method=HMAC-SHA1";
-
-$timestamp = time();
-$params .= "&oauth_timestamp=$timestamp";
-$url .= "&oauth_timestamp=$timestamp";
-
-$params .= "&oauth_version=1.0";
-$url .= "&oauth_version=1.0";
-
-$params .= "&page_number=$page";
-$url .= "&page_number=$page";
-
-$params .= "&search_expression=$searchQuery";
-$url .="&search_expression=$searchQuery";
-
-
-//creating the signature base which will be turned into a hash value
-$signatureBase = "GET&";
-$signatureBase .= rawurlencode($mainUrl) . "&";
-$signatureBase .= rawurlencode($params);
-
-//create the final hash value and grant it its rightful place in the URL. The & at the end of the secret is neccessary: an Access Secret goes after it if needed 
-$signature = hash_hmac("sha1", $signatureBase, "$O1_Consumer_Secret&", true);
-$base64Signature = base64_encode($signature);
-$url .= "&oauth_signature=" . rawurlencode($base64Signature);
-
-curl_setopt($ch, CURLOPT_URL, $url);
-
-curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-
-$apiresponse = curl_exec($ch);
-
-unset($ch);
-
-//$jsonresponse = json_encode($apiresponse);
-
-//If everythin succeeds, raw JSON text from the food search API should be echoed
-header('Content-Type: application/json');
-echo $apiresponse;
+    } catch (Exception $e) {
+        error_log("RabbitMQ error: " . $e->getMessage());
+        session_unset();
+        session_destroy();
+        echo $e->getMessage();
+        exit();
+    }
 
 ?>

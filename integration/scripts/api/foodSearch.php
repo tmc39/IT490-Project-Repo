@@ -20,7 +20,7 @@ if($searchQuery == null){
     $searchQuery = "bagel";
 }
 
-if($maxresults == null){
+if(!isset($maxresults)){
     $maxresults = 10;
 }
 
@@ -96,9 +96,10 @@ unset($ch);
 //If everythin succeeds, raw JSON text from the food search API should be returned
 //header('Content-Type: application/json');
 
+$resultsarray = json_decode($apiresponse, true);
 $resultsarray["status"] = "success";
 $resultsarray["message"] = "Recipe search response received.";
-$resultsarray["response"] = json_decode($apiresponse, true);
+//$resultsarray["response"] = json_decode($apiresponse, true);
 return $resultsarray;
 
 }
