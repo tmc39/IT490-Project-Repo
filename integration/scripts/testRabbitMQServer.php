@@ -858,7 +858,8 @@ function doFridgeScan($request)
 
     $accessToken = $tokenResponse['access_token'] ?? null;
     if (!$accessToken) {
-        sendLogMessage("FatSecret Auth failed.", "ERROR", "backend", __FILE__, __LINE__);
+        //commented oiut log cuz i dont got log working lcoally
+        //sendLogMessage("FatSecret Auth failed.", "ERROR", "backend", __FILE__, __LINE__);
         return array("status" => "error", "message" => "Nutrition database auth failed.");
     }
 
@@ -883,8 +884,8 @@ function doFridgeScan($request)
     if (isset($fsResponse['foods']['food'][0])) {
         $foodData = $fsResponse['foods']['food'][0];
         
-        // Log the success!
-        sendLogMessage("Successfully scanned $identifiedFood for user: $username", "INFO", "backend", __FILE__, __LINE__);
+        // Log the success
+        //sendLogMessage("Successfully scanned $identifiedFood for user: $username", "INFO", "backend", __FILE__, __LINE__);
         
         return array(
             "status" => "success",
