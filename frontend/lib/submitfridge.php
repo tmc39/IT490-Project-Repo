@@ -3,10 +3,8 @@ session_start();
 
 require_once __DIR__ . '/rabbitMQ_web_client.php';
 
-// DEVELOPER BYPASS: If database is down, assign a temp guest identity
 $username = $_SESSION["username"] ?? "Guest_" . rand(1000, 9999);
 $sessionKey = $_SESSION["session_key"] ?? "bypass_key";
-
 $base64Image = $_POST['image'] ?? "";
 
 if ($base64Image == "") {
