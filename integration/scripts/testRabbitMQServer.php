@@ -819,6 +819,10 @@ function doFridgeScan($request)
     
     $clarifaiUrl = "https://api.clarifai.com/v2/models/food-item-recognition/outputs"; 
     $clarifaiData = [
+        "user_app_id" => [
+            "user_id" => $clarifaiUserID,
+            "app_id"  => $clarifaiAppID
+        ],
         "inputs" => [
             ["data" => ["image" => ["base64" => $base64Image]]]
         ]
@@ -836,13 +840,8 @@ function doFridgeScan($request)
     $clarifaiResponse = json_decode($rawClarifai, true);
     curl_close($ch1);
 
-    // Terminal Debugging
-    echo "--- CLARIFAI RAW OUTPUT ---\n";
-    print_r($clarifaiResponse);
-    echo "---------------------------\n";
-
     if (!isset($clarifaiResponse['outputs'][0]['data']['concepts'][0]['name'])) {
-        echo "[DEBUG] Clarifai could not find a food name.\n";
+        echo "[DEBUG] ERROR: Clarifai failed to identify image.\n";
         return array("status" => "error", "message" => "Could not identify food in the image.");
     }
     
@@ -899,7 +898,7 @@ function doFridgeScan($request)
         );
     }
 
-    echo "[DEBUG] Identified as $identifiedFood but no FatSecret data found.\n";
+    echo "[DEBUG] ERROR: Identified as $identifiedFood but no FatSecret data found.\n";
     return array("status" => "error", "message" => "Identified as '$identifiedFood', but found no nutrition data.");
 }
 
