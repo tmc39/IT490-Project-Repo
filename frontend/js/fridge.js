@@ -1,20 +1,22 @@
-// Keep track of how many recipes the user has made
 let recipeCounter = 1;
 
-// 1. Handle the Image Upload
 document.getElementById('fridgeForm').addEventListener('submit', function(e) {
+    // This stops the page from refreshing!
     e.preventDefault();
 
     const fileInput = document.getElementById('fridgeImage');
+    const scanButton = document.getElementById('scanButton');
     const file = fileInput.files[0];
     if (!file) return;
 
-    // Convert image to Base64
+    // Give the user visual feedback that it is working
+    scanButton.innerText = "Scanning AI...";
+    scanButton.disabled = true;
+
     const reader = new FileReader();
     reader.onloadend = function() {
         const base64Image = reader.result;
 
-        // Send to PHP middleman
         fetch('lib/submitfridge.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
@@ -22,15 +24,16 @@ document.getElementById('fridgeForm').addEventListener('submit', function(e) {
         })
         .then(response => response.json())
         .then(data => {
+            scanButton.innerText = "Scan Fridge";
+            scanButton.disabled = false;
+
             if (data.status === 'success') {
-                // Show the results box
                 document.getElementById('resultsBox').style.display = 'block';
                 document.getElementById('scanMessage').innerText = data.message;
 
                 const checkboxDiv = document.getElementById('ingredientCheckboxes');
-                checkboxDiv.innerHTML = ''; // Clear previous scans
+                checkboxDiv.innerHTML = ''; 
 
-                // Deliverable #6: List things inside the fridge via checkboxes
                 data.ingredients.forEach(item => {
                     const label = document.createElement('label');
                     label.style.display = 'inline-block';
@@ -47,39 +50,38 @@ document.getElementById('fridgeForm').addEventListener('submit', function(e) {
                     checkboxDiv.appendChild(label);
                 });
             } else {
-                alert('Error: ' + data.message);
+                alert('Backend Error: ' + data.message);
             }
         })
-        .catch(error => console.error('Fetch Error:', error));
+        .catch(error => {
+            console.error('Fetch Error:', error);
+            scanButton.innerText = "Scan Fridge";
+            scanButton.disabled = false;
+        });
     };
     reader.readAsDataURL(file);
 });
 
-// 2. Handle Custom Recipe Creation (Deliverable #5)
+// Handle custom recipe creation
 document.getElementById('createRecipeBtn').addEventListener('click', function() {
-    // Find all checked boxes
     const checkboxes = document.querySelectorAll('.ingredient-cb:checked');
     const selectedIngredients = Array.from(checkboxes).map(cb => cb.value);
 
-    // Ensure they picked something
     if (selectedIngredients.length === 0) {
         alert("Please select at least one ingredient to make a recipe.");
         return;
     }
 
-    // Auto-name the recipe
     const recipeName = "Recipe " + recipeCounter;
     recipeCounter++;
 
-    // Display the Custom Recipes box
     document.getElementById('customRecipesBox').style.display = 'block';
     const recipeList = document.getElementById('recipeList');
 
-    // Add the new recipe to the screen
     const li = document.createElement('li');
     li.innerHTML = `<strong>${recipeName}:</strong> ${selectedIngredients.join(', ')}`;
     recipeList.appendChild(li);
 
-    // Uncheck boxes so they can make another recipe
+    // Uncheck boxes after saving
     checkboxes.forEach(cb => cb.checked = false);
 });
