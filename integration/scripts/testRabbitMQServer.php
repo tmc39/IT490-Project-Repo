@@ -785,6 +785,121 @@ function doGetProfile($username)
 
 /*
 ----------------------------
+FUNCTION: doFridgeScan()
+----------------------------
+This function takes a base64 image, uses Clarifai to identify the food, 
+and then uses FatSecret to get its nutritional data.
+*/
+function doFridgeScan($request)
+{
+    $base64Image = $request['image'] ?? null;
+    $username = $request['username'] ?? "Unknown";
+
+    if ($base64Image == null) {
+        sendLogMessage("Fridge scan failed: Missing image data.", "WARNING", "backend", __FILE__, __LINE__);
+        return array("status" => "error", "message" => "No image data provided.");
+    }
+
+    // 1. Load API Keys
+    $keyPath = __DIR__ . '/../../backend/BigFatKeys.php';
+    if (!file_exists($keyPath)) {
+        sendLogMessage("Fridge scan failed: BigFatKeys.php not found.", "ERROR", "backend", __FILE__, __LINE__);
+        return array("status" => "error", "message" => "API Keys missing on server.");
+    }
+    require($keyPath);
+
+    // Clean the base64 string just in case the frontend sent the "data:image/jpeg;base64," prefix
+    if (strpos($base64Image, ',') !== false) {
+        $base64Image = explode(',', $base64Image)[1];
+    }
+
+    // ---------------------------------------------------------
+    // 2. CLARIFAI API (Image to Text)
+    // ---------------------------------------------------------
+    $clarifaiUrl = "https://api.clarifai.com/v2/models/bd367be194cf45149e75f01d59f77ba7/outputs"; // Food Model ID
+    $clarifaiData = [
+        "inputs" => [
+            ["data" => ["image" => ["base64" => $base64Image]]]
+        ]
+    ];
+
+    $ch1 = curl_init($clarifaiUrl);
+    curl_setopt($ch1, CURLOPT_POST, 1);
+    curl_setopt($ch1, CURLOPT_POSTFIELDS, json_encode($clarifaiData));
+    curl_setopt($ch1, CURLOPT_HTTPHEADER, [
+        "Authorization: Key " . trim($clarifaiPAT),
+        "Content-Type: application/json"
+    ]);
+    curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
+    $clarifaiResponse = json_decode(curl_exec($ch1), true);
+    curl_close($ch1);
+
+    // Extract the top identified food item
+    if (!isset($clarifaiResponse['outputs'][0]['data']['concepts'][0]['name'])) {
+        sendLogMessage("Clarifai failed to identify image for user: $username", "WARNING", "backend", __FILE__, __LINE__);
+        return array("status" => "error", "message" => "Could not identify food in the image.");
+    }
+    $identifiedFood = $clarifaiResponse['outputs'][0]['data']['concepts'][0]['name'];
+
+    // ---------------------------------------------------------
+    // 3. FATSECRET API (Text to Calories)
+    // ---------------------------------------------------------
+    $id = trim($fatSecretKey);
+    $secret = trim($fatSecretSecret);
+
+    // Step 3a: Get Token
+    $ch2 = curl_init("https://oauth.fatsecret.com/connect/token");
+    curl_setopt($ch2, CURLOPT_POST, 1);
+    curl_setopt($ch2, CURLOPT_POSTFIELDS, "grant_type=client_credentials&scope=basic");
+    curl_setopt($ch2, CURLOPT_USERPWD, "$id:$secret");
+    curl_setopt($ch2, CURLOPT_RETURNTRANSFER, true);
+    $tokenResponse = json_decode(curl_exec($ch2), true);
+    curl_close($ch2);
+
+    $accessToken = $tokenResponse['access_token'] ?? null;
+    if (!$accessToken) {
+        sendLogMessage("FatSecret Auth failed.", "ERROR", "backend", __FILE__, __LINE__);
+        return array("status" => "error", "message" => "Nutrition database auth failed.");
+    }
+
+    // Step 3b: Search Food
+    $fsUrl = "https://platform.fatsecret.com/rest/server.api";
+    $fsData = [
+        'method' => 'foods.search',
+        'search_expression' => $identifiedFood,
+        'format' => 'json',
+        'max_results' => 1
+    ];
+
+    $ch3 = curl_init($fsUrl);
+    curl_setopt($ch3, CURLOPT_POST, 1);
+    curl_setopt($ch3, CURLOPT_POSTFIELDS, http_build_query($fsData));
+    curl_setopt($ch3, CURLOPT_HTTPHEADER, ["Authorization: Bearer $accessToken"]);
+    curl_setopt($ch3, CURLOPT_RETURNTRANSFER, true);
+    $fsResponse = json_decode(curl_exec($ch3), true);
+    curl_close($ch3);
+
+    // 4. Parse Results and Return to Frontend
+    if (isset($fsResponse['foods']['food'][0])) {
+        $foodData = $fsResponse['foods']['food'][0];
+        
+        // Log the success!
+        sendLogMessage("Successfully scanned $identifiedFood for user: $username", "INFO", "backend", __FILE__, __LINE__);
+        
+        return array(
+            "status" => "success",
+            "food_name" => $foodData['food_name'],
+            "calories" => $foodData['food_description'],
+            "message" => "AI successfully scanned the image!"
+        );
+    }
+
+    return array("status" => "error", "message" => "Identified as '$identifiedFood', but found no nutrition data.");
+}
+
+
+/*
+----------------------------
 FUNCTION: requestProcessor()
 ----------------------------
 This function is called whenever a new request is received.
