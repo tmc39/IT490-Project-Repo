@@ -1022,7 +1022,16 @@ function requestProcessor($request)
             return array("status" => "error", "message" => "Profile request is missing username.");
         }
         return doGetProfile($request["username"]);
-
+      
+    case "fridge_scan":
+        echo "attempting to scan fridge image" . PHP_EOL;
+        // Check if image is provided
+        if (!isset($request["image"])) {
+            sendLogMessage("Fridge scan request is missing image data.", "ERROR", "backend", __FILE__, __LINE__);
+            return array("status" => "error", "message" => "Scan request is missing image.");
+        }
+        return doFridgeScan($request);
+      
     default:
     // If request type not recognized, return error message
       sendLogMessage(
