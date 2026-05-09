@@ -13,60 +13,108 @@ This function registers a new user in the database.
 */
 function doRegister($firstname, $lastname, $email, $username, $hashedPassword)
 {
-    // Connect to the database
+    // Connect to database
     $db = getDbConnection();
     if ($db === null) {
+        sendLogMessage(
+            "Registration failed because database is not reachable.",
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         return array("status" => "error", "message" => "Database is not reachable at the moment.");
     }
 
-    // Basic checks to ensure required fields are provided
+    // Ensure required fields are provided
     if (trim($username) === "" || trim($hashedPassword) === "" || trim($email) === "") {
+        sendLogMessage(
+            "Registration failed because required fields are missing.",
+            "WARNING",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         $db->close();
         return array("status" => "error", "message" => "Missing required registration fields.");
     }
 
-    // Prevent duplicate usernames
+    // Prevent duplicate username
     $stmt = $db->prepare("SELECT username FROM users WHERE username = ?");
     if ($stmt === false) {
+        sendLogMessage(
+            "Registration failed because username check could not be prepared.",
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         $db->close();
         return array("status" => "error", "message" => "Could not prepare username check.");
     }
-    // Bind the username parameter and execute the query
+    // Bind username parameter and execute the query
     $stmt->bind_param("s", $username);
     $stmt->execute();
     $result = $stmt->get_result();
 
-    // If username already exists, return an error message and close the statement and database connection
+    // If username exists, return error message, close statement and DB connection
     if ($result->num_rows > 0) {
+        sendLogMessage(
+            "Registration failed because username already exists: " . $username,
+            "WARNING",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         $stmt->close();
         $db->close();
         return array("status" => "error", "message" => "Username already exists.");
     }
-    // Done with the SELECT statement
+    // Done with SELECT statement
     $stmt->close();
 
-    // Insert user (store hashed password exactly as received, do NOT hash again!)
+    // Insert user
     $stmt = $db->prepare("INSERT INTO users (username, password, email, firstname, lastname) VALUES (?, ?, ?, ?, ?)");
     if ($stmt === false) {
+        sendLogMessage(
+            "Registration failed because insert statement could not be prepared.",
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         $db->close();
         return array("status" => "error", "message" => "Could not prepare insert statement.");
     }
 
-    // Bind the parameters and execute the query
+    // Bind parameters and execute query
     $stmt->bind_param("sssss", $username, $hashedPassword, $email, $firstname, $lastname);
 
-    // If execute fails, return an error message and close the statement and database connection
+    // If execute fails, return error message, close statement and DB connection
     if (!$stmt->execute()) {
+        sendLogMessage(
+            "Registration failed because user could not be created: " . $username,
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         $stmt->close();
         $db->close();
         return array("status" => "error", "message" => "Could not create user.");
     }
 
-    // Done with the INSERT statement
+    // Done with INSERT statement
     $stmt->close();
     $db->close();
 
-    // The user was created successfully
+    // User created successfully
     return array("status" => "success", "message" => "User created.");
 }
 
@@ -74,79 +122,127 @@ function doRegister($firstname, $lastname, $email, $username, $hashedPassword)
 -------------------
 FUNCTION: doLogin()
 -------------------
-This function checks if the provided username and password are correct. If they are, it creates a session key and stores it in the database.
+This function checks if the provided username and password are correct. If true, creates asession key and stores in DB.
 */
 function doLogin($username, $password)
 {
   // Connect to the database
   $db = getDbConnection();
 
-  // If DB is down, we return a clear error message
+  // If DB is down, we return a error message
   if ($db === null) {
+      sendLogMessage(
+          "Login failed because database is not reachable.",
+          "ERROR",
+          "backend",
+          __FILE__,
+          __LINE__
+      );
+
       return array("status" => "error", "message" => "Database is not reachable at the moment.");
   }
 
-  // Look up the user in the database
+  // Look up user in database
   $stmt = $db->prepare("SELECT password FROM users WHERE username = ?");
 
-  // If prepare fails, $stmt is false, so we can only close $db
+  // If prepare fails, return error message, close DB connection
   if ($stmt === false) {
+      sendLogMessage(
+          "Login failed because database query could not be prepared.",
+          "ERROR",
+          "backend",
+          __FILE__,
+          __LINE__
+      );
+
       $db->close();
       return array("status" => "error", "message" => "Database query could not be prepared.");
   }
-  // Bind the username parameter and execute the query
+  // Bind username parameter and execute query
   $stmt->bind_param("s", $username);
   $stmt->execute();
   $result = $stmt->get_result();
 
   // If user doesn't exist
   if ($result->num_rows === 0) {
+      sendLogMessage(
+          "Login failed because username was not found: " . $username,
+          "WARNING",
+          "backend",
+          __FILE__,
+          __LINE__
+      );
+
       $stmt->close();
       $db->close();
       return array("status" => "error", "message" => "Login failed, username or password incorrect.");
   }
 
-  // Fetch the stored password for the user
+  // Fetch stored password for the user
   $row = $result->fetch_assoc();
   $storedPassword = $row["password"];
 
-  // Using password_verify() because DB now stores hashed passwords
+  // Using password_verify() because DB stores hashed passwords
   if (!password_verify($password, $storedPassword)) {
+      sendLogMessage(
+          "Login failed because password was incorrect for username: " . $username,
+          "WARNING",
+          "backend",
+          __FILE__,
+          __LINE__
+      );
+
       $stmt->close();
       $db->close();
       return array("status" => "error", "message" => "Login failed, username or password incorrect.");
   }
 
-  // Done with the SELECT statement
+  // Done with SELECT statement
   $stmt->close();
 
   // Create a session key
   $sessionKey = bin2hex(random_bytes(16));
 
-  // Store the session key in the sessions table
+  // Store session key in the sessions table
   $stmt = $db->prepare("INSERT INTO sessions (session_key, username) VALUES (?, ?)");
 
-  // If prepare fails, $stmt is false, so we can only close $db
+  // If prepare fails, return error message, and close DB connection
   if ($stmt === false) {
+      sendLogMessage(
+          "Login failed because session key statement could not be prepared for username: " . $username,
+          "ERROR",
+          "backend",
+          __FILE__,
+          __LINE__
+      );
+
       $db->close();
       return array("status" => "error", "message" => "Could not prepare statement to save session key.");
   }
 
-  // Bind the session key and username parameters and execute the query
+  // Bind session key and username parameters and execute query
   $stmt->bind_param("ss", $sessionKey, $username);
 
-  // If execute fails, we return an error message and close the statement and database connection
+  // If execute fails, return error message, close statement and DB connection
   if (!$stmt->execute()) {
+      sendLogMessage(
+          "Login failed because session key could not be saved for username: " . $username,
+          "ERROR",
+          "backend",
+          __FILE__,
+          __LINE__
+      );
+
       $stmt->close();
       $db->close();
       return array("status" => "error", "message" => "Could not save session key.");
   }
 
-  // Done with the INSERT statement
+  // Done with INSERT statement
   $stmt->close();
   $db->close();
 
-  // Send session key back so the frontend can store it in $_SESSION
+  // Send session key back so frontend can store in $_SESSION arrayy variable
   return array("status" => "success", "session_key" => $sessionKey);
 }
 
@@ -161,49 +257,89 @@ function doValidate($sessionId, $username)
   // Connect to the database
   $db = getDbConnection();
 
-  // If DB is down, we return a clear error message
+  // If DB is down, we return a error message
   if ($db === null) {
+      sendLogMessage(
+          "Session validation failed because database is not reachable.",
+          "ERROR",
+          "backend",
+          __FILE__,
+          __LINE__
+      );
+
       return array("status" => "error", "message" => "Database is not reachable at the moment.");
   }
 
-  // Check if sessionId is provided
+  // Check if sessionId provided
   if (!isset($sessionId) || trim($sessionId) === "") {
+      sendLogMessage(
+          "Session validation failed because no session key was provided.",
+          "WARNING",
+          "backend",
+          __FILE__,
+          __LINE__
+      );
+
       $db->close();
       return array("status" => "error", "message" => "No session key was provided.");
   }
 
-  // Check if username is provided
+  // Check if username provided
   if (!isset($username) || trim($username) === "") {
+      sendLogMessage(
+          "Session validation failed because no username was provided.",
+          "WARNING",
+          "backend",
+          __FILE__,
+          __LINE__
+      );
+
       $db->close();
       return array("status" => "error", "message" => "No username was provided.");
   }
 
-  // Look up the session key in the database
+  // Look up session key in the sessions db
   $stmt = $db->prepare("SELECT session_key FROM sessions WHERE session_key = ? AND username = ?");
 
-  // If prepare fails, $stmt is false, so we can only close $db
+  // If prepare fails, return error message, closee DB connection
   if ($stmt === false) {
+      sendLogMessage(
+          "Session validation failed because statement could not be prepared for username: " . $username,
+          "ERROR",
+          "backend",
+          __FILE__,
+          __LINE__
+      );
+
       $db->close();
       return array("status" => "error", "message" => "Could not prepare statement to check session key.");
   }
 
-  // Bind the session key and username parameters and execute the query
+  // Bind session key and username parameters and execute query
   $stmt->bind_param("ss", $sessionId, $username);
   $stmt->execute();
   $result = $stmt->get_result();
 
   // If session key doesn't exist
   if ($result->num_rows === 0) {
+      sendLogMessage(
+          "Session validation failed because session key was not valid for username: " . $username,
+          "WARNING",
+          "backend",
+          __FILE__,
+          __LINE__
+      );
+
       $stmt->close();
       $db->close();
       return array("status" => "error", "message" => "Session key not valid.");
   }
 
-  // Done with the SELECT statement
+  // Done with SELECT statement
   $stmt->close();
   $db->close();
 
-  // The session key is valid
+  // Session key is valid
   return array("status" => "success", "message" => "Session key is valid.");
 }
 
@@ -217,6 +353,14 @@ function postReview ($request){
     //try to connect to database
     $db = getDbConnection();
     if ($db === null) {
+        sendLogMessage(
+            "Post review failed because database is not reachable.",
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         return array("status" => "error", "message" => "Database is not reachable at the moment.");
     }
     $username = $request["username"];
@@ -229,15 +373,47 @@ function postReview ($request){
 
     //returns error if any values aren't set
     if($username === null) {
+        sendLogMessage(
+            "Post review failed because username is missing.",
+            "WARNING",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         return array("status" => "error", "message" => "Missing required variable " . "user: " . $username);
     }
     else if($recipeID === null){
+        sendLogMessage(
+            "Post review failed because recipe ID is missing.",
+            "WARNING",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         return array("status" => "error", "message" => "Missing required variable " . "recipe ID: " . $recipeID);
     }
-    else if($positive != 0 && $positive == null){
+    else if($positive != 0 && $positive === null){
+        sendLogMessage(
+            "Post review failed because positive value is missing.",
+            "WARNING",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         return array("status" => "error", "message" => "Missing required variable " . "ispositive: " . $positive);
     }
     else if($reviewtext === null){
+        sendLogMessage(
+            "Post review failed because review text is missing.",
+            "WARNING",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         return array("status" => "error", "message" => "Missing required variable " . "review text: " . $reviewtext);
     }
 
@@ -245,18 +421,44 @@ function postReview ($request){
     $stmt = $db->prepare("INSERT INTO recipereviews (recipeID, username, isPositive, reviewDescription) VALUES (?, ?, ?, ?)");
     //cancel if the preparation fails
     if($stmt === false){
+        sendLogMessage(
+            "Post review failed because database statement could not be prepared.",
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         $db->close();
         return array("status" => "error", "message" => "Failed to prepare statement for database.");
     }
 
     // Bind the request's variables to the statement
     if(!$stmt->bind_param("ssss", $recipeID,$username,$positive,$reviewtext)){
+        sendLogMessage(
+            "Post review failed because values could not be bound to SQL query.",
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         //exits if bind_param fails (indicated by it returning false)
+        $stmt->close();
+        $db->close();
         return array("status" => "error", "message" => "Could not bind values to SQL query.");
     }
 
     // If execute fails, we return an error message and close the statement and database connection
     if (!$stmt->execute()) {
+        sendLogMessage(
+            "Post review failed because database execute failed for username: " . $username,
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         $stmt->close();
         $db->close();
         return array("status" => "error", "message" => "Could not post review.");
@@ -271,27 +473,82 @@ function postReview ($request){
     return array("status" => "success", "message" => "Review has been posted.");
 }
 
+/*
+----------------------------
+FUNCTION: listReviews()
+----------------------------
+This function is used when a request to list recipe reviews is received by RabbitMQ.
+*/
 function listReviews($request){
     //gets the requested recipe ID
     $recipeID = $request["recipe"];
     if($recipeID == null){
+        sendLogMessage(
+            "Load reviews failed because recipe ID is missing.",
+            "WARNING",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         return json_encode(array("status" => "error", "message" => "Null RecipeID."), JSON_FORCE_OBJECT);
     }
 
     $db = getDbConnection();
     if ($db === null) {
+        sendLogMessage(
+            "Load reviews failed because database is not reachable.",
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         return json_encode(array("status" => "error", "message" => "Database is not reachable at the moment."), JSON_FORCE_OBJECT);
     }
 
     //prepare SQL statement to receive reviews for a specific recipeID
     $stmt = $db->prepare("SELECT * FROM recipereviews WHERE recipeID = ?;");
+    
+    // check prepare before bind_param
+    if ($stmt === false) {
+        sendLogMessage(
+            "Load reviews failed because database statement could not be prepared for recipe ID: " . $recipeID,
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
+        $db->close();
+        return json_encode(array("status" => "error", "message" => "Could not prepare reviews query."), JSON_FORCE_OBJECT);
+    }
+
     if(!$stmt->bind_param("s", $recipeID)){
+        sendLogMessage(
+            "Load reviews failed because values could not be bound to SQL query.",
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         //exits if bind_param fails (indicated by it returning false)
+        $stmt->close();
+        $db->close();
         return json_encode(array("status" => "error", "message" => "Could not bind values to SQL query."), JSON_FORCE_OBJECT);
     }
 
     //executes SQL statement
     if (!$stmt->execute()) {
+        sendLogMessage(
+            "Load reviews failed because database execute failed for recipe ID: " . $recipeID,
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         $stmt->close();
         $db->close();
         return json_encode(array("status" => "error", "message" => "Could not receive reviews."), JSON_FORCE_OBJECT);
@@ -302,6 +559,14 @@ function listReviews($request){
 
     //returns if the results are null
     if($results == null){
+        sendLogMessage(
+            "Load reviews failed because database returned no result object for recipe ID: " . $recipeID,
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
         $stmt->close();
         $db->close();
         return json_encode(array("status" => "error", "message" => "No results from database."), JSON_FORCE_OBJECT);
@@ -328,44 +593,280 @@ function listReviews($request){
 }
 
 /*
+-----------------------------
+FUNCTION: doSaveProfile()
+-----------------------------
+This function saves or updates a users dietary profile.
+*/
+function doSaveProfile($request)
+{
+    // Connect to the database
+    $db = getDbConnection();
+
+    // If DB is down, return error message
+    if ($db === null) {
+        sendLogMessage(
+            "Save profile failed because database is not reachable.",
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
+        return array("status" => "error", "message" => "Database is not reachable right now.");
+    }
+
+    // Get values from the request
+    $username = $request["username"] ?? null;
+    $goal = $request["dietary_goal"] ?? null;
+    $calories = $request["calorie_target"] ?? null;
+    $kosher = $request["kosher"] ?? 0;
+    $halal = $request["halal"] ?? 0;
+    $vegetarian = $request["vegetarian"] ?? 0;
+    $vegan = $request["vegan"] ?? 0;
+    $allergies = $request["allergies"] ?? null;
+
+    // Check for usernme
+    if ($username == null) {
+        sendLogMessage(
+            "Save profile failed because username is missing.",
+            "WARNING",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
+        $db->close();
+        return array("status" => "error", "message" => "Missing username.");
+    }
+
+    // Insert new profile or update if username exists
+    $sql = "INSERT INTO user_profiles (username, dietary_goal, calorie_target, kosher, halal, vegetarian, vegan, allergies)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+
+            ON DUPLICATE KEY UPDATE
+
+            dietary_goal = VALUES(dietary_goal),
+            calorie_target = VALUES(calorie_target),
+            kosher = VALUES(kosher),
+            halal = VALUES(halal),
+            vegetarian = VALUES(vegetarian),
+            vegan = VALUES(vegan),
+            allergies = VALUES(allergies)";
+
+    $stmt = $db->prepare($sql);
+
+    // Cancel if preparation fails
+    if ($stmt === false) {
+        sendLogMessage(
+            "Save profile failed because profile query could not be prepared for username: " . $username,
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
+        $db->close();
+        return array("status" => "error", "message" => "Could not prepare profile query.");
+    }
+
+    // Bind parameters and execute the query
+    $stmt->bind_param("ssiiiiis", $username, $goal, $calories, $kosher, $halal, $vegetarian, $vegan, $allergies);
+
+    // If execute fails, return error message, close statement and DB connection
+    if (!$stmt->execute()) {
+        sendLogMessage(
+            "Save profile failed because database execute failed for username: " . $username,
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
+        $stmt->close();
+        $db->close();
+        return array("status" => "error", "message" => "Could not save profile.");
+    }
+
+    // Done with the statement
+    $stmt->close();
+    $db->close();
+
+    return array("status" => "success", "message" => "Profile saved.");
+}
+
+/*
+----------------------------
+FUNCTION: doGetProfile()
+----------------------------
+This function loads a user's dietary profile.
+*/
+function doGetProfile($username)
+{
+    // Connect to the database
+    $db = getDbConnection();
+
+    // If DB is down, return a error message
+    if ($db === null) {
+        sendLogMessage(
+            "Get profile failed because database is not reachable.",
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
+        return array("status" => "error", "message" => "Database is not reachable at the moment.");
+    }
+
+    // Check if username provided
+    if (!isset($username) || trim($username) === "") {
+        sendLogMessage(
+            "Get profile failed because username is missing.",
+            "WARNING",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
+        $db->close();
+        return array("status" => "error", "message" => "No username was provided.");
+    }
+
+    // Look up user's profile
+    $stmt = $db->prepare("SELECT dietary_goal, calorie_target, kosher, halal, vegetarian, vegan, allergies FROM user_profiles WHERE username = ?");
+
+    // Cancel if preparation fails
+    if ($stmt === false) {
+        sendLogMessage(
+            "Get profile failed because profile query could not be prepared for username: " . $username,
+            "ERROR",
+            "backend",
+            __FILE__,
+            __LINE__
+        );
+
+        $db->close();
+        return array("status" => "error", "message" => "Could not prepare profile query.");
+    }
+
+    // Bind username and execute the query
+    $stmt->bind_param("s", $username);
+
+    $stmt->execute();
+
+    $result = $stmt->get_result();
+
+    // If no profile exists, return success with empty values
+    if ($result->num_rows === 0) {
+        $stmt->close();
+        $db->close();
+        return array("status" => "success", "message" => "No profile found.",
+            "profile" => array(
+                "dietary_goal" => "",
+                "calorie_target" => "",
+                "kosher" => 0,
+                "halal" => 0,
+                "vegetarian" => 0,
+                "vegan" => 0,
+                "allergies" => ""
+            )
+        );
+    }
+
+    $row = $result->fetch_assoc();
+
+    // Done with the statement
+    $stmt->close();
+    $db->close();
+
+    return array("status" => "success", "message" => "Profile loaded.", "profile" => $row);
+}
+
+/*
 ----------------------------
 FUNCTION: requestProcessor()
 ----------------------------
-This function is called by the RabbitMQ server whenever a new request is received.
+This function is called whenever a new request is received.
 */
 function requestProcessor($request)
 {
   echo "received request" . PHP_EOL;
   var_dump($request);
 
+// Check if request is valid
+  if (!is_array($request)) {
+      sendLogMessage(
+          "Invalid backend request received. Request was not an array.",
+          "ERROR",
+          "backend",
+          __FILE__,
+          __LINE__
+      );
+
+      return array("status" => "error", "message" => "Invalid request format.");
+  }
+
   // Check if the request has a type
   if (!isset($request["type"])) {
+      sendLogMessage(
+          "Backend request missing type.",
+          "ERROR",
+          "backend",
+          __FILE__,
+          __LINE__
+      );
+
       return array("status" => "error", "message" => "Request type is missing.");
   }
 
-  // Process the request based on its type
+  // Process request based on it's type
   switch ($request["type"]) {
 
     case "register":
-    // Check if all required fields are provided
+    // Check if all required fields provided
         if (!isset($request["firstname"], $request["lastname"], $request["email"], $request["username"], $request["password"])) {
+            sendLogMessage(
+                "Register request is missing required fields.",
+                "ERROR",
+                "backend",
+                __FILE__,
+                __LINE__
+            );
+
             return array("status" => "error", "message" => "Register request is missing fields.");
         }
         return doRegister(
-            // NOTE: the password is already hashed by the client, so do NOT hash it again!
+            // NOTE: password already hashed by client side
             $request["firstname"], $request["lastname"], $request["email"], $request["username"], $request["password"]
         );
 
     case "login":
-    // Check if username and password are provided
+    // Check if username and password provided
       if (!isset($request["username"]) || !isset($request["password"])) {
+          sendLogMessage(
+              "Login request is missing username or password.",
+              "ERROR",
+              "backend",
+              __FILE__,
+              __LINE__
+          );
+
           return array("status" => "error", "message" => "Login request is missing username or password.");
       }
       return doLogin($request["username"], $request["password"]);
 
     case "validate_session":
-    // Check if sessionId is provided
+    // Check if sessionId provided
       if (!isset($request["sessionId"]) || !isset($request["username"])) {
+          sendLogMessage(
+              "Session validation request is missing sessionId or username.",
+              "ERROR",
+              "backend",
+              __FILE__,
+              __LINE__
+          );
+
           return array("status" => "error", "message" => "Session validation request is missing sessionId or username.");
       }
       return doValidate($request["sessionId"], $request["username"]);
@@ -376,8 +877,47 @@ function requestProcessor($request)
     case "load_reviews":
         echo "attempting to load reviews" . PHP_EOL;
         return listReviews($request);
+
+    case "save_profile":
+    // Check if username provided
+        if (!isset($request["username"])) {
+            sendLogMessage(
+                "Profile request is missing username.",
+                "ERROR",
+                "backend",
+                __FILE__,
+                __LINE__
+            );
+
+            return array("status" => "error", "message" => "Profile request is missing username.");
+        }
+        return doSaveProfile($request);
+
+    case "get_profile":
+    // Check if username provided
+        if (!isset($request["username"])) {
+            sendLogMessage(
+                "Profile request is missing username.",
+                "ERROR",
+                "backend",
+                __FILE__,
+                __LINE__
+            );
+
+            return array("status" => "error", "message" => "Profile request is missing username.");
+        }
+        return doGetProfile($request["username"]);
+
     default:
-    // If the request type is not recognized, return an error message
+    // If request type not recognized, return error message
+      sendLogMessage(
+          "Unsupported backend request type: " . $request["type"],
+          "WARNING",
+          "backend",
+          __FILE__,
+          __LINE__
+      );
+
       return array("status" => "error", "message" => "Unsupported request type: " . $request["type"]);
   }
 }
