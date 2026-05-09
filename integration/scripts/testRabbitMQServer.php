@@ -933,7 +933,6 @@ function doFridgeScan($request)
     );
 }
 
-
 /*
 ----------------------------
 FUNCTION: requestProcessor()
