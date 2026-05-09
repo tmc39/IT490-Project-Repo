@@ -17,7 +17,9 @@ if (empty($_SESSION["loggedIn"]) || empty($_SESSION["username"])) {
     sendLogMessage(
         "Load profile failed because user is not logged in.",
         "WARNING",
-        "frontend"
+        "frontend",
+        __FILE__,
+        __LINE__
     );
 
     echo json_encode(["status" => "error", "message" => "User is not logged in."]);
@@ -38,7 +40,9 @@ try {
         sendLogMessage(
             "Load profile failed because RabbitMQ returned an unexpected response.",
             "ERROR",
-            "frontend"
+            "frontend",
+            __FILE__,
+            __LINE__
         );
 
         echo json_encode(["status" => "error", "message" => "Unexpected response from server."]);
@@ -49,7 +53,9 @@ try {
         sendLogMessage(
             "Load profile failed: " . ($response["message"] ?? "Unknown backend error."),
             "ERROR",
-            "frontend"
+            "frontend",
+            __FILE__,
+            __LINE__
         );
     }
 
@@ -59,7 +65,9 @@ try {
     sendLogMessage(
         "RabbitMQ error in load_profile.php: " . $e->getMessage(),
         "ERROR",
-        "frontend"
+        "frontend",
+        __FILE__,
+        __LINE__
     );
 
     echo json_encode(["status" => "error", "message" => "Profile service is currently unavailable."]);

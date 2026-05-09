@@ -18,7 +18,9 @@ if($searchQuery == null){
     sendLogMessage(
         "Food info request missing food ID. Defaulting to 3540.",
         "WARNING",
-        "backend-api"
+        "backend-api",
+        __FILE__,
+        __LINE__
     );
 
     $searchQuery = "3540";
@@ -84,7 +86,9 @@ if ($apiresponse === false) {
     sendLogMessage(
         "Food info API cURL failed: " . curl_error($ch),
         "ERROR",
-        "backend-api"
+        "backend-api",
+        __FILE__,
+        __LINE__
     );
 
     header('Content-Type: application/json');
@@ -99,7 +103,9 @@ if ($apiresponse == null || trim($apiresponse) === "") {
     sendLogMessage(
         "Food info API returned an empty response for food ID: " . $searchQuery,
         "ERROR",
-        "backend-api"
+        "backend-api",
+        __FILE__,
+        __LINE__
     );
 
     header('Content-Type: application/json');
@@ -113,7 +119,9 @@ if ($decodedResponse === null) {
     sendLogMessage(
         "Food info API returned invalid JSON for food ID: " . $searchQuery,
         "ERROR",
-        "backend-api"
+        "backend-api",
+        __FILE__,
+        __LINE__
     );
 
     header('Content-Type: application/json');

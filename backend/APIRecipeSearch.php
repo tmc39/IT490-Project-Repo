@@ -20,7 +20,9 @@ if($searchQuery == null){
     sendLogMessage(
         "Recipe search request missing search query. Defaulting to bagel.",
         "WARNING",
-        "backend-api"
+        "backend-api",
+        __FILE__,
+        __LINE__
     );
 
     $searchQuery = "bagel";
@@ -31,7 +33,9 @@ if($maxresults == null){
     sendLogMessage(
         "Recipe search request missing results value. Defaulting to 10.",
         "WARNING",
-        "backend-api"
+        "backend-api",
+        __FILE__,
+        __LINE__
     );
 
     $maxresults = 10;
@@ -42,7 +46,9 @@ if($page == null){
     sendLogMessage(
         "Recipe search request missing page value. Defaulting to 0.",
         "WARNING",
-        "backend-api"
+        "backend-api",
+        __FILE__,
+        __LINE__
     );
 
     $page = 0;
@@ -113,7 +119,9 @@ if ($apiresponse === false) {
     sendLogMessage(
         "Recipe search API cURL failed: " . curl_error($ch),
         "ERROR",
-        "backend-api"
+        "backend-api",
+        __FILE__,
+        __LINE__
     );
 
     header('Content-Type: application/json');
@@ -128,7 +136,9 @@ if ($apiresponse == null || trim($apiresponse) === "") {
     sendLogMessage(
         "Recipe search API returned an empty response for search query: " . $searchQuery,
         "ERROR",
-        "backend-api"
+        "backend-api",
+        __FILE__,
+        __LINE__
     );
 
     header('Content-Type: application/json');
@@ -142,7 +152,9 @@ if ($decodedResponse === null) {
     sendLogMessage(
         "Recipe search API returned invalid JSON for search query: " . $searchQuery,
         "ERROR",
-        "backend-api"
+        "backend-api",
+        __FILE__,
+        __LINE__
     );
 
     header('Content-Type: application/json');

@@ -8,7 +8,9 @@ if (empty($_SESSION["loggedIn"]) || empty($_SESSION["username"])) {
     sendLogMessage(
         "Submit review failed because user is not logged in.",
         "WARNING",
-        "frontend"
+        "frontend",
+        __FILE__,
+        __LINE__
     );
 
     echo "Cannot submit review: user is not logged in.";
@@ -31,7 +33,9 @@ if($recipeID == "" || $positive == ""|| $reviewText == "" || $username == "" || 
     sendLogMessage(
         "Submit review failed because required data is missing.",
         "WARNING",
-        "frontend"
+        "frontend",
+        __FILE__,
+        __LINE__
     );
 
     echo "Failed to submit review: missing required data";
@@ -54,7 +58,9 @@ try {
         sendLogMessage(
             "Submit review failed because RabbitMQ response was unreadable.",
             "ERROR",
-            "frontend"
+            "frontend",
+            __FILE__,
+            __LINE__
         );
 
         session_unset();
@@ -66,7 +72,9 @@ try {
         sendLogMessage(
             "Submit review failed: " . ($response["message"] ?? "Unknown backend error."),
             "ERROR",
-            "frontend"
+            "frontend",
+            __FILE__,
+            __LINE__
         );
 
         session_unset();
@@ -82,7 +90,9 @@ try {
     sendLogMessage(
         "RabbitMQ error in submitreview.php: " . $e->getMessage(),
         "ERROR",
-        "frontend"
+        "frontend",
+        __FILE__,
+        __LINE__
     );
 
     session_unset();

@@ -16,14 +16,18 @@ sendLogMessage()
 $message = error message
 $level   = ERROR, WARNING, INFO
 $source  = where it came from
+$file    = file where the error happened
+$line    = line number where the error happened
 */
-function sendLogMessage($message, $level = "ERROR", $source = "UNKNOWN")
+function sendLogMessage($message, $level = "ERROR", $source = "UNKNOWN", $file = "N/A", $line = "N/A")
 {
     // build log data
     $logData = [
         "timestamp" => date("Y-m-d H:i:s"),
         "level" => $level,
         "source" => $source,
+        "file" => $file,
+        "line" => $line,
         "message" => $message
     ];
 
@@ -44,6 +48,8 @@ function sendLogMessage($message, $level = "ERROR", $source = "UNKNOWN")
             "    timestamp: {$logData['timestamp']},\n" .
             "    level: {$logData['level']},\n" .
             "    source: {$logData['source']},\n" .
+            "    file: {$logData['file']},\n" .
+            "    line: {$logData['line']},\n" .
             "    message: {$logData['message']}\n" .
             "}\n\n";
 

@@ -33,6 +33,8 @@ function logCallback($request)
         "    timestamp: " . ($request["timestamp"] ?? "N/A") . ",\n" .
         "    level: " . ($request["level"] ?? "N/A") . ",\n" .
         "    source: " . ($request["source"] ?? "N/A") . ",\n" .
+        "    file: " . ($request["file"] ?? "N/A") . ",\n" .
+        "    line: " . ($request["line"] ?? "N/A") . ",\n" .
         "    message: " . ($request["message"] ?? "N/A") . "\n" .
         "}\n\n";
 

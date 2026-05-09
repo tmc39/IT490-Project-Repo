@@ -11,7 +11,9 @@ if($recipeID == null || $recipeID == ""){
     sendLogMessage(
         "Load reviews request failed because recipe ID is missing.",
         "WARNING",
-        "frontend"
+        "frontend",
+        __FILE__,
+        __LINE__
     );
 
     echo "Failed to load reviews: missing required data";
@@ -31,7 +33,9 @@ try {
         sendLogMessage(
             "Load reviews request returned an empty response from RabbitMQ.",
             "ERROR",
-            "frontend"
+            "frontend",
+            __FILE__,
+            __LINE__
         );
 
         echo "Failed to load reviews: empty response from server.";
@@ -65,7 +69,9 @@ try {
     sendLogMessage(
         "RabbitMQ error in loadreviews.php: " . $e->getMessage(),
         "ERROR",
-        "frontend"
+        "frontend",
+        __FILE__,
+        __LINE__
     );
 
     session_unset();

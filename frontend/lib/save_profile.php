@@ -17,7 +17,9 @@ if (empty($_SESSION["loggedIn"]) || empty($_SESSION["username"])) {
     sendLogMessage(
         "Save profile failed because user is not logged in.",
         "WARNING",
-        "frontend"
+        "frontend",
+        __FILE__,
+        __LINE__
     );
 
     echo json_encode(["status" => "error", "message" => "User is not logged in."]);
@@ -56,7 +58,9 @@ try {
         sendLogMessage(
             "Save profile failed because RabbitMQ returned an unexpected response.",
             "ERROR",
-            "frontend"
+            "frontend",
+            __FILE__,
+            __LINE__
         );
 
         echo json_encode(["status" => "error", "message" => "Unexpected response from server."]);
@@ -67,7 +71,9 @@ try {
         sendLogMessage(
             "Save profile failed: " . ($response["message"] ?? "Unknown backend error."),
             "ERROR",
-            "frontend"
+            "frontend",
+            __FILE__,
+            __LINE__
         );
     }
 
@@ -77,7 +83,9 @@ try {
     sendLogMessage(
         "RabbitMQ error in save_profile.php: " . $e->getMessage(),
         "ERROR",
-        "frontend"
+        "frontend",
+        __FILE__,
+        __LINE__
     );
 
     echo json_encode(["status" => "error", "message" => "Profile service is currently unavailable."]);
