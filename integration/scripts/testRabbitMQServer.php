@@ -834,6 +834,14 @@ function doFridgeScan($request)
     $clarifaiResponse = json_decode(curl_exec($ch1), true);
     curl_close($ch1);
 
+    // --- ADD THIS DEBUG LINE ---
+    echo "\n=== CLARIFAI RESPONSE ===\n";
+    print_r($clarifaiResponse);
+    echo "=========================\n\n";
+
+    if (!isset($clarifaiResponse['outputs'][0]['data']['concepts'][0]['name'])) {
+        return array("status" => "error", "message" => "Could not identify food in the image.");
+    }
     if (!isset($clarifaiResponse['outputs'][0]['data']['concepts'][0]['name'])) {
         // sendLogMessage("Clarifai failed to identify image for user: $username", "WARNING", "backend", __FILE__, __LINE__);
         return array("status" => "error", "message" => "Could not identify food in the image.");
