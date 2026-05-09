@@ -840,6 +840,10 @@ function doFridgeScan($request)
     $clarifaiResponse = json_decode($rawClarifai, true);
     curl_close($ch1);
 
+    echo "\n=== RAW CLARIFAI RESPONSE ===\n";
+    print_r($clarifaiResponse);
+    echo "=============================\n\n";
+
     if (!isset($clarifaiResponse['outputs'][0]['data']['concepts'][0]['name'])) {
         echo "[DEBUG] ERROR: Clarifai failed to identify image.\n";
         return array("status" => "error", "message" => "Could not identify food in the image.");
