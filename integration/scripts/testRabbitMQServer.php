@@ -787,23 +787,22 @@ function doGetProfile($username)
 ----------------------------
 FUNCTION: doFridgeScan()
 ----------------------------
-This function takes a base64 image, uses Clarifai to identify the food, 
-and then uses FatSecret to get its nutritional data.
 */
 function doFridgeScan($request)
 {
     $base64Image = $request['image'] ?? null;
     $username = $request['username'] ?? "Unknown";
 
+    echo "\n[DEBUG] Starting Scan for user: $username\n";
+
     if ($base64Image == null) {
-        // sendLogMessage("Fridge scan failed: Missing image data.", "WARNING", "backend", __FILE__, __LINE__);
         return array("status" => "error", "message" => "No image data provided.");
     }
 
     // 1. Load API Keys
     $keyPath = __DIR__ . '/../../backend/BigFatKeys.php';
     if (!file_exists($keyPath)) {
-        // sendLogMessage("Fridge scan failed: BigFatKeys.php not found.", "ERROR", "backend", __FILE__, __LINE__);
+        echo "[DEBUG] ERROR: BigFatKeys.php missing at $keyPath\n";
         return array("status" => "error", "message" => "API Keys missing on server.");
     }
     require($keyPath);
@@ -816,7 +815,9 @@ function doFridgeScan($request)
     // ---------------------------------------------------------
     // 2. CLARIFAI API (Image to Text)
     // ---------------------------------------------------------
-    $clarifaiUrl = "https://api.clarifai.com/v2/models/bd367be194cf45149e75f01d59f77ba7/outputs"; // Food Model ID
+    echo "[DEBUG] Sending image to Clarifai...\n";
+    
+    $clarifaiUrl = "https://api.clarifai.com/v2/models/food-item-recognition/outputs"; 
     $clarifaiData = [
         "inputs" => [
             ["data" => ["image" => ["base64" => $base64Image]]]
@@ -831,26 +832,27 @@ function doFridgeScan($request)
         "Content-Type: application/json"
     ]);
     curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
-    $clarifaiResponse = json_decode(curl_exec($ch1), true);
+    $rawClarifai = curl_exec($ch1);
+    $clarifaiResponse = json_decode($rawClarifai, true);
     curl_close($ch1);
 
-    // --- ADD THIS DEBUG LINE ---
-    echo "\n=== CLARIFAI RESPONSE ===\n";
+    // Terminal Debugging
+    echo "--- CLARIFAI RAW OUTPUT ---\n";
     print_r($clarifaiResponse);
-    echo "=========================\n\n";
+    echo "---------------------------\n";
 
     if (!isset($clarifaiResponse['outputs'][0]['data']['concepts'][0]['name'])) {
+        echo "[DEBUG] Clarifai could not find a food name.\n";
         return array("status" => "error", "message" => "Could not identify food in the image.");
     }
-    if (!isset($clarifaiResponse['outputs'][0]['data']['concepts'][0]['name'])) {
-        // sendLogMessage("Clarifai failed to identify image for user: $username", "WARNING", "backend", __FILE__, __LINE__);
-        return array("status" => "error", "message" => "Could not identify food in the image.");
-    }
+    
     $identifiedFood = $clarifaiResponse['outputs'][0]['data']['concepts'][0]['name'];
+    echo "[DEBUG] Identified Food: $identifiedFood\n";
 
     // ---------------------------------------------------------
     // 3. FATSECRET API (Text to Calories)
     // ---------------------------------------------------------
+    echo "[DEBUG] Fetching calories from FatSecret...\n";
     $id = trim($fatSecretKey);
     $secret = trim($fatSecretSecret);
 
@@ -864,7 +866,7 @@ function doFridgeScan($request)
 
     $accessToken = $tokenResponse['access_token'] ?? null;
     if (!$accessToken) {
-        // sendLogMessage("FatSecret Auth failed.", "ERROR", "backend", __FILE__, __LINE__);
+        echo "[DEBUG] ERROR: FatSecret Auth Failed.\n";
         return array("status" => "error", "message" => "Nutrition database auth failed.");
     }
 
@@ -884,11 +886,10 @@ function doFridgeScan($request)
     $fsResponse = json_decode(curl_exec($ch3), true);
     curl_close($ch3);
 
-    // 4. Parse Results and Return to Frontend
+    // 4. Parse Results
     if (isset($fsResponse['foods']['food'][0])) {
         $foodData = $fsResponse['foods']['food'][0];
-        //aint got log queue working locally
-        // sendLogMessage("Successfully scanned $identifiedFood for user: $username", "INFO", "backend", __FILE__, __LINE__);
+        echo "[DEBUG] SUCCESS: Returning data for " . $foodData['food_name'] . "\n";
         
         return array(
             "status" => "success",
@@ -898,6 +899,7 @@ function doFridgeScan($request)
         );
     }
 
+    echo "[DEBUG] Identified as $identifiedFood but no FatSecret data found.\n";
     return array("status" => "error", "message" => "Identified as '$identifiedFood', but found no nutrition data.");
 }
 
