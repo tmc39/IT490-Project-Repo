@@ -1,60 +1,85 @@
-// frontend/js/fridgescanner.js
+// Keep track of how many recipes the user has made
+let recipeCounter = 1;
 
-function scanFridgeImage() {
+// 1. Handle the Image Upload
+document.getElementById('fridgeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
     const fileInput = document.getElementById('fridgeImage');
-    const resultsDiv = document.getElementById('resultsDiv');
+    const file = fileInput.files[0];
+    if (!file) return;
 
-    // Make sure they actually selected a file
-    if (fileInput.files.length === 0) {
-        resultsDiv.innerHTML = "<p style='color:red;'>Please select an image first!</p>";
-        return false;
+    // Convert image to Base64
+    const reader = new FileReader();
+    reader.onloadend = function() {
+        const base64Image = reader.result;
+
+        // Send to PHP middleman
+        fetch('lib/submitfridge.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'image=' + encodeURIComponent(base64Image)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Show the results box
+                document.getElementById('resultsBox').style.display = 'block';
+                document.getElementById('scanMessage').innerText = data.message;
+
+                const checkboxDiv = document.getElementById('ingredientCheckboxes');
+                checkboxDiv.innerHTML = ''; // Clear previous scans
+
+                // Deliverable #6: List things inside the fridge via checkboxes
+                data.ingredients.forEach(item => {
+                    const label = document.createElement('label');
+                    label.style.display = 'inline-block';
+                    label.style.marginRight = '15px';
+                    label.style.cursor = 'pointer';
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.value = item;
+                    checkbox.className = 'ingredient-cb';
+
+                    label.appendChild(checkbox);
+                    label.appendChild(document.createTextNode(' ' + item));
+                    checkboxDiv.appendChild(label);
+                });
+            } else {
+                alert('Error: ' + data.message);
+            }
+        })
+        .catch(error => console.error('Fetch Error:', error));
+    };
+    reader.readAsDataURL(file);
+});
+
+// 2. Handle Custom Recipe Creation (Deliverable #5)
+document.getElementById('createRecipeBtn').addEventListener('click', function() {
+    // Find all checked boxes
+    const checkboxes = document.querySelectorAll('.ingredient-cb:checked');
+    const selectedIngredients = Array.from(checkboxes).map(cb => cb.value);
+
+    // Ensure they picked something
+    if (selectedIngredients.length === 0) {
+        alert("Please select at least one ingredient to make a recipe.");
+        return;
     }
 
-    const file = fileInput.files[0];
-    const reader = new FileReader();
+    // Auto-name the recipe
+    const recipeName = "Recipe " + recipeCounter;
+    recipeCounter++;
 
-    // Show a loading message
-    resultsDiv.innerHTML = "<p>Scanning image with AI... Please wait.</p>";
+    // Display the Custom Recipes box
+    document.getElementById('customRecipesBox').style.display = 'block';
+    const recipeList = document.getElementById('recipeList');
 
-    // This runs once the image is fully loaded into memory
-    reader.onload = function(e) {
-        const base64String = e.target.result;
+    // Add the new recipe to the screen
+    const li = document.createElement('li');
+    li.innerHTML = `<strong>${recipeName}:</strong> ${selectedIngredients.join(', ')}`;
+    recipeList.appendChild(li);
 
-        // Prepare the AJAX request to your new submit script
-        const xhr = new XMLHttpRequest();
-        xhr.open("POST", "/frontend/lib/submitfridge.php", true);
-        xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-
-        xhr.onload = function() {
-            if (xhr.status === 200) {
-                try {
-                    const response = JSON.parse(xhr.responseText);
-                    
-                    if (response.status === "success") {
-                        // Print the FatSecret nutrition data dynamically
-                        resultsDiv.innerHTML = `
-                            <div style="background-color: #d4edda; padding: 15px; border-radius: 5px; margin-top: 20px;">
-                                <h3 style="margin-top: 0;">Scan Successful!</h3>
-                                <p><strong>Food Identified:</strong> ${response.food_name}</p>
-                                <p><strong>Nutrition Info:</strong> ${response.calories}</p>
-                            </div>
-                        `;
-                    } else {
-                        resultsDiv.innerHTML = `<p style='color:red;'>Error: ${response.message}</p>`;
-                    }
-                } catch (error) {
-                    resultsDiv.innerHTML = `<p style='color:red;'>Failed to parse server response.</p><pre>${xhr.responseText}</pre>`;
-                }
-            } else {
-                resultsDiv.innerHTML = `<p style='color:red;'>Server returned status ${xhr.status}</p>`;
-            }
-        };
-
-        // Send the Base64 image string to PHP
-        xhr.send("image=" + encodeURIComponent(base64String));
-    };
-
-    // Trigger the file read
-    reader.readAsDataURL(file);
-    return false;
-}
+    // Uncheck boxes so they can make another recipe
+    checkboxes.forEach(cb => cb.checked = false);
+});
