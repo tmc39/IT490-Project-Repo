@@ -852,11 +852,11 @@ function doFridgeScan($request)
     $identifiedFood = $clarifaiResponse['outputs'][0]['data']['concepts'][0]['name'];
     echo "[DEBUG] Identified Food: $identifiedFood\n";
 
-    // ---------------------------------------------------------
+// ---------------------------------------------------------
     // 3. FATSECRET API (Text to Calories)
     // ---------------------------------------------------------
     echo "[DEBUG] Fetching calories from FatSecret...\n";
-    global $fatSecretKey, $fatSecretSecret;
+    
     $id = trim($fatSecretKey);
     $secret = trim($fatSecretSecret);
 
