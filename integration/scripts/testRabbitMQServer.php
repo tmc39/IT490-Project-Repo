@@ -889,10 +889,18 @@ function doFridgeScan($request)
     curl_setopt($ch3, CURLOPT_RETURNTRANSFER, true);
     $fsResponse = json_decode(curl_exec($ch3), true);
     curl_close($ch3);
+    
+    echo "\n=== RAW FATSECRET RESPONSE ===\n";
+    print_r($fsResponse);
+    echo "==============================\n\n";
 
-    // 4. Parse Results
-    if (isset($fsResponse['foods']['food'][0])) {
-        $foodData = $fsResponse['foods']['food'][0];
+    // 4. Parse Results (Handling the FatSecret single-item quirk)
+    if (isset($fsResponse['foods']['food'])) {
+        
+        // If it's a single item, it's an object. If it's multiple, it's an array.
+        // This line safely grabs the data regardless of how FatSecret formats it.
+        $foodData = isset($fsResponse['foods']['food'][0]) ? $fsResponse['foods']['food'][0] : $fsResponse['foods']['food'];
+        
         echo "[DEBUG] SUCCESS: Returning data for " . $foodData['food_name'] . "\n";
         
         return array(
