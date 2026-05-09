@@ -41,8 +41,7 @@ function updateStatus($status, $machine)
     //needs to pull the name of the last good version from the database
     updateVersion("failed", $machine);
 
-    #$ip = gethostbyname($machine);
-    $ip = '192.168.192.128';
+    $ip = gethostbyname($machine);
 
     $goodBundle = lastGood($machine);
     echo $goodBundle;
