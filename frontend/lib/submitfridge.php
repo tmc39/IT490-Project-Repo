@@ -3,22 +3,17 @@ session_start();
 
 require_once __DIR__ . '/rabbitMQ_web_client.php';
 
-// --- DEVELOPER BYPASS ---
-// If the database is down, just assign a random Guest name so we can test the APIs!
+// DEVELOPER BYPASS: If database is down, assign a temp guest identity
 $username = $_SESSION["username"] ?? "Guest_" . rand(1000, 9999);
-$sessionKey = $_SESSION["session_key"] ?? "bypass_testing_key";
-// ------------------------
+$sessionKey = $_SESSION["session_key"] ?? "bypass_key";
 
-// Since image data is large, it should be sent via POST from your frontend javascript
 $base64Image = $_POST['image'] ?? "";
 
-// Cancel if image is missing
 if ($base64Image == "") {
     echo json_encode(["status" => "error", "message" => "Failed to scan: missing image data"]);
     exit();
 }
 
-// Prepare the request for RabbitMQ
 $request = [
     "type" => "fridge_scan",
     "sessionId" => $sessionKey,
@@ -29,14 +24,12 @@ $request = [
 try {
     $response = sendToRabbitMQ($request);
 
+    header('Content-Type: application/json');
     if (!is_array($response)) {
         echo json_encode(["status" => "error", "message" => "Unreadable response from server."]);
-        exit();
+    } else {
+        echo json_encode($response);
     }
-
-    // Return the response as JSON so your frontend JS can render it on the screen
-    header('Content-Type: application/json');
-    echo json_encode($response);
     exit();
 
 } catch (Exception $e) {
