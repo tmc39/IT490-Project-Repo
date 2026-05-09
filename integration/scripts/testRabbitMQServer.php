@@ -796,19 +796,19 @@ function doFridgeScan($request)
     $username = $request['username'] ?? "Unknown";
 
     if ($base64Image == null) {
-        sendLogMessage("Fridge scan failed: Missing image data.", "WARNING", "backend", __FILE__, __LINE__);
+        // sendLogMessage("Fridge scan failed: Missing image data.", "WARNING", "backend", __FILE__, __LINE__);
         return array("status" => "error", "message" => "No image data provided.");
     }
 
     // 1. Load API Keys
     $keyPath = __DIR__ . '/../../backend/BigFatKeys.php';
     if (!file_exists($keyPath)) {
-        sendLogMessage("Fridge scan failed: BigFatKeys.php not found.", "ERROR", "backend", __FILE__, __LINE__);
+        // sendLogMessage("Fridge scan failed: BigFatKeys.php not found.", "ERROR", "backend", __FILE__, __LINE__);
         return array("status" => "error", "message" => "API Keys missing on server.");
     }
     require($keyPath);
 
-    // Clean the base64 string just in case the frontend sent the "data:image/jpeg;base64," prefix
+    // Clean the base64 string
     if (strpos($base64Image, ',') !== false) {
         $base64Image = explode(',', $base64Image)[1];
     }
@@ -834,9 +834,8 @@ function doFridgeScan($request)
     $clarifaiResponse = json_decode(curl_exec($ch1), true);
     curl_close($ch1);
 
-    // Extract the top identified food item
     if (!isset($clarifaiResponse['outputs'][0]['data']['concepts'][0]['name'])) {
-        sendLogMessage("Clarifai failed to identify image for user: $username", "WARNING", "backend", __FILE__, __LINE__);
+        // sendLogMessage("Clarifai failed to identify image for user: $username", "WARNING", "backend", __FILE__, __LINE__);
         return array("status" => "error", "message" => "Could not identify food in the image.");
     }
     $identifiedFood = $clarifaiResponse['outputs'][0]['data']['concepts'][0]['name'];
@@ -847,7 +846,6 @@ function doFridgeScan($request)
     $id = trim($fatSecretKey);
     $secret = trim($fatSecretSecret);
 
-    // Step 3a: Get Token
     $ch2 = curl_init("https://oauth.fatsecret.com/connect/token");
     curl_setopt($ch2, CURLOPT_POST, 1);
     curl_setopt($ch2, CURLOPT_POSTFIELDS, "grant_type=client_credentials&scope=basic");
@@ -858,12 +856,10 @@ function doFridgeScan($request)
 
     $accessToken = $tokenResponse['access_token'] ?? null;
     if (!$accessToken) {
-        //commented oiut log cuz i dont got log working lcoally
-        //sendLogMessage("FatSecret Auth failed.", "ERROR", "backend", __FILE__, __LINE__);
+        // sendLogMessage("FatSecret Auth failed.", "ERROR", "backend", __FILE__, __LINE__);
         return array("status" => "error", "message" => "Nutrition database auth failed.");
     }
 
-    // Step 3b: Search Food
     $fsUrl = "https://platform.fatsecret.com/rest/server.api";
     $fsData = [
         'method' => 'foods.search',
@@ -883,9 +879,8 @@ function doFridgeScan($request)
     // 4. Parse Results and Return to Frontend
     if (isset($fsResponse['foods']['food'][0])) {
         $foodData = $fsResponse['foods']['food'][0];
-        
-        // Log the success
-        //sendLogMessage("Successfully scanned $identifiedFood for user: $username", "INFO", "backend", __FILE__, __LINE__);
+        //aint got log queue working locally
+        // sendLogMessage("Successfully scanned $identifiedFood for user: $username", "INFO", "backend", __FILE__, __LINE__);
         
         return array(
             "status" => "success",
