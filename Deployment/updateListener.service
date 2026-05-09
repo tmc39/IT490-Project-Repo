@@ -1,0 +1,8 @@
+[Unit]
+Description=RabbitMQ listener to receive updates from Deployment 
+
+[Service]
+ExecStart=/Deployment/UpdateListener.php
+
+[Install]
+WantedBy=default.target 
