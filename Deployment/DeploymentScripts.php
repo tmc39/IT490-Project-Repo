@@ -4,6 +4,10 @@ require_once('path.inc');
 require_once('get_host_info.inc');
 require_once __DIR__ . '/UpdateClient.php';
 
+/*
+ for testing purposes, just put test when prompted for a cluster and make
+ the version's name whatever you want
+ */
 function sendBundle(){
     $cluster = "temp";
 
@@ -16,12 +20,20 @@ function sendBundle(){
     $versionName = readline("Enter bundle name: ");
     chop($versionName);
 
+    $current = getcwd();
+
+    chdir("..");
+    chdir("..");
+    $cwd = getcwd() . "/Versions";
+    $path = "$cwd/$versionName.zip";
+
+    chdir($current);
+
     //Runs the bash packaging script, passing the version name as a parameter
     $success = shell_exec("./packaging.sh $versionName");
+    return null;
 
     $machine = get_current_user();
-
-    $path = "/home/message-broker/Deployment-Server/Versions/$versionName.zip";
 
     $ip = gethostbyname($machine);
 
@@ -35,6 +47,8 @@ function sendBundle(){
     ];
 
     echo sendRequest($request);
+
+
 }
 
 function updateStatus(){
@@ -43,15 +57,16 @@ function updateStatus(){
         chop($status);
     }while(!($status == "passed" || $status == "failed"));
 
+    $machine = get_current_user();
+
     $ip = gethostbyname($machine);
 
     $request = [
         "type" => "versionValidate",
-        "machine" => "message-broker",
-        "status" => $input
+        "machine" => $machine,
+        "status" => $status,
         "ip" => $ip,
-        "version" => $versionName,
-        "cluster" => "qa",
+        #"version" => $versionName,
     ];
 
     echo sendRequest($request);
@@ -61,13 +76,14 @@ $input = 'temp';
 do{
     $input = readline("Function to perform(bundle/status): ");
     chop($input);
-}while(!($cluster == "bundle" || $cluster == "status"));
+}while(!($input == "bundle" || $input == "status"));
 
-switch($input):
+switch($input){
     case('bundle'):
         sendBundle();
         break;
     case('status'):
         updateStatus();
         break;
+}
 ?>
