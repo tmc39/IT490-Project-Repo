@@ -787,13 +787,14 @@ function doGetProfile($username)
 ----------------------------
 FUNCTION: doFridgeScan()
 ----------------------------
+Upgraded to grab multiple fridge items and return a customized recipe.
 */
 function doFridgeScan($request)
 {
     $base64Image = $request['image'] ?? null;
     $username = $request['username'] ?? "Unknown";
 
-    echo "\n[DEBUG] Starting Scan for user: $username\n";
+    echo "\n[DEBUG] Starting Multi-Item Scan for user: $username\n";
 
     if ($base64Image == null) {
         return array("status" => "error", "message" => "No image data provided.");
@@ -802,7 +803,6 @@ function doFridgeScan($request)
     // 1. Load API Keys
     $keyPath = __DIR__ . '/../../backend/BigFatKeys.php';
     if (!file_exists($keyPath)) {
-        echo "[DEBUG] ERROR: BigFatKeys.php missing at $keyPath\n";
         return array("status" => "error", "message" => "API Keys missing on server.");
     }
     require($keyPath);
@@ -812,16 +812,16 @@ function doFridgeScan($request)
         $base64Image = explode(',', $base64Image)[1];
     }
 
-// ---------------------------------------------------------
-    // 2. CLARIFAI API (Image to Text)
+    // ---------------------------------------------------------
+    // 2. CLARIFAI API (Image to Text - Multi Item)
     // ---------------------------------------------------------
     echo "[DEBUG] Sending image to Clarifai...\n";
     
     $clarifaiUrl = "https://api.clarifai.com/v2/models/food-item-recognition/outputs"; 
     $clarifaiData = [
         "user_app_id" => [
-            "user_id" => "clarifai",   // <-- Force it to look in the public library
-            "app_id"  => "main"        // <-- Force it to use the main public app
+            "user_id" => "clarifai",   
+            "app_id"  => "main"        
         ],
         "inputs" => [
             ["data" => ["image" => ["base64" => $base64Image]]]
@@ -840,22 +840,37 @@ function doFridgeScan($request)
     $clarifaiResponse = json_decode($rawClarifai, true);
     curl_close($ch1);
 
-    echo "\n=== RAW CLARIFAI RESPONSE ===\n";
-    print_r($clarifaiResponse);
-    echo "=============================\n\n";
-
-    if (!isset($clarifaiResponse['outputs'][0]['data']['concepts'][0]['name'])) {
-        echo "[DEBUG] ERROR: Clarifai failed to identify image.\n";
-        return array("status" => "error", "message" => "Could not identify food in the image.");
+    if (!isset($clarifaiResponse['outputs'][0]['data']['concepts'])) {
+        return array("status" => "error", "message" => "Could not identify any foods in the image.");
     }
     
-    $identifiedFood = $clarifaiResponse['outputs'][0]['data']['concepts'][0]['name'];
-    echo "[DEBUG] Identified Food: $identifiedFood\n";
+    // DELIVERABLE #6: Loop through AI concepts and grab the Top 3 items
+    $concepts = $clarifaiResponse['outputs'][0]['data']['concepts'];
+    $fridgeItems = [];
 
-// ---------------------------------------------------------
-    // 3. FATSECRET API (Text to Calories)
+    foreach ($concepts as $concept) {
+        // Only grab items the AI is very confident about (over 85%)
+        if ($concept['value'] >= 0.85) {
+            $fridgeItems[] = $concept['name'];
+        }
+        // Stop after finding the top 3 items to keep the recipe search accurate
+        if (count($fridgeItems) >= 3) {
+            break;
+        }
+    }
+
+    if (empty($fridgeItems)) {
+        return array("status" => "error", "message" => "AI could not find items with high enough confidence.");
+    }
+
+    $ingredientString = implode(" ", $fridgeItems); // e.g., "orange apple"
+    $displayItems = implode(", ", array_map('ucfirst', $fridgeItems)); // e.g., "Orange, Apple"
+    echo "[DEBUG] Identified Fridge Inventory: $displayItems\n";
+
     // ---------------------------------------------------------
-    echo "[DEBUG] Fetching calories from FatSecret...\n";
+    // 3. FATSECRET API (Ingredient to Custom Recipe)
+    // ---------------------------------------------------------
+    echo "[DEBUG] Fetching custom recipe for: $ingredientString\n";
     
     $id = trim($fatSecretKey);
     $secret = trim($fatSecretSecret);
@@ -870,14 +885,14 @@ function doFridgeScan($request)
 
     $accessToken = $tokenResponse['access_token'] ?? null;
     if (!$accessToken) {
-        echo "[DEBUG] ERROR: FatSecret Auth Failed.\n";
         return array("status" => "error", "message" => "Nutrition database auth failed.");
     }
 
+    // DELIVERABLE #5: Switch endpoint to Recipe Search
     $fsUrl = "https://platform.fatsecret.com/rest/server.api";
     $fsData = [
-        'method' => 'foods.search',
-        'search_expression' => $identifiedFood,
+        'method' => 'recipes.search', // <-- Changed from foods.search
+        'search_expression' => $ingredientString,
         'format' => 'json',
         'max_results' => 1
     ];
@@ -889,30 +904,33 @@ function doFridgeScan($request)
     curl_setopt($ch3, CURLOPT_RETURNTRANSFER, true);
     $fsResponse = json_decode(curl_exec($ch3), true);
     curl_close($ch3);
-    
-    echo "\n=== RAW FATSECRET RESPONSE ===\n";
-    print_r($fsResponse);
-    echo "==============================\n\n";
 
-    // 4. Parse Results (Handling the FatSecret single-item quirk)
-    if (isset($fsResponse['foods']['food'])) {
+    // ---------------------------------------------------------
+    // 4. Parse Results and map to Frontend UI
+    // ---------------------------------------------------------
+    if (isset($fsResponse['recipes']['recipe'])) {
         
-        // If it's a single item, it's an object. If it's multiple, it's an array.
-        // This line safely grabs the data regardless of how FatSecret formats it.
-        $foodData = isset($fsResponse['foods']['food'][0]) ? $fsResponse['foods']['food'][0] : $fsResponse['foods']['food'];
+        // Handle FatSecret single-item vs array quirk
+        $recipeData = isset($fsResponse['recipes']['recipe'][0]) ? $fsResponse['recipes']['recipe'][0] : $fsResponse['recipes']['recipe'];
         
-        echo "[DEBUG] SUCCESS: Returning data for " . $foodData['food_name'] . "\n";
+        echo "[DEBUG] SUCCESS: Found Recipe - " . $recipeData['recipe_name'] . "\n";
         
+        // Map our new data to your existing frontend variables!
         return array(
             "status" => "success",
-            "food_name" => $foodData['food_name'],
-            "calories" => $foodData['food_description'],
-            "message" => "AI successfully scanned the image!"
+            "food_name" => "Inventory: " . $displayItems,
+            "calories" => "Recipe Idea: " . $recipeData['recipe_name'] . " (" . $recipeData['recipe_description'] . ")",
+            "message" => "Multiple items scanned and matched to a recipe!"
         );
     }
 
-    echo "[DEBUG] ERROR: Identified as $identifiedFood but no FatSecret data found.\n";
-    return array("status" => "error", "message" => "Identified as '$identifiedFood', but found no nutrition data.");
+    // Fallback if FatSecret can't find a recipe for that exact combination of items
+    return array(
+        "status" => "success",
+        "food_name" => "Inventory: " . $displayItems,
+        "calories" => "No exact recipe match found for these combined ingredients.",
+        "message" => "Items identified, but recipe search came up empty."
+    );
 }
 
 
