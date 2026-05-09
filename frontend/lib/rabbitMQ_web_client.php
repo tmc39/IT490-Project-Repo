@@ -17,7 +17,9 @@ function sendToRabbitMQ(array $request)
         sendLogMessage(
             "Could not find integration/lib folder.",
             "ERROR",
-            "frontend"
+            "frontend",
+            __FILE__,
+            __LINE__
         );
 
         throw new Exception("Could not find integration/lib folder.");
@@ -38,7 +40,9 @@ function sendToRabbitMQ(array $request)
         sendLogMessage(
             "RabbitMQ config section not found: " . $rabbitServer,
             "ERROR",
-            "frontend"
+            "frontend",
+            __FILE__,
+            __LINE__
         );
 
         throw new Exception("RabbitMQ config section not found: " . $rabbitServer);
@@ -54,7 +58,9 @@ function sendToRabbitMQ(array $request)
             sendLogMessage(
                 "RabbitMQ returned an empty response for request type: " . ($request["type"] ?? "UNKNOWN"),
                 "ERROR",
-                "frontend"
+                "frontend",
+                __FILE__,
+                __LINE__
             );
         }
 
@@ -64,7 +70,9 @@ function sendToRabbitMQ(array $request)
         sendLogMessage(
             "RabbitMQ request failed for request type " . ($request["type"] ?? "UNKNOWN") . ": " . $e->getMessage(),
             "ERROR",
-            "frontend"
+            "frontend",
+            __FILE__,
+            __LINE__
         );
 
         throw $e;

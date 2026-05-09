@@ -19,7 +19,9 @@ function doRegister($firstname, $lastname, $email, $username, $hashedPassword)
         sendLogMessage(
             "Registration failed because database is not reachable.",
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         return array("status" => "error", "message" => "Database is not reachable at the moment.");
@@ -30,7 +32,9 @@ function doRegister($firstname, $lastname, $email, $username, $hashedPassword)
         sendLogMessage(
             "Registration failed because required fields are missing.",
             "WARNING",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         $db->close();
@@ -43,7 +47,9 @@ function doRegister($firstname, $lastname, $email, $username, $hashedPassword)
         sendLogMessage(
             "Registration failed because username check could not be prepared.",
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         $db->close();
@@ -59,7 +65,9 @@ function doRegister($firstname, $lastname, $email, $username, $hashedPassword)
         sendLogMessage(
             "Registration failed because username already exists: " . $username,
             "WARNING",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         $stmt->close();
@@ -75,7 +83,9 @@ function doRegister($firstname, $lastname, $email, $username, $hashedPassword)
         sendLogMessage(
             "Registration failed because insert statement could not be prepared.",
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         $db->close();
@@ -90,7 +100,9 @@ function doRegister($firstname, $lastname, $email, $username, $hashedPassword)
         sendLogMessage(
             "Registration failed because user could not be created: " . $username,
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         $stmt->close();
@@ -122,7 +134,9 @@ function doLogin($username, $password)
       sendLogMessage(
           "Login failed because database is not reachable.",
           "ERROR",
-          "backend"
+          "backend",
+          __FILE__,
+          __LINE__
       );
 
       return array("status" => "error", "message" => "Database is not reachable at the moment.");
@@ -136,7 +150,9 @@ function doLogin($username, $password)
       sendLogMessage(
           "Login failed because database query could not be prepared.",
           "ERROR",
-          "backend"
+          "backend",
+          __FILE__,
+          __LINE__
       );
 
       $db->close();
@@ -152,7 +168,9 @@ function doLogin($username, $password)
       sendLogMessage(
           "Login failed because username was not found: " . $username,
           "WARNING",
-          "backend"
+          "backend",
+          __FILE__,
+          __LINE__
       );
 
       $stmt->close();
@@ -169,7 +187,9 @@ function doLogin($username, $password)
       sendLogMessage(
           "Login failed because password was incorrect for username: " . $username,
           "WARNING",
-          "backend"
+          "backend",
+          __FILE__,
+          __LINE__
       );
 
       $stmt->close();
@@ -191,7 +211,9 @@ function doLogin($username, $password)
       sendLogMessage(
           "Login failed because session key statement could not be prepared for username: " . $username,
           "ERROR",
-          "backend"
+          "backend",
+          __FILE__,
+          __LINE__
       );
 
       $db->close();
@@ -206,7 +228,9 @@ function doLogin($username, $password)
       sendLogMessage(
           "Login failed because session key could not be saved for username: " . $username,
           "ERROR",
-          "backend"
+          "backend",
+          __FILE__,
+          __LINE__
       );
 
       $stmt->close();
@@ -238,7 +262,9 @@ function doValidate($sessionId, $username)
       sendLogMessage(
           "Session validation failed because database is not reachable.",
           "ERROR",
-          "backend"
+          "backend",
+          __FILE__,
+          __LINE__
       );
 
       return array("status" => "error", "message" => "Database is not reachable at the moment.");
@@ -249,7 +275,9 @@ function doValidate($sessionId, $username)
       sendLogMessage(
           "Session validation failed because no session key was provided.",
           "WARNING",
-          "backend"
+          "backend",
+          __FILE__,
+          __LINE__
       );
 
       $db->close();
@@ -261,7 +289,9 @@ function doValidate($sessionId, $username)
       sendLogMessage(
           "Session validation failed because no username was provided.",
           "WARNING",
-          "backend"
+          "backend",
+          __FILE__,
+          __LINE__
       );
 
       $db->close();
@@ -276,7 +306,9 @@ function doValidate($sessionId, $username)
       sendLogMessage(
           "Session validation failed because statement could not be prepared for username: " . $username,
           "ERROR",
-          "backend"
+          "backend",
+          __FILE__,
+          __LINE__
       );
 
       $db->close();
@@ -293,7 +325,9 @@ function doValidate($sessionId, $username)
       sendLogMessage(
           "Session validation failed because session key was not valid for username: " . $username,
           "WARNING",
-          "backend"
+          "backend",
+          __FILE__,
+          __LINE__
       );
 
       $stmt->close();
@@ -322,7 +356,9 @@ function postReview ($request){
         sendLogMessage(
             "Post review failed because database is not reachable.",
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         return array("status" => "error", "message" => "Database is not reachable at the moment.");
@@ -340,7 +376,9 @@ function postReview ($request){
         sendLogMessage(
             "Post review failed because username is missing.",
             "WARNING",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         return array("status" => "error", "message" => "Missing required variable " . "user: " . $username);
@@ -349,7 +387,9 @@ function postReview ($request){
         sendLogMessage(
             "Post review failed because recipe ID is missing.",
             "WARNING",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         return array("status" => "error", "message" => "Missing required variable " . "recipe ID: " . $recipeID);
@@ -358,7 +398,9 @@ function postReview ($request){
         sendLogMessage(
             "Post review failed because positive value is missing.",
             "WARNING",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         return array("status" => "error", "message" => "Missing required variable " . "ispositive: " . $positive);
@@ -367,7 +409,9 @@ function postReview ($request){
         sendLogMessage(
             "Post review failed because review text is missing.",
             "WARNING",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         return array("status" => "error", "message" => "Missing required variable " . "review text: " . $reviewtext);
@@ -380,7 +424,9 @@ function postReview ($request){
         sendLogMessage(
             "Post review failed because database statement could not be prepared.",
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         $db->close();
@@ -392,7 +438,9 @@ function postReview ($request){
         sendLogMessage(
             "Post review failed because values could not be bound to SQL query.",
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         //exits if bind_param fails (indicated by it returning false)
@@ -406,7 +454,9 @@ function postReview ($request){
         sendLogMessage(
             "Post review failed because database execute failed for username: " . $username,
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         $stmt->close();
@@ -436,7 +486,9 @@ function listReviews($request){
         sendLogMessage(
             "Load reviews failed because recipe ID is missing.",
             "WARNING",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         return json_encode(array("status" => "error", "message" => "Null RecipeID."), JSON_FORCE_OBJECT);
@@ -447,7 +499,9 @@ function listReviews($request){
         sendLogMessage(
             "Load reviews failed because database is not reachable.",
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         return json_encode(array("status" => "error", "message" => "Database is not reachable at the moment."), JSON_FORCE_OBJECT);
@@ -461,7 +515,9 @@ function listReviews($request){
         sendLogMessage(
             "Load reviews failed because database statement could not be prepared for recipe ID: " . $recipeID,
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         $db->close();
@@ -472,7 +528,9 @@ function listReviews($request){
         sendLogMessage(
             "Load reviews failed because values could not be bound to SQL query.",
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         //exits if bind_param fails (indicated by it returning false)
@@ -486,7 +544,9 @@ function listReviews($request){
         sendLogMessage(
             "Load reviews failed because database execute failed for recipe ID: " . $recipeID,
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         $stmt->close();
@@ -502,7 +562,9 @@ function listReviews($request){
         sendLogMessage(
             "Load reviews failed because database returned no result object for recipe ID: " . $recipeID,
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         $stmt->close();
@@ -546,7 +608,9 @@ function doSaveProfile($request)
         sendLogMessage(
             "Save profile failed because database is not reachable.",
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         return array("status" => "error", "message" => "Database is not reachable right now.");
@@ -567,7 +631,9 @@ function doSaveProfile($request)
         sendLogMessage(
             "Save profile failed because username is missing.",
             "WARNING",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         $db->close();
@@ -595,7 +661,9 @@ function doSaveProfile($request)
         sendLogMessage(
             "Save profile failed because profile query could not be prepared for username: " . $username,
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         $db->close();
@@ -610,7 +678,9 @@ function doSaveProfile($request)
         sendLogMessage(
             "Save profile failed because database execute failed for username: " . $username,
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         $stmt->close();
@@ -641,7 +711,9 @@ function doGetProfile($username)
         sendLogMessage(
             "Get profile failed because database is not reachable.",
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         return array("status" => "error", "message" => "Database is not reachable at the moment.");
@@ -652,7 +724,9 @@ function doGetProfile($username)
         sendLogMessage(
             "Get profile failed because username is missing.",
             "WARNING",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         $db->close();
@@ -667,7 +741,9 @@ function doGetProfile($username)
         sendLogMessage(
             "Get profile failed because profile query could not be prepared for username: " . $username,
             "ERROR",
-            "backend"
+            "backend",
+            __FILE__,
+            __LINE__
         );
 
         $db->close();
@@ -723,7 +799,9 @@ function requestProcessor($request)
       sendLogMessage(
           "Invalid backend request received. Request was not an array.",
           "ERROR",
-          "backend"
+          "backend",
+          __FILE__,
+          __LINE__
       );
 
       return array("status" => "error", "message" => "Invalid request format.");
@@ -734,7 +812,9 @@ function requestProcessor($request)
       sendLogMessage(
           "Backend request missing type.",
           "ERROR",
-          "backend"
+          "backend",
+          __FILE__,
+          __LINE__
       );
 
       return array("status" => "error", "message" => "Request type is missing.");
@@ -749,7 +829,9 @@ function requestProcessor($request)
             sendLogMessage(
                 "Register request is missing required fields.",
                 "ERROR",
-                "backend"
+                "backend",
+                __FILE__,
+                __LINE__
             );
 
             return array("status" => "error", "message" => "Register request is missing fields.");
@@ -765,7 +847,9 @@ function requestProcessor($request)
           sendLogMessage(
               "Login request is missing username or password.",
               "ERROR",
-              "backend"
+              "backend",
+              __FILE__,
+              __LINE__
           );
 
           return array("status" => "error", "message" => "Login request is missing username or password.");
@@ -778,7 +862,9 @@ function requestProcessor($request)
           sendLogMessage(
               "Session validation request is missing sessionId or username.",
               "ERROR",
-              "backend"
+              "backend",
+              __FILE__,
+              __LINE__
           );
 
           return array("status" => "error", "message" => "Session validation request is missing sessionId or username.");
@@ -798,7 +884,9 @@ function requestProcessor($request)
             sendLogMessage(
                 "Profile request is missing username.",
                 "ERROR",
-                "backend"
+                "backend",
+                __FILE__,
+                __LINE__
             );
 
             return array("status" => "error", "message" => "Profile request is missing username.");
@@ -811,7 +899,9 @@ function requestProcessor($request)
             sendLogMessage(
                 "Profile request is missing username.",
                 "ERROR",
-                "backend"
+                "backend",
+                __FILE__,
+                __LINE__
             );
 
             return array("status" => "error", "message" => "Profile request is missing username.");
@@ -823,7 +913,9 @@ function requestProcessor($request)
       sendLogMessage(
           "Unsupported backend request type: " . $request["type"],
           "WARNING",
-          "backend"
+          "backend",
+          __FILE__,
+          __LINE__
       );
 
       return array("status" => "error", "message" => "Unsupported request type: " . $request["type"]);

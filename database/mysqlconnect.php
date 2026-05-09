@@ -32,7 +32,9 @@ function getDbConnection()
                 sendLogMessage(
                         "Database connection failed: " . $e->getMessage(),
                         "ERROR",
-                        "database"
+                        "database",
+                        __FILE__,
+                        __LINE__
                 );
 
                 return null;
@@ -44,7 +46,9 @@ function getDbConnection()
                 sendLogMessage(
                         "Database connection failed: " . $mydb->connect_error,
                         "ERROR",
-                        "database"
+                        "database",
+                        __FILE__,
+                        __LINE__
                 );
 
                 return null;
