@@ -856,6 +856,7 @@ function doFridgeScan($request)
     // 3. FATSECRET API (Text to Calories)
     // ---------------------------------------------------------
     echo "[DEBUG] Fetching calories from FatSecret...\n";
+    global $fatSecretKey, $fatSecretSecret;
     $id = trim($fatSecretKey);
     $secret = trim($fatSecretSecret);
 
