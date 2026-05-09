@@ -14,6 +14,14 @@ header('Content-Type: application/json');
 
 // Block access if user not logged in
 if (empty($_SESSION["loggedIn"]) || empty($_SESSION["username"])) {
+    sendLogMessage(
+        "Save profile failed because user is not logged in.",
+        "WARNING",
+        "frontend",
+        __FILE__,
+        __LINE__
+    );
+
     echo json_encode(["status" => "error", "message" => "User is not logged in."]);
     exit();
 }
@@ -47,14 +55,39 @@ try {
     $response = sendToRabbitMQ($request);
 
     if (!is_array($response)) {
+        sendLogMessage(
+            "Save profile failed because RabbitMQ returned an unexpected response.",
+            "ERROR",
+            "frontend",
+            __FILE__,
+            __LINE__
+        );
+
         echo json_encode(["status" => "error", "message" => "Unexpected response from server."]);
         exit();
+    }
+
+    if (($response["status"] ?? "") !== "success") {
+        sendLogMessage(
+            "Save profile failed: " . ($response["message"] ?? "Unknown backend error."),
+            "ERROR",
+            "frontend",
+            __FILE__,
+            __LINE__
+        );
     }
 
     // Return backend response
     echo json_encode($response);
 } catch (Exception $e) {
-    error_log("RabbitMQ error in save_profile.php: " . $e->getMessage());
+    sendLogMessage(
+        "RabbitMQ error in save_profile.php: " . $e->getMessage(),
+        "ERROR",
+        "frontend",
+        __FILE__,
+        __LINE__
+    );
 
     echo json_encode(["status" => "error", "message" => "Profile service is currently unavailable."]);
 }
+?>

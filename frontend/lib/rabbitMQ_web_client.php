@@ -5,8 +5,8 @@ rabbitMQ_web_client.php
 -----------------------
 Small helper used by web pages to send requests to RabbitMQ.
 */
-$integrationLib = realpath(__DIR__ . '/../../integration/lib');
-require_once $integrationLib . '/rabbitMQLib.inc';
+
+require_once(__DIR__ . '/../../integration/logging/logClient.php');
 
 function sendToRabbitMQ(array $request)
 {
@@ -14,20 +14,68 @@ function sendToRabbitMQ(array $request)
     $integrationLib = realpath(__DIR__ . '/../../integration/lib');
 
     if ($integrationLib === false) {
+        sendLogMessage(
+            "Could not find integration/lib folder.",
+            "ERROR",
+            "frontend",
+            __FILE__,
+            __LINE__
+        );
+
         throw new Exception("Could not find integration/lib folder.");
     }
 
     // Load RabbitMQ library
     require_once $integrationLib . '/rabbitMQLib.inc';
 
-    // NOTE: to test locally use "testServer" 
+    // NOTE: to test locally use "testServer"
     // NOTE: to test over ZeroTier use "guiltyDatabase"
-    $client = new rabbitMQClient("testRabbitMQ.ini","testServer");
+    $rabbitServer = "testServer";
 
-    // Send request and wait for reply
-    return $client->send_request($request);
-}
+    // Check that RabbitMQ config section exists before using it
+    $configPath = __DIR__ . '/../../integration/config/testRabbitMQ.ini';
+    $config = parse_ini_file($configPath, true);
 
-function sendNewVersion(array $request){
-    $client = new rabbitMQClient("testRabbitMQ.ini","deploymentServer");
+    if (!isset($config[$rabbitServer])) {
+        sendLogMessage(
+            "RabbitMQ config section not found: " . $rabbitServer,
+            "ERROR",
+            "frontend",
+            __FILE__,
+            __LINE__
+        );
+
+        throw new Exception("RabbitMQ config section not found: " . $rabbitServer);
+    }
+
+    try {
+        $client = new rabbitMQClient("testRabbitMQ.ini", $rabbitServer);
+
+        // Send request and wait for reply
+        $response = $client->send_request($request);
+
+        if (!$response) {
+            sendLogMessage(
+                "RabbitMQ returned an empty response for request type: " . ($request["type"] ?? "UNKNOWN"),
+                "ERROR",
+                "frontend",
+                __FILE__,
+                __LINE__
+            );
+        }
+
+        return $response;
+
+    } catch (Exception $e) {
+        sendLogMessage(
+            "RabbitMQ request failed for request type " . ($request["type"] ?? "UNKNOWN") . ": " . $e->getMessage(),
+            "ERROR",
+            "frontend",
+            __FILE__,
+            __LINE__
+        );
+
+        throw $e;
+    }
 }
+?>
