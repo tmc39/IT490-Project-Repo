@@ -812,7 +812,7 @@ function doFridgeScan($request)
         $base64Image = explode(',', $base64Image)[1];
     }
 
-    // ---------------------------------------------------------
+// ---------------------------------------------------------
     // 2. CLARIFAI API (Image to Text)
     // ---------------------------------------------------------
     echo "[DEBUG] Sending image to Clarifai...\n";
@@ -820,8 +820,8 @@ function doFridgeScan($request)
     $clarifaiUrl = "https://api.clarifai.com/v2/models/food-item-recognition/outputs"; 
     $clarifaiData = [
         "user_app_id" => [
-            "user_id" => $clarifaiUserID,
-            "app_id"  => $clarifaiAppID
+            "user_id" => "clarifai",   // <-- Force it to look in the public library
+            "app_id"  => "main"        // <-- Force it to use the main public app
         ],
         "inputs" => [
             ["data" => ["image" => ["base64" => $base64Image]]]
