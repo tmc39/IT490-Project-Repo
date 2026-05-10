@@ -72,7 +72,7 @@ if ($response == null) {
     exit();
 }
 
-if (json_validate(json_encode($response, JSON_FORCE_OBJECT))) {
+if (json_validate(json_encode($response, JSON_FORCE_OBJECT)) == false) {
     sendLogMessage(
         "Recipe search API returned invalid JSON for search query: " . $searchQuery,
         "ERROR",
