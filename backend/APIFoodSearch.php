@@ -72,9 +72,7 @@ if ($response == null || trim($response) === "") {
     exit();
 }
 
-$decodedResponse = json_decode($response, true);
-
-if ($decodedResponse === null) {
+if (json_validate(json_encode($response, JSON_FORCE_OBJECT))) {
     sendLogMessage(
         "Food search API returned invalid JSON for search query: " . $searchQuery,
         "ERROR",
