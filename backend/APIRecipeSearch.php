@@ -58,7 +58,7 @@ try {
     $response = sendToRabbitMQ($request);
 
 //-----------------------------------------------------------
-if ($response == null || trim($response) === "") {
+if ($response == null) {
     sendLogMessage(
         "Recipe search API returned an empty response for search query: " . $searchQuery,
         "ERROR",
@@ -72,9 +72,7 @@ if ($response == null || trim($response) === "") {
     exit();
 }
 
-$decodedResponse = json_decode($response, true);
-
-if ($decodedResponse === null) {
+if (json_validate(json_encode($response, JSON_FORCE_OBJECT)) == false) {
     sendLogMessage(
         "Recipe search API returned invalid JSON for search query: " . $searchQuery,
         "ERROR",

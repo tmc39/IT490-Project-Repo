@@ -12,21 +12,20 @@ Type=simple
 # CONFIG SECTION - EDIT THESE VALUES FOR EACH MACHINE
 # ===================================================
 
-# Linux user running the service
-# NOTE: Must exist on the system
+# Linux user running the service (command: whoami)
 User=mushran
 
 # Project root path
 # WARNING: Must be a full absolute path, no ./ or ../
 Environment="PROJECT_PATH=/home/mushran/git/IT490-Project-Repo"
 
-# PHP path
-# NOTE: Can be verified using the command: which php
-Environment="PHP_PATH=/usr/bin/php"
-
 # ==================================================
 # DO NOT MODIFY BELOW THIS LINE
 # ==================================================
+
+# PHP path
+# NOTE: Can be verified using the command: which php
+Environment="PHP_PATH=/usr/bin/php"
 
 # Run the log listener
 # NOTE: /bin/bash -c allows the variables above to be used

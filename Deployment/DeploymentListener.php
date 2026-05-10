@@ -13,15 +13,13 @@ require_once('DeploymentClient.php');
 #Pulls a bundle from a machine and stores it on the machine using the scp command (Currently works)
 function pullNewVersion($machine, $ip, $path, $version, $cluster)
 {
-  $success = shell_exec("scp $machine@$ip:$path /home/message-broker/Deployment-Server/Versions");
+    shell_exec("scp $machine@$ip:$path /home/message-broker/Deployment-Server/Versions");
 
-  //if(!$success){
- //   return "Pull unsuccessful";
-  //}
-  //else{
     //Run function for adding version to database
-    addVersion($machine, 2, $version);
-    $ip = gethostbyname($machine);
+    addVersion($machine, $version);
+    #$ip = gethostbyname($machine);
+    $ip = '192.168.192.128';
+
     //Creates a request to send the new version to the machine it is to be installed on
     $request = [
       "type" => "update",
@@ -31,32 +29,35 @@ function pullNewVersion($machine, $ip, $path, $version, $cluster)
     ];
 
     echo sendNewVersion($request, $machine, $cluster);
-    return "Pull successful";
- // }
+    return "good";
 }
 
 //Function to update the status of a package following testing
-function updateStatus($version, $status, $machine)
+function updateStatus($status, $machine)
 {
   //Run SQL commandds to update the database with the validation data
   if($status == "failed")
   {
     //needs to pull the name of the last good version from the database
-    updateVersion($version, "failed", $machine);
+    updateVersion("failed", $machine);
 
     $ip = gethostbyname($machine);
 
+    $goodBundle = lastGood($machine);
+    echo $goodBundle;
+
     $request = [
-      "type" => "update",
+      "type" => "rollback",
+      "machine" => $machine,
       "ip" => $ip,
-      "path" => "/home/message-broker/Deployment-Server/Versions/$version.zip",
-      "version" => $version,
+      "path" => "/home/message-broker/Deployment-Server/Versions/$goodBundle.zip",
+      "version" => $goodBundle,
     ];
   }
   else if($status == "passed")
   {
     //Run SQL command to update
-    updateVersion($version, "good", $machine);
+    updateVersion("good", $machine);
   }
 }
 
@@ -83,7 +84,7 @@ function requestProcessor($request)
 }
 
 //instantiates new server object
-$server = new rabbitMQServer("guiltyRabbitMQ.ini","guiltyDeployment");
+$server = new rabbitMQServer("guiltyDeployment.ini","guiltyDeployment");
 
 echo "testRabbitMQServer BEGIN".PHP_EOL;
 //process_requests starts the server and has it listen for messages

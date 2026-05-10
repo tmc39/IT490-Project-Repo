@@ -13,11 +13,11 @@ function sendNewVersion(array $request, $machine, $cluster)
         case "Mushran":
             switch($cluster){
                 case "qa":
-                    $client = new rabbitMQClient("guiltyRabbitMQ.ini","frontend-QA");
+                    $client = new rabbitMQClient("guiltyDeployment.ini","frontend-QA");
                     return $client->send_request($request);
                     break;
                 case "prod":
-                    $client = new rabbitMQClient("guiltyRabbitMQ.ini","frontend-Prod");
+                    $client = new rabbitMQClient("guiltyDeployment.ini","frontend-Prod");
                     return $client->send_request($request);
                     break;
             }
@@ -25,11 +25,11 @@ function sendNewVersion(array $request, $machine, $cluster)
         case "joe":
             switch($cluster){
                 case "qa":
-                    $client = new rabbitMQClient("guiltyRabbitMQ.ini","database-QA");
+                    $client = new rabbitMQClient("guiltyDeployment.ini","database-QA");
                     return $client->send_request($request);
                     break;
                 case "prod":
-                    $client = new rabbitMQClient("guiltyRabbitMQ.ini","database-Prod");
+                    $client = new rabbitMQClient("guiltyDeployment.ini","database-Prod");
                     return $client->send_request($request);
                     break;
             }
@@ -37,17 +37,17 @@ function sendNewVersion(array $request, $machine, $cluster)
         case "test":
             switch($cluster){
                 case "qa":
-                    $client = new rabbitMQClient("guiltyRabbitMQ.ini","dmz-QA");
+                    $client = new rabbitMQClient("guiltyDeployment.ini","dmz-QA");
                     return $client->send_request($request);
                     break;
                 case "prod":
-                    $client = new rabbitMQClient("guiltyRabbitMQ.ini","dmz-Prod");
+                    $client = new rabbitMQClient("guiltyDeployment.ini","dmz-Prod");
                     return $client->send_request($request);
                     break;
             }
             break;
         case "message-broker":
-            $client = new rabbitMQClient("guiltyRabbitMQ.ini","test");
+            $client = new rabbitMQClient("guiltyDeployment.ini","test");
             return $client->send_request($request);
             break;
     }

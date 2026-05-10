@@ -7,22 +7,11 @@ require_once('rabbitMQLib.inc');
 
 function sendRequest(array $request)
 {
-    $client = new rabbitMQClient("guiltyRabbitMQ.ini","guiltyDeployment");
+    $client = new rabbitMQClient("guiltyUpdate.ini","guiltyDeployment");
 
     // Send request and wait for reply
     return $client->send_request($request);
 }
 
-function statusUpdate(){
-    $request = [
-        "type" => "versionValidate",
-        "machine" => "message-broker",
-        "ip" => "192.168.220.131",
-        "version" => $versionName,
-        "cluster" => "qa",
-    ];
+?>
 
-    $client = new rabbitMQClient("guiltyRabbitMQ.ini","guiltyDeployment");
-
-    return $client->send_request($request);
-}
