@@ -1,7 +1,6 @@
 let recipeCounter = 1;
 
 document.getElementById('fridgeForm').addEventListener('submit', function(e) {
-    // This stops the page from refreshing!
     e.preventDefault();
 
     const fileInput = document.getElementById('fridgeImage');
@@ -9,7 +8,6 @@ document.getElementById('fridgeForm').addEventListener('submit', function(e) {
     const file = fileInput.files[0];
     if (!file) return;
 
-    // Give the user visual feedback that it is working
     scanButton.innerText = "Scanning AI...";
     scanButton.disabled = true;
 
@@ -29,26 +27,35 @@ document.getElementById('fridgeForm').addEventListener('submit', function(e) {
 
             if (data.status === 'success') {
                 document.getElementById('resultsBox').style.display = 'block';
-                document.getElementById('scanMessage').innerText = data.message;
-
+                document.getElementById('scanMessage').innerText = "Added new items to your inventory!";
                 const checkboxDiv = document.getElementById('ingredientCheckboxes');
-                checkboxDiv.innerHTML = ''; 
+                
+                // get a list of ingredients we already have on the screen
+                const existingCheckboxes = document.querySelectorAll('.ingredient-cb');
+                const existingItems = Array.from(existingCheckboxes).map(cb => cb.value);
 
+                // add only items not alr there
                 data.ingredients.forEach(item => {
-                    const label = document.createElement('label');
-                    label.style.display = 'inline-block';
-                    label.style.marginRight = '15px';
-                    label.style.cursor = 'pointer';
+                    if (!existingItems.includes(item)) {
+                        const label = document.createElement('label');
+                        label.style.display = 'inline-block';
+                        label.style.marginRight = '15px';
+                        label.style.cursor = 'pointer';
 
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.value = item;
-                    checkbox.className = 'ingredient-cb';
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.value = item;
+                        checkbox.className = 'ingredient-cb';
 
-                    label.appendChild(checkbox);
-                    label.appendChild(document.createTextNode(' ' + item));
-                    checkboxDiv.appendChild(label);
+                        label.appendChild(checkbox);
+                        label.appendChild(document.createTextNode(' ' + item));
+                        checkboxDiv.appendChild(label);
+                    }
                 });
+
+                // Clear the file input so the user knows they can upload a new picture
+                fileInput.value = '';
+
             } else {
                 alert('Backend Error: ' + data.message);
             }
@@ -62,7 +69,7 @@ document.getElementById('fridgeForm').addEventListener('submit', function(e) {
     reader.readAsDataURL(file);
 });
 
-// Handle custom recipe creation
+// make re cipe part
 document.getElementById('createRecipeBtn').addEventListener('click', function() {
     const checkboxes = document.querySelectorAll('.ingredient-cb:checked');
     const selectedIngredients = Array.from(checkboxes).map(cb => cb.value);
@@ -82,6 +89,6 @@ document.getElementById('createRecipeBtn').addEventListener('click', function() 
     li.innerHTML = `<strong>${recipeName}:</strong> ${selectedIngredients.join(', ')}`;
     recipeList.appendChild(li);
 
-    // Uncheck boxes after saving
+    // uncheck boxes after saving
     checkboxes.forEach(cb => cb.checked = false);
 });
