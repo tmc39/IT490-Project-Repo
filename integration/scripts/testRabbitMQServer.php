@@ -829,7 +829,7 @@ function doFridgeScan($request)
     $fridgeItems = [];
 
     foreach ($concepts as $concept) {
-        if ($concept['value'] >= 0.80) {
+        if ($concept['value'] >= 0.30) {
             $fridgeItems[] = ucfirst($concept['name']); 
         }
     }
