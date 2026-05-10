@@ -783,32 +783,63 @@ function doGetProfile($username)
     return array("status" => "success", "message" => "Profile loaded.", "profile" => $row);
 }
 
-/*
+ /*
+
 ----------------------------
+
 FUNCTION: doFridgeScan()
+
 ----------------------------
+
 */
+
 function doFridgeScan($request)
 {
-    echo "\n[DEBUG] Backend received image. Forwarding to DMZ...\n";
-
-    // create a client to talk to the DMZ channel in the INI file
-    $dmzClient = new rabbitMQClient("testRabbitMQ.ini", "dmzServer");
-
-    // package 4 DMZ
-    $dmzRequest = array(
-        "type" => "api_fridge_scan",
-        "image" => $request['image'],
-        "username" => $request['username'] ?? "Unknown"
+    $base64Image = $request['image'] ?? null;
+    $username = $request['username'] ?? "Unknown";
+    echo "\n[DEBUG] Starting Fridge Inventory Scan for user: $username\n";
+    if ($base64Image == null) {
+        return array("status" => "error", "message" => "No image data provided.");
+    }
+    // clean the base64 string
+    if (strpos($base64Image, ',') !== false) {
+        $base64Image = explode(',', $base64Image)[1];
+    }
+    $clarifaiUrl = "https://api.clarifai.com/v2/models/food-item-recognition/outputs"; 
+    $clarifaiData = [
+        "user_app_id" => ["user_id" => "clarifai", "app_id"  => "main"],
+        "inputs" => [ ["data" => ["image" => ["base64" => $base64Image]]] ]
+    ];
+    $ch1 = curl_init($clarifaiUrl);
+    curl_setopt($ch1, CURLOPT_POST, 1);
+    curl_setopt($ch1, CURLOPT_POSTFIELDS, json_encode($clarifaiData));
+    curl_setopt($ch1, CURLOPT_HTTPHEADER, [
+        "Authorization: Key e435368a3c6d46a191646535c85be23f", // <-- clarifai p*t pelase dont scrape it please dont scrape it please dont scape it pl
+        "Content-Type: application/json"
+    ]);
+    curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
+    $clarifaiResponse = json_decode(curl_exec($ch1), true);
+    curl_close($ch1);
+    if (!isset($clarifaiResponse['outputs'][0]['data']['concepts'])) {
+        return array("status" => "error", "message" => "Could not identify any foods.");
+    }
+    $concepts = $clarifaiResponse['outputs'][0]['data']['concepts'];
+    $fridgeItems = [];
+    foreach ($concepts as $concept) {
+        if ($concept['value'] >= 0.30) {
+            $fridgeItems[] = ucfirst($concept['name']); 
+        }
+    }
+    if (empty($fridgeItems)) {
+        return array("status" => "error", "message" => "Could not identify items with high confidence.");
+    }
+    echo "[DEBUG] Sending " . count($fridgeItems) . " items to frontend.\n";
+    return array(
+        "status" => "success",
+        "ingredients" => $fridgeItems, 
+        "message" => "Scan complete! Select ingredients to create a recipe."
     );
-
-    $dmzResponse = $dmzClient->send_request($dmzRequest);
-
-    echo "[DEBUG] Received response from DMZ. Sending to Frontend.\n";
-
-    // return to frontend
-    return $dmzResponse;
-}
+} 
 
 /*
 ----------------------------
