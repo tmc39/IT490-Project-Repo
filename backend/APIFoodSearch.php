@@ -58,7 +58,7 @@ try {
     $response = sendToRabbitMQ($request);
 
 //-----------------------------------------------------------
-if ($response == null || trim($response) === "") {
+if ($response == null) {
     sendLogMessage(
         "Food search API returned an empty response for search query: " . $searchQuery,
         "ERROR",
