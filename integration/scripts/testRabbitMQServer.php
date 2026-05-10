@@ -784,15 +784,10 @@ function doGetProfile($username)
 }
 
  /*
-
 ----------------------------
-
 FUNCTION: doFridgeScan()
-
 ----------------------------
-
 */
-
 function doFridgeScan($request)
 {
     $base64Image = $request['image'] ?? null;
@@ -801,6 +796,7 @@ function doFridgeScan($request)
     if ($base64Image == null) {
         return array("status" => "error", "message" => "No image data provided.");
     }
+    
     // clean the base64 string
     if (strpos($base64Image, ',') !== false) {
         $base64Image = explode(',', $base64Image)[1];
@@ -820,6 +816,7 @@ function doFridgeScan($request)
     curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
     $clarifaiResponse = json_decode(curl_exec($ch1), true);
     curl_close($ch1);
+    
     if (!isset($clarifaiResponse['outputs'][0]['data']['concepts'])) {
         return array("status" => "error", "message" => "Could not identify any foods.");
     }
