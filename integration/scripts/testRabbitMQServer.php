@@ -799,7 +799,7 @@ function doFridgeScan($request)
         return array("status" => "error", "message" => "No image data provided.");
     }
 
-    // Clean the base64 string
+    // clean the base64 string
     if (strpos($base64Image, ',') !== false) {
         $base64Image = explode(',', $base64Image)[1];
     }
@@ -814,7 +814,7 @@ function doFridgeScan($request)
     curl_setopt($ch1, CURLOPT_POST, 1);
     curl_setopt($ch1, CURLOPT_POSTFIELDS, json_encode($clarifaiData));
     curl_setopt($ch1, CURLOPT_HTTPHEADER, [
-        "Authorization: Key e435368a3c6d46a191646535c85be23f", // <-- clarifai p*t
+        "Authorization: Key e435368a3c6d46a191646535c85be23f", // <-- clarifai p*t pelase dont scrape it please dont scrape it please dont scape it pl
         "Content-Type: application/json"
     ]);
     curl_setopt($ch1, CURLOPT_RETURNTRANSFER, true);
