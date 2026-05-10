@@ -44,7 +44,7 @@ try {
     $response = sendToRabbitMQ($request);
 
 //-----------------------------------------------------------
-if ($response == null || trim($response) === "") {
+if ($response == null) {
     sendLogMessage(
         "Food info API returned an empty response for food ID: " . $searchQuery,
         "ERROR",
@@ -58,9 +58,7 @@ if ($response == null || trim($response) === "") {
     exit();
 }
 
-$decodedResponse = json_decode($response, true);
-
-if ($decodedResponse === null) {
+if (json_validate(json_encode($response, JSON_FORCE_OBJECT))) {
     sendLogMessage(
         "Food info API returned invalid JSON for food ID: " . $searchQuery,
         "ERROR",
