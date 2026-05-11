@@ -17,8 +17,7 @@ function pullNewVersion($machine, $ip, $path, $version, $cluster)
 
     //Run function for adding version to database
     addVersion($machine, $version);
-    #$ip = gethostbyname($machine);
-    $ip = '192.168.192.128';
+    $ip = gethostbyname("message-broker");
 
     //Creates a request to send the new version to the machine it is to be installed on
     $request = array();
@@ -83,7 +82,7 @@ function requestProcessor($request)
 //instantiates new server object
 $server = new rabbitMQServer("guiltyDeployment.ini","guiltyDeployment");
 
-echo "testRabbitMQServer BEGIN".PHP_EOL;
+echo "Deployment Server BEGIN".PHP_EOL;
 //process_requests starts the server and has it listen for messages
 $server->process_requests('requestProcessor');
 echo "testRabbitMQServer END".PHP_EOL;
