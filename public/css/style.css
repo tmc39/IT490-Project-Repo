@@ -1,0 +1,420 @@
+/* 
+--------------------
+General page styling
+--------------------
+*/
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Roboto', Arial, Helvetica, sans-serif;
+    background-color: #f4f4f4;
+    color: #222;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+p {
+    line-height: 1.6;
+}
+
+img,
+video {
+    max-width: 100%;
+    height: auto;
+}
+
+input,
+select,
+textarea,
+button {
+    font-family: inherit;
+    font-size: 1rem;
+}
+
+/* 
+-----------------------
+Shared layout container
+-----------------------
+*/
+.container {
+    width: 90%;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* 
+---------------------
+Header and navigation
+---------------------
+*/
+.site-header {
+    background-color: #222;
+    color: white;
+    padding: 16px 0;
+}
+
+.site-header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    padding: 0 10px;
+}
+
+.site-title {
+    margin: 0;
+    font-size: 1.5rem;
+}
+
+.site-title a {
+    color: white;
+    text-decoration: none;
+}
+
+.site-title a:hover {
+    opacity: 0.9;
+}
+
+/* 
+-------------
+Navbar layout
+-------------
+*/
+.site-nav {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.site-nav a {
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.site-nav a.active {
+    text-decoration: underline;
+}
+
+.site-nav > a:not(:first-child)::before {
+    content: "|";
+    margin-right: 10px;
+    margin-left: 2px;
+    color: #888;
+}
+
+.site-nav a:not(.nav-user):hover {
+    text-decoration: underline;
+}
+
+/* 
+------------------
+Logged-in username 
+------------------
+*/
+.site-nav a.nav-user {
+    display: inline-flex;
+    align-items: center;
+    color: #bbb;
+    font-weight: 400;
+}
+
+.site-nav a.nav-user:hover {
+    color: #fff;
+}
+
+.nav-icon {
+    margin-right: 4px;
+    font-size: 1rem;
+}
+
+/* 
+-------------
+Dropdown menu 
+-------------
+*/
+.nav-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background-color: #222;
+    min-width: 160px;
+    padding: 6px 0;
+    border-radius: 6px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+}
+
+.nav-dropdown:hover .dropdown-menu {
+    display: block;
+}
+
+.dropdown-menu a {
+    display: block;
+    padding: 8px 16px;
+    color: white;
+    text-decoration: none;
+}
+
+.dropdown-menu a:hover {
+    background-color: #333;
+}
+
+/* 
+-----------------
+Main content area
+-----------------
+*/
+main.container {
+    padding: 40px 0;
+    flex: 1;
+}
+
+/* 
+--------------------
+Card and content box
+--------------------
+*/
+.card {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    overflow-wrap: anywhere;
+}
+
+.card + .card {
+    margin-top: 24px;
+}
+
+/* 
+-----
+Forms
+-----
+*/
+form {
+    margin-top: 20px;
+}
+
+label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+/* 
+----------------
+Profile messages
+----------------
+*/
+.form-message {
+    display: none;
+    padding: 12px;
+    margin-bottom: 16px;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.form-message.success {
+    display: block;
+    background-color: #e6f4ea;
+    border: 1px solid #7acb8c;
+    color: #1f5f2c;
+}
+
+.form-message.error {
+    display: block;
+    background-color: #fbeaea;
+    border: 1px solid #d88a8a;
+    color: #7a1f1f;
+}
+
+/* 
+------------------------------
+Inputs + textarea
+------------------------------
+*/
+label input:not([type="checkbox"]),
+label select,
+textarea,
+#searchterm,
+#searchnum,
+#pagenum,
+#newReviewType,
+#newReviewContent {
+    display: block;
+    width: 100%;
+    max-width: 400px;
+    margin-top: 4px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#newReviewContent {
+    min-height: 120px;
+    resize: vertical;
+}
+
+/* 
+-------------------------------
+Checkbox group
+-------------------------------
+*/
+.checkbox-group {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: normal;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin: 0;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+/* 
+-----------------
+Buttons and links
+-----------------
+*/
+input[type="submit"],
+input[type="button"],
+.btn {
+    display: inline-block;
+    background-color: #222;
+    color: white;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 10px;
+}
+
+input[type="submit"]:hover,
+input[type="button"]:hover,
+.btn:hover {
+    background-color: #444;
+}
+
+.btn-secondary {
+    background-color: #666;
+}
+
+.btn-secondary:hover {
+    background-color: #888;
+}
+
+/* 
+------
+Footer
+------
+*/
+.site-footer {
+    background-color: #222;
+    color: #bbb;
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 40px;
+}
+
+/* 
+---------------------------
+Responsive Design Additions
+---------------------------
+*/
+
+/* Tablet */
+@media (max-width: 768px) {
+    .container {
+        width: 94%;
+    }
+
+    .site-title {
+        width: 100%;
+        font-size: 1.35rem;
+    }
+
+    .site-nav {
+        width: 100%;
+        gap: 8px;
+    }
+
+    .card {
+        padding: 24px;
+    }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    body {
+        font-size: 0.95rem;
+    }
+
+    .site-header .container {
+        display: block;
+    }
+
+    .site-title {
+        margin-bottom: 12px;
+    }
+
+    .site-nav {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .site-nav a {
+        display: block;
+        padding: 10px;
+        background-color: #333;
+        border-radius: 4px;
+    }
+
+    .site-nav > a::before {
+        content: none;
+    }
+
+    .dropdown-menu {
+        position: static;
+        box-shadow: none;
+        background: transparent;
+    }
+
+    .dropdown-menu a {
+        background-color: #444;
+        margin-top: 5px;
+    }
+
+    .card {
+        padding: 18px;
+    }
+
+    input[type="submit"],
+    input[type="button"],
+    .btn {
+        width: 100%;
+    }
+}

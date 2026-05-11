@@ -1,0 +1,91 @@
+<?php
+
+/*
+/   This script is a middle-man between the requests made by the frontend Javascript and the DMZ talking to the API
+/   Recipe Info uses this script
+*/
+
+require_once(__DIR__ . '/../integration/logging/logClient.php');
+require_once '../frontend/lib/rabbitMQ_web_client_DMZ.php';
+
+$searchQuery = $_GET['ID'];
+//$maxResults = $_GET['maxresults'];
+//$pageNumber = $_GET['page'];
+
+$type = "recipe_info";
+
+//sets placeholder values if none are given. For parity with old API scripts.
+/*
+if(empty($_GET['maxresults'])){
+    $maxResults = 10;
+}
+if(empty($_GET['page'])){
+    $pageNumber = 0;
+}
+*/
+
+//Search Query placeholder. If the user somehow fails to give a requested ID, they get bageled.
+if($searchQuery == null){
+    sendLogMessage(
+        "Recipe info request missing recipe ID. Defaulting to 3540.",
+        "WARNING",
+        "backend-api",
+        __FILE__,
+        __LINE__
+    );
+    $searchQuery = "65267310";
+}
+
+$request = [
+    "type" => $type,
+    "search" => $searchQuery
+    ];
+try {
+    $response = sendToRabbitMQ($request);
+
+//-----------------------------------------------------------
+if ($response == null) {
+    sendLogMessage(
+        "Recipe info API returned an empty response for recipe ID: " . $searchQuery,
+        "ERROR",
+        "backend-api",
+        __FILE__,
+        __LINE__
+    );
+
+    header('Content-Type: application/json');
+    echo json_encode(array("status" => "error", "message" => "Recipe info API returned no data."));
+    exit();
+}
+
+if (json_validate(json_encode($response, JSON_FORCE_OBJECT)) == false) {
+    sendLogMessage(
+        "Recipe info API returned invalid JSON for recipe ID: " . $searchQuery,
+        "ERROR",
+        "backend-api",
+        __FILE__,
+        __LINE__
+    );
+
+    header('Content-Type: application/json');
+    echo json_encode(array("status" => "error", "message" => "Recipe info API returned invalid data."));
+    exit();
+}
+//-----------------------------------------------------------
+
+    //returns the results as a json object
+    header('Content-Type: application/json');
+    echo json_encode($response, JSON_FORCE_OBJECT);
+        
+    //echo implode("\n", $response);
+    exit();
+
+} catch (Exception $e) {
+    error_log("RabbitMQ error: " . $e->getMessage());
+    session_unset();
+    session_destroy();
+    echo $e->getMessage();
+    exit();
+}
+
+?>
