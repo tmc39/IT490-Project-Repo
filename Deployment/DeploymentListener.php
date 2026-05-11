@@ -21,15 +21,13 @@ function pullNewVersion($machine, $ip, $path, $version, $cluster)
     $ip = '192.168.192.128';
 
     //Creates a request to send the new version to the machine it is to be installed on
-    $request = [
-      "type" => "update",
-      "ip" => $ip,
-      "path" => "/home/message-broker/Deployment-Server/Versions/$version.zip",
-      "version" => $version,
-    ];
+    $request = array();
+    $request["type"] = "update";
+    $request["ip"] = $ip;
+    $request["path"] = "/home/message-broker/Deployment-Server/Versions/$version.zip";
+    $request["version"] = $version;
 
-    echo sendNewVersion($request, $machine, $cluster);
-    return "good";
+    sendNewVersion($request, $machine, $cluster);
 }
 
 //Function to update the status of a package following testing
@@ -46,13 +44,12 @@ function updateStatus($status, $machine)
     $goodBundle = lastGood($machine);
     echo $goodBundle;
 
-    $request = [
-      "type" => "rollback",
-      "machine" => $machine,
-      "ip" => $ip,
-      "path" => "/home/message-broker/Deployment-Server/Versions/$goodBundle.zip",
-      "version" => $goodBundle,
-    ];
+    $request = array();
+    $request["type"] = "rollback";
+    $request["machine"] = "$machine";
+    $request["ip"] = $ip;
+    $request["path"] = "/home/message-broker/Deployment-Server/Versions/$goodBundle.zip";
+    $request["version"] = $goodBundle;
   }
   else if($status == "passed")
   {
@@ -77,7 +74,7 @@ function requestProcessor($request)
     case "new_version":
       return pullNewVersion($request['machine'], $request['ip'], $request['path'], $request['version'], $request['cluster']);
     case "versionValidate":
-      return updateStatus($request['version'], $request['status'], $request['machine']);
+      return updateStatus($request['status'], $request['machine']);
 
   }
   return array("returnCode" => '0', 'message'=>"Server received request and processed");

@@ -30,21 +30,19 @@ function sendBundle(){
     chdir($current);
 
     //Runs the bash packaging script, passing the version name as a parameter
-    $success = shell_exec("./packaging.sh $versionName");
- 
+    shell_exec("./packaging.sh $versionName");
 
     $machine = get_current_user();
 
     $ip = gethostbyname($machine);
 
-    $request = [
-        "type" => "new_version",
-        "machine" => "$machine",
-        "ip" => $ip,
-        "path" => $path,
-        "version" => $versionName,
-        "cluster" => $cluster,
-    ];
+    $request = array();
+    $request["type"] = "new_version";
+    $request["machine"] = "$machine";
+    $request["ip"] = "$ip";
+    $request["path"] = "$path";
+    $request["version"] = "$versionName";
+    $request["cluster"] = "$cluster";
 
     echo sendRequest($request);
 
@@ -61,13 +59,11 @@ function updateStatus(){
 
     $ip = gethostbyname($machine);
 
-    $request = [
-        "type" => "versionValidate",
-        "machine" => $machine,
-        "status" => $status,
-        "ip" => $ip,
-        #"version" => $versionName,
-    ];
+    $request = array();
+    $request["type"] = "versionValidate";
+    $request["machine"] = "$machine";
+    $request["ip"] = "$ip";
+    $request["status"] = "$status";
 
     echo sendRequest($request);
 }

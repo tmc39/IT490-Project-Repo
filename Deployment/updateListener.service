@@ -2,7 +2,7 @@
 Description=RabbitMQ listener to receive updates from Deployment 
 
 [Service]
-ExecStart=/home/mushran/git/IT490-Project-Repo/Deployment/UpdateListener.php
+ExecStart=/Deployment/UpdateListener.php
 
 [Install]
 WantedBy=default.target 
