@@ -1,0 +1,8 @@
+[Unit]
+Description=RabbitMQ listener for the deployment server
+
+[Service]
+ExecStart=/home/message-broker/Deployment-Server/IT490-Project-Repo/Deployment/DeploymentListener.php
+
+[Install]
+WantedBy=default.target 
