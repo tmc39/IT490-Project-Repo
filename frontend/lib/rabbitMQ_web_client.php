@@ -30,7 +30,7 @@ function sendToRabbitMQ(array $request)
 
     // NOTE: to test locally use "testServer"
     // NOTE: to test over ZeroTier use "guiltyDatabase"
-    $rabbitServer = "testServer";
+    $rabbitServer = "guiltyDatabase";
 
     // Check that RabbitMQ config section exists before using it
     $configPath = __DIR__ . '/../../integration/config/testRabbitMQ.ini';
