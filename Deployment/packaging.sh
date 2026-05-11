@@ -9,6 +9,7 @@ while read file; do
     fi
 done < ../Versions/fileChanges.txt
 zip $1.zip files.zip
+rm -rf files.zip
 mv $1.zip ../Versions
 cd ../Versions
 zip $1.zip ./fileChanges.txt
